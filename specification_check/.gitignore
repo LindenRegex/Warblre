@@ -1,0 +1,2 @@
+*.txt
+!expected_text_output.txt
