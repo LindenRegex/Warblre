@@ -22,6 +22,17 @@
       let
         pkgs = import nixpkgs { inherit system; overlays = [ melange.overlays.default ]; };
         pkgs-unstable = import nixpkgs-unstable { inherit system; };
+
+        spec-diff = pkgs.writeShellApplication {
+          name = "spec-diff";
+          runtimeInputs = with pkgs; [
+            spec-merger.packages.${system}.spec-merger
+          ];
+          text = ''
+            python3 main.py > actual_text_output.txt
+            diff -y --color=always expected_text_output.txt actual_text_output.txt
+          '';
+        };
       in {
         devShells = {
             default = pkgs.mkShell {
@@ -42,6 +53,7 @@
                 coqPackages.serapi
                 python311Packages.alectryon
                 spec-merger.packages.${system}.spec-merger
+                spec-diff
 
                 nodejs_21
                 nodePackages.webpack-cli
