@@ -12,10 +12,10 @@ DICT: OK
       NonemptyClassRangesNoDash  DICT: OK
       Pattern  DICT: OK
       QuantifierPrefix  DICT: OK
-      RegExpIdentifierStart  !MISALIGNMENT! Matched Wildcards
+      RegExpIdentifierPart  !MISALIGNMENT! Matched Wildcards
         WildCard
         DICT: OK
-      RegExpIdentifierPart  !MISALIGNMENT! Matched Wildcards
+      RegExpIdentifierStart  !MISALIGNMENT! Matched Wildcards
         WildCard
         DICT: OK
       UnicodePropertyValueExpression  !MISALIGNMENT! Matched Wildcards
@@ -88,13 +88,13 @@ DICT: OK
   22.2.2.8  DICT: OK
   22.2.2.9  DICT: OK
     cases  DICT: OK
-      ClassRanges  DICT: OK
+      CharacterClassEscape  DICT: OK
       ClassAtom  !MISALIGNMENT! Matched Wildcards
         WildCard
         DICT: OK
       ClassAtomNoDash  DICT: OK
       ClassEscape  DICT: OK
-      CharacterClassEscape  DICT: OK
+      ClassRanges  DICT: OK
       NonemptyClassRanges  DICT: OK
       NonemptyClassRangesNoDash  DICT: OK
       UnicodePropertyValueExpression  !MISALIGNMENT! Matched Wildcards

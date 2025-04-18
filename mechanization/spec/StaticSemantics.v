@@ -6,10 +6,10 @@ Import Result.Notations.
 Import Result.Notations.Boolean.
 Local Open Scope result_flow.
 
-(** >>
+(** ##
   WILDCARD Sections
   ["22.2.1.9","22.2.1.10"]
-<<*)
+##*)
 (* + The section 22.1.9 and 22.1.10 RegExpIdentifierCodePoints are not implemented + *)
 Section StaticSemantics.
   Context `{specParameters: Parameters}.
@@ -141,7 +141,7 @@ Section StaticSemantics.
     characterValue_Hex4Digits hex
 
   (** >> RegExpUnicodeEscapeSequence :: u{ CodePoint } <<*)
-  | ClassEsc (CCharacterEsc (UnicodeEsc (CodePoint c))) => 
+  | ClassEsc (CCharacterEsc (UnicodeEsc (CodePoint c))) =>
     (*>> 1. Return the MV of CodePoint. <<*)
     Character.numeric_value c
 
@@ -200,7 +200,7 @@ Section StaticSemantics.
     (* + Implementation disappears due to the representation choice in Patterns.v +*)
     n.
 
-  (** >> 
+  (** >>
       22.2.1.2 Static Semantics: CountLeftCapturingParensWithin ( node )
 
       The abstract operation CountLeftCapturingParensWithin takes argument node (a Parse Node) and returns a
@@ -233,7 +233,7 @@ Section StaticSemantics.
     end.
   Definition countLeftCapturingParensWithin (r: Regex) (ctx: RegexContext): non_neg_integer := countLeftCapturingParensWithin_impl r.
 
-  (** >> 
+  (** >>
       22.2.1.3 Static Semantics: CountLeftCapturingParensBefore ( node )
 
       The abstract operation CountLeftCapturingParensBefore takes argument node (a Parse Node) and returns a non-negative integer. It returns the number of left-capturing parentheses within the enclosing pattern that occur to the left of node.
