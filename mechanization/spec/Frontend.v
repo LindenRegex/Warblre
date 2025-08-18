@@ -5,12 +5,12 @@ Import Result.Notations.
 Import Notation.
 Import Patterns.
 Local Open Scope result_flow.
-(** >>
+(** ##
   WILDCARD Sections
   ["22.2.3","22.2.3.1","22.2.3.2","22.2.3.4","22.2.4","22.2.4.1","22.2.5","22.2.5.1","22.2.5.2","22.2.6","22.2.6.1","22.2.6.2","22.2.6.3","22.2.6.4",
     "22.2.6.4.1","22.2.6.5","22.2.6.6","22.2.6.7","22.2.6.9","22.2.6.10","22.2.6.11","22.2.6.13","22.2.6.13.1","22.2.6.14","22.2.6.15","22.2.6.17",
     "22.2.6.18","22.2.7","22.2.7.2","22.2.7.8","22.2.9.2","22.2.9.2.1","22.2.9.2.2"]
-<<*)
+##*)
 (**+
       This file doesn't follow the specification as closely as the other files.
 
@@ -172,7 +172,7 @@ Module ExecArrayExotic. Section main.
   Record type := make {
       index: nat;
       input: String;
-      array: list (option String); 
+      array: list (option String);
       groups: option groups_map;
       indices_array: option (list (option (nat * nat)));
       indices_groups: option (list (GroupName * option (nat * nat)));
@@ -186,7 +186,7 @@ Inductive ExecResult {C S UP: Type} `{CharacterMarker C} `{StringMarker S} `{Uni
 | Exotic: ExecArrayExotic -> RegExpInstance -> ExecResult.
 
 Inductive ProtoMatchResult {C S UP: Type} `{CharacterMarker C} `{StringMarker S} `{UnicodePropertyMarker UP}  :=
-| GlobalResult : option (list S) -> RegExpInstance -> ProtoMatchResult 
+| GlobalResult : option (list S) -> RegExpInstance -> ProtoMatchResult
 | NonGlobalResult : ExecResult -> ProtoMatchResult.
 
 Section BuiltinExec.
@@ -277,7 +277,7 @@ Section BuiltinExec.
     assert! (Nat.eqb (List.length groupNames) (n-1));
       match hasGroups with
       | false => Success None
-      | true => 
+      | true =>
           match indices with
           | indices_zero::indices' =>
               let! groups =<< makeMatchIndicesGroupList S indices' groupNames in
@@ -545,7 +545,7 @@ Section BuiltinExec.
         assert! (Nat.eqb (List.length A_array) (n+1));
         (*>> 30. If R contains any GroupName, then <<*)
         let hasGroups := StaticSemantics.defines_groups (RegExpInstance.originalSource R) in
-        let! A_groups =<< if hasGroups then 
+        let! A_groups =<< if hasGroups then
           let! groupsmap =<< captures_to_groups_map (RegExpInstance.originalSource R) S (MatchState.captures r) in
           Success (Some groupsmap)
         (*>> 31. Else, <<*)
@@ -658,7 +658,7 @@ Section API.
                        else Success rx in
                   (*>> 4. Set n to n + 1. <<*)
                   let n:= n + 1 in
-                  repeatloop A rx fuel' n 
+                  repeatloop A rx fuel' n
               end
           end in
         (* we know there are at most length S + 1 iterations since the index strictly increases *)

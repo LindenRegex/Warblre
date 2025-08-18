@@ -1,10 +1,10 @@
 From Coq Require Import List Program.Equality PeanoNat.
 From Warblre Require Import List Result Typeclasses Notation Numeric Characters Parameters.
-(** >>
+(** ##
     WILDCARD Sections
     ["22.2","22.2.1"]
-<<*)
-(* + Section 22.2 only contains the Section title. 
+##*)
+(* + Section 22.2 only contains the Section title.
  Section 22.2.1 differs from the ECMAScript specification because some Unicode definitions have been parameterized in the mechanization. + *)
 
 (** >>
@@ -13,7 +13,7 @@ From Warblre Require Import List Result Typeclasses Notation Numeric Characters 
     The RegExp constructor applies the following grammar to the input pattern String. An error occurs if the
     grammar cannot interpret the String as an expansion of Pattern.
 <<*)
-(* + 
+(* +
     Note that our representation of Regexes differs from the the specification in some regards:
     - The grammar in the paper specification  has to care about parsing of regexes, and hence distinguishes between
       many different non-terminal (Pattern, Disjunction, Alternative, Term, Atom, Assertion, ...). We represent all
@@ -217,7 +217,7 @@ Module Patterns.
   Section EqDec.
     Context `{specParameters: Parameters}.
 
-    #[export] #[refine] Instance eqdec_CharacterClassEscape: EqDec CharacterClassEscape := {}. 
+    #[export] #[refine] Instance eqdec_CharacterClassEscape: EqDec CharacterClassEscape := {}.
     Proof. decide equality; apply EqDec.eq_dec. Defined.
     #[export] #[refine] Instance eqdec_ControlEscape: EqDec ControlEscape := {}.
     Proof. decide equality. Defined.

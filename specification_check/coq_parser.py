@@ -50,15 +50,13 @@ class CoqPosition(Position):
 
 class COQParser(Parser):
     def __init__(self, files: List[Path], to_exclude: List[Path], parser_name: str = "COQ",
-                 title_regex: str = r"(22\.2(?:\.[0-9]{0,2}){1,3})",
+                 title_regex: str = r"(22\.2(?:\.[0-9]*)*)",
                  spec_regex: str = r"^\(\*(\* )?>?>(.|\n)*?<<\*\)$",
+                 directive_regex: str = r"^\(\*(\* )?##(.|\n)*?##\*\)$",
                  case_regex: str = r"([a-zA-Z0-9\[\]]+) ::((?:.|\n)*)",
                  algo_regex: str = r"^(?:(?:(?:(?:[1-9][0-9]*)|[a-z]|[ivxlc]+)\.)|\*) .*$",
-                 any_title_regex: str = r"^[ -]*?((?:[0-9]+\.)+[0-9]+)(?: .*?|)$"):
+                 any_title_regex: str = r"^((?:[0-9]+\.)+[0-9]+)(?: .*?|)$"):
         self.sections_by_number = None
-        self.comments: list[tuple[str, CoqLine]] = None
-        self.all_filenames = None
-        self.coq_code = None
 
         self.name = parser_name
         self.files = files
@@ -66,17 +64,9 @@ class COQParser(Parser):
         self.title_regex = re.compile(title_regex)
         self.any_title_regex = re.compile(any_title_regex, re.MULTILINE)
         self.spec_regex = re.compile(spec_regex)
+        self.directive_regex = re.compile(directive_regex)
         self.case_regex = re.compile(case_regex)
         self.algo_regex = re.compile(algo_regex)
-
-    @staticmethod
-    def __get_lines_num_from_paragraph(string_view: StringView) -> tuple[int, int]:
-        original_string: str = string_view.s
-        line_start = original_string.count("\n", 0, string_view.beg) + 1
-        line_end = line_start + original_string.count("\n", string_view.beg, string_view.end)
-        if original_string[string_view.end] == "\n":
-            line_end -= 1
-        return line_start, line_end
 
     @staticmethod
     def __get_line_num(string_view: StringView) -> int:
@@ -102,16 +92,17 @@ class COQParser(Parser):
                 self.__add_file(file.uri, files_dic, all_filenames)
         return files_dic, all_filenames
 
-    def __get_comment_lines(self) -> list[tuple[str, CoqLine]]:
+
+    def __process_lines(self, coq_code, all_filenames, matcher: re.Pattern) -> list[tuple[str, CoqLine]]:
         comments = []
-        for filename in self.all_filenames:
-            file = self.coq_code[filename]
+        for filename in all_filenames:
+            file = coq_code[filename]
             partition = coq_partition(file)
             for field in partition:
-                if isinstance(field, Comment) and self.spec_regex.match(str(field.v)):
-                    start_line_num = self.__get_line_num(field.v)
+                if isinstance(field, Comment) and matcher.match(str(field.v)):
+                    start_line_num = COQParser.__get_line_num(field.v)
                     for i, line in enumerate(str(field.v).splitlines()):
-                        line = self.__parse_comment(line)
+                        line = COQParser.__parse_line(line)
                         if line != "":
                             comments.append((line, CoqLine(filename, start_line_num + i)))
                     # avoid -1 at start, would have made no sense
@@ -121,8 +112,22 @@ class COQParser(Parser):
                 comments.append(("", CoqLine(filename, -1, False, True)))
         return comments
 
+    @staticmethod
+    def __parse_line(comment: str) -> str:
+        return (comment.replace("\n", "")
+            .replace("(*>>", "").replace("<<*)", "").replace("(** >>", "")
+            .replace("(*##", "").replace("##*)", "").replace("(** ##", "")
+            .replace("[OMITTED]","").lstrip().rstrip())
+
     # Completely arbitrary in our case
-    def __merge_comments(self, section1: Dictionary, section2: Dictionary) -> Dictionary:
+    @staticmethod
+    def __merge_comments(section1: Dictionary, section2: Dictionary) -> Dictionary:
+        # None act as the identity
+        if section1 is None:
+            return section2
+        elif section2 is None:
+            return section1
+
         #print("[WARNING] Merge called for ", section1, section2)
         title = section1["title"] if len(section1["title"]) > len(section2["title"]) else section2["title"]
         description_first = section1["description"] if len(section1["description"]) > len(
@@ -161,38 +166,29 @@ class COQParser(Parser):
                                                    "cases": Dictionary(None, new_cases)})
 
 
-    def __get_comment_titles(self) -> Dict[str, Dictionary]:
+    def __get_comment_titles(self, comments) -> Dict[str, Dictionary]:
         """
            Gets the indices of the comments that contain the titles of the sections (comments that match the title_regex)
            :return: A dictionary with the title of the section as key and the indices of the comments that contain the
            section as value
         """
         title_indices = {}
-        wildcard_sections = set()
         current_block = ""
         last_block_end = 0
         section_to_be_thrown_away = False
-        for comment_index, comment in enumerate(self.comments):
+        for comment_index, comment in enumerate(comments):
             if res2 := self.any_title_regex.match(comment[0]):
                 if current_block != "" and not section_to_be_thrown_away:
-                    if title_indices.get(current_block) is not None:
-                        # This means the section was split
-                        title_indices[current_block] = self.__merge_comments(
-                            self.__parse_subsection((last_block_end, comment_index), wildcard_sections),
-                            title_indices.get(current_block))
-                    else:
-                        title_indices[current_block] = self.__parse_subsection((last_block_end, comment_index),
-                                                                               wildcard_sections)
+                    title_indices[current_block] = COQParser.__merge_comments(
+                        self.__parse_subsection(comments[last_block_end:comment_index]),
+                        title_indices.get(current_block))
                     last_block_end = comment_index
                 elif current_block != "" and section_to_be_thrown_away:
                     last_block_end = comment_index
                 current_block = res2.group(1)
                 section_to_be_thrown_away = self.title_regex.search(str(comment)) is None
         if not section_to_be_thrown_away:
-            title_indices[current_block] = self.__parse_subsection((last_block_end, len(self.comments)),
-                                                                   wildcard_sections)
-        for section in wildcard_sections:
-            title_indices[section] = WildCard(None)
+            title_indices[current_block] = self.__parse_subsection(comments[last_block_end:len(comments)])
         return title_indices
 
     def __parse_title(self, title: str) -> str:
@@ -203,13 +199,7 @@ class COQParser(Parser):
             title += "\n" + line.lstrip()
         return title + "\n"
 
-    def __parse_comment(self, comment: str) -> str:
-        return (comment.replace("\n", "").replace("(*>>", "").replace("<<*)", "")
-                .replace("(** >>", "").replace("[OMITTED]","").lstrip().rstrip())
-
-    def __parse_subsection(self, comment_indices, wildcard_indices: set) -> Dictionary:
-        comment_lines = self.comments[comment_indices[0]:comment_indices[1]]
-
+    def __parse_subsection(self, comment_lines: List[str]) -> Dictionary:
         title = ""
         description = ""
         parser_state = ParserState.READING_TITLE
@@ -222,7 +212,6 @@ class COQParser(Parser):
         skip_until_end_file = False
         filenames = {}
         case_line_indices = [-1, -1]
-        wildcard_comment = ""
         for parsed_comment, coq_line in comment_lines:
             # We are at the end of a comment
             if coq_line.is_end_comment or coq_line.is_end_file:
@@ -237,12 +226,7 @@ class COQParser(Parser):
                     case ParserState.READING_CASES:
                         pass
                     case ParserState.READING_WILDCARD:
-                        if wildcard_comment != "":
-                            if wildcard_state == "Sections":
-                                sections = json.loads(wildcard_comment)
-                                wildcard_indices.update(sections)
-                            wildcard_comment = ""
-                        parser_state = saved_state
+                        pass
                 if coq_line.is_end_file:
                     skip_until_end_file = False
                 continue
@@ -265,17 +249,13 @@ class COQParser(Parser):
                 wildcard_state = parsed_comment.split(" ", 1)[1]
                 if wildcard_state == "PARSING_FILE_END":
                     skip_until_end_file = True
-                elif wildcard_state != "Sections":
+                else:
                     case_wildcarded = json.loads(wildcard_state)
                     if " ::" in case_wildcarded:
                         parts = case_wildcarded.split(" ::")
                         add_case(cases, parts[0], parts[1], WildCard(None))
                     else:
                         cases[case_wildcarded] = WildCard(None)
-                continue
-            if parser_state == ParserState.READING_WILDCARD:
-                if wildcard_state == "Sections":
-                    wildcard_comment += parsed_comment + "\n"
                 continue
             if self.case_regex.match(parsed_comment):
                 parser_state = ParserState.READING_CASES
@@ -336,9 +316,33 @@ class COQParser(Parser):
                                                    "description": String(None, description),
                                                    "cases": cases_dict})
 
+    def __parse_directives(self, comments):
+        state = ParserState.BEFORE_START
+        acc = ''
+        sections = []
+        for comment, coq_line in comments:
+            if comment == '':
+                pass
+            elif state == ParserState.BEFORE_START and comment.startswith('WILDCARD Sections'):
+                state = ParserState.READING_WILDCARD
+            elif state == ParserState.READING_WILDCARD:
+                acc += comment
+            else:
+                raise Exception("Unexpected directive part: '" + comment + "' (State: " + str(state) + ")")
+
+            if coq_line.is_end_comment:
+                sections += json.loads(acc)
+                acc = ''
+                state = ParserState.BEFORE_START
+        return sections
+
     def get_parsed_page(self) -> ParsedPage:
         if self.sections_by_number is None:
-            self.coq_code, self.all_filenames = self.__get_coq_code()
-            self.comments = self.__get_comment_lines()
-            self.sections_by_number = self.__get_comment_titles()
+            coq_code, all_filenames = self.__get_coq_code()
+            spec = self.__process_lines(coq_code, all_filenames, self.spec_regex)
+            self.sections_by_number = self.__get_comment_titles(spec)
+
+            directives = self.__process_lines(coq_code, all_filenames, self.directive_regex)
+            for section in self.__parse_directives(directives):
+                self.sections_by_number[section] = WildCard(None)
         return ParsedPage(self.name, Dictionary(None, self.sections_by_number))
