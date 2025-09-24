@@ -37,6 +37,7 @@ Module API.
       Parameter size: char_set -> nat.
       Parameter remove_all: char_set -> char_set -> char_set.
       Parameter is_empty: char_set -> bool.
+      Parameter elements: char_set -> list character.
       Parameter contains: char_set -> character -> bool.
       Parameter range: character -> character -> char_set.
 
@@ -45,9 +46,9 @@ Module API.
       Parameter exist: char_set -> (character -> bool) -> bool.
       Parameter exist_canonicalized: RegExpRecord -> char_set -> character -> bool.
 
-      Axiom singleton_size: forall c, size (singleton c) = 1.
+      (*Axiom singleton_size: forall c, size (singleton c) = 1.
       Axiom singleton_exist: forall c p, exist (singleton c) p = p c.
-      Axiom singleton_unique: forall (F: Type) (af: Result.AssertionError F) c, @unique F af (singleton c) = Success c.
+      Axiom singleton_unique: forall (F: Type) (af: Result.AssertionError F) c, @unique F af (singleton c) = Success c.*)
       Axiom exist_canonicalized_equiv: forall rer s c,
         exist_canonicalized rer s c =
         exist
@@ -55,6 +56,32 @@ Module API.
           (fun c0 =>
             if Character.equal (Character.canonicalize rer c0) c
             then true else false).
+
+      Parameter In: character -> char_set -> Prop.
+      Definition Equal s1 s2 := forall c, In c s1 <-> In c s2.
+      Definition Empty s := forall c, ~In c s.
+      Definition Exists (P: character -> Prop) s := exists c, In c s /\ P c.
+      Axiom empty_spec: forall c, ~ In c empty.
+      Axiom from_list_spec: forall c l, In c (from_list l) <-> List.In c l. (* Custom *)
+      Axiom union_spec: forall c s1 s2, In c (union s1 s2) <-> In c s1 \/ In c s2.
+      Axiom singleton_spec: forall x c, In x (singleton c) <-> c = x. (* = instead of fixed equivalence relation *)
+      Axiom size_spec: forall s, size s = List.length (elements s).
+      Axiom remove_all_spec: forall c s1 s2, In c (remove_all s1 s2) <-> In c s1 /\ ~In c s2.
+      Axiom is_empty_spec: forall s, is_empty s = true <-> Empty s. (* custom *)
+      Axiom contains_spec: forall c s, contains s c = true <-> In c s.
+      Axiom range_spec: forall c l h, In c (range l h) <-> Character.numeric_value l <= Character.numeric_value c /\ Character.numeric_value c <= Character.numeric_value h. (* custom *)
+      Axiom unique_succ_spec: forall (F: Type) (H: Result.AssertionError F) (c: character) (s: char_set),
+        unique F H s = Success c <-> Equal s (singleton c). (* custom *)
+      Axiom unique_succ_error: forall (F: Type) (H: Result.AssertionError F) (s: char_set),
+        (exists c, unique F H s = Success c) \/ unique F H s = Error (@Result.f F H). (* custom *)
+      Axiom filter_spec: forall f c s,
+        In c (filter s f) <-> In c s /\ f c = true.
+      Axiom exist_spec: forall f s,
+        exist s f = true <-> Exists (fun c => f c = true) s.
+      Axiom elements_spec1: forall c s, List.In c (elements s) <-> In c s.
+      Axiom elements_spec2: forall s, List.NoDup (elements s).
+
+      Axiom union_empty: forall s e: char_set, Empty e -> union s e = s.
     End CharSet.
 
     Module CharSets.
@@ -109,16 +136,35 @@ Module API.
           P.CharSet.size
           P.CharSet.remove_all
           P.CharSet.is_empty
+          P.CharSet.elements
           P.CharSet.contains
           P.CharSet.range
           P.CharSet.unique
           P.CharSet.filter
           P.CharSet.exist
           P.CharSet.exist_canonicalized
-          P.CharSet.singleton_size
+          (*P.CharSet.singleton_size
           P.CharSet.singleton_exist
-          P.CharSet.singleton_unique
-          P.CharSet.exist_canonicalized_equiv)
+          P.CharSet.singleton_unique*)
+          P.CharSet.exist_canonicalized_equiv
+          P.CharSet.In
+          P.CharSet.empty_spec
+          P.CharSet.from_list_spec
+          P.CharSet.union_spec
+          P.CharSet.singleton_spec
+          P.CharSet.size_spec
+          P.CharSet.remove_all_spec
+          P.CharSet.is_empty_spec
+          P.CharSet.contains_spec
+          P.CharSet.range_spec
+          P.CharSet.unique_succ_spec
+          P.CharSet.unique_succ_error
+          P.CharSet.filter_spec
+          P.CharSet.exist_spec
+          P.CharSet.elements_spec1
+          P.CharSet.elements_spec2
+          P.CharSet.union_empty
+          )
         (String.make character
           string
           (EqDec.make _ P.String.equal)

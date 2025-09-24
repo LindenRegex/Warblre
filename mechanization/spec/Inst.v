@@ -1,5 +1,6 @@
 From Warblre Require Import API.
 From Warblre Require Import Frontend.
+From Coq Require Import Lia.
 
 (* TODOs:
 
@@ -66,14 +67,15 @@ Module NaiveEngineParameters <: API.EngineParameters.
     Definition from_list (l: list character) : char_set := List.nodup Character.equal l.
     Definition union (cs0 cs1: char_set) : char_set := ListSet.set_union Character.equal cs0 cs1.
     Definition singleton (c: character) : char_set := [c].
-    Definition size (cs: char_set) : nat := List.length cs.
+    Definition size (cs: char_set) : nat := List.length (List.nodup Character.equal cs).
     Definition remove_all (l r: char_set) : char_set := ListSet.set_diff Character.equal l r.
     Definition is_empty (cs: char_set) : bool := size cs =? 0.
+    Definition elements (cs: char_set): list character := List.nodup Character.equal cs.
     Definition contains (cs: char_set) (c: character) : bool := ListSet.set_mem Character.equal c cs.
     Definition range (first: character) (last: character) : char_set :=
       List.Range.Nat.Bounds.range first (last + 1).
     Definition unique (F: Type) (_: Result.AssertionError F) (cs: char_set) : Result character F :=
-      match cs with
+      match List.nodup Character.equal cs with
       | [x] => Result.Success x (* Assumes deduplicated ListSet *)
       | _ => Result.assertion_failed
       end.
@@ -84,12 +86,12 @@ Module NaiveEngineParameters <: API.EngineParameters.
     Definition exist_canonicalized (rer: RegExpRecord) (cs: char_set) (c: character): bool :=
       contains (List.map (Character.canonicalize rer) cs) c.
 
-    Theorem singleton_size: forall c, size (singleton c) = 1.
+    (*Theorem singleton_size: forall c, size (singleton c) = 1.
     Proof. reflexivity. Qed.
     Theorem singleton_exist: forall c p, exist (singleton c) p = p c.
     Proof. cbv; destruct p; reflexivity. Qed.
     Theorem singleton_unique: forall (F: Type) (af: Result.AssertionError F) c, @unique F af (singleton c) = Success c.
-    Proof. reflexivity. Qed.
+    Proof. reflexivity. Qed.*)
     Theorem exist_canonicalized_equiv rer cs c :
       exist_canonicalized rer cs c =
         exist
@@ -104,6 +106,162 @@ Module NaiveEngineParameters <: API.EngineParameters.
         simpl.
         repeat destruct Character.equal.
         all: reflexivity || assumption || congruence.
+    Qed.
+    Definition In : character -> char_set -> Prop := @ListSet.set_In character.
+    Definition Equal s1 s2 := forall c, In c s1 <-> In c s2.
+    Definition Empty s := forall c, ~In c s.
+    Definition Exists (P: character -> Prop) s := exists c, In c s /\ P c.
+    Theorem empty_spec: forall c, ~In c empty.
+    Proof. intros c []. Qed.
+    Theorem from_list_spec: forall c l, In c (from_list l) <-> List.In c l.
+    Proof.
+      intros c l. unfold from_list, In, ListSet.set_In.
+      apply List.nodup_In.
+    Qed.
+    Theorem union_spec: forall c s1 s2, In c (union s1 s2) <-> In c s1 \/ In c s2.
+    Proof. apply ListSet.set_union_iff. Qed.
+    Theorem singleton_spec: forall x c, In x (singleton c) <-> c = x.
+    Proof.
+      intros x c. split.
+      - intros []; auto. inversion H.
+      - intros ->. left. reflexivity.
+    Qed.
+    Theorem size_spec: forall s, size s = List.length (elements s).
+    Proof. reflexivity. Qed.
+    Theorem remove_all_spec: forall c s1 s2, In c (remove_all s1 s2) <-> In c s1 /\ ~In c s2.
+    Proof. apply ListSet.set_diff_iff. Qed.
+    Theorem is_empty_spec: forall s, is_empty s = true <-> Empty s.
+    Proof.
+      intro s. unfold is_empty, size.
+      split.
+      - rewrite Nat.eqb_eq. intros H x IN. apply <- (List.nodup_In Character.equal) in IN.
+        apply List.length_zero_iff_nil in H. rewrite H in IN. destruct IN.
+      - unfold Empty. intro NOTHING. destruct (List.nodup Character.equal s) eqn:Heqnodups; try reflexivity.
+        exfalso. apply NOTHING with (c := c). apply (List.nodup_In Character.equal).
+        rewrite Heqnodups. left. reflexivity.
+    Qed.
+    Theorem contains_spec: forall c s, contains s c = true <-> In c s.
+    Proof.
+      intros c s. split; intro H.
+      - apply ListSet.set_mem_correct1 with (Aeq_dec := Character.equal). auto.
+      - apply ListSet.set_mem_correct2 with (Aeq_dec := Character.equal). auto.
+    Qed.
+
+    Lemma range_seq: forall base l, List.List.Range.Nat.Length.range base l = Coq.Lists.List.seq base l.
+    Proof.
+      intros base l.
+      revert base.
+      induction l as [|l IHl].
+      - simpl. reflexivity.
+      - intro base. simpl. f_equal. replace (base + 1)%nat with (S base) by lia.
+        apply IHl.
+    Qed.
+
+    (* TODO copied from Linden; should be somewhere else*)
+    Theorem range_spec: forall c l h, In c (range l h) <-> Character.numeric_value l <= Character.numeric_value c /\ Character.numeric_value c <= Character.numeric_value h.
+    Proof.
+      intros c l h. unfold range, List.Range.Nat.Bounds.range.
+      rewrite range_seq, List.in_seq. unfold Character.numeric_value. lia.
+    Qed.
+
+    Lemma Equal_singleton_nodup:
+      forall s c, Equal s (singleton c) <-> List.nodup Character.equal s = [c].
+    Proof.
+      intros s c. induction s.
+      - simpl. split; intro H.
+        + exfalso. specialize (H c) as [Hl Hr]. apply Hr. left. reflexivity.
+        + discriminate H.
+      - destruct s as [|b s].
+        + unfold singleton. simpl. split; intro H.
+          * f_equal. specialize (H a) as [Hl Hr]. specialize (Hl (or_introl eq_refl)).
+            destruct Hl; [auto|contradiction].
+          * inversion H. subst. intro c0. split; auto.
+        + split.
+          * intro EQUAL.
+            replace a with c in *. 2: {
+              specialize (EQUAL a) as [EQUALl EQUALr].
+              specialize (EQUALl (or_introl eq_refl)).
+              destruct EQUALl; [auto|contradiction].
+            }
+            replace b with c in *. 2: {
+              specialize (EQUAL b) as [EQUALl EQUALr].
+              specialize (EQUALl (or_intror (or_introl eq_refl))).
+              destruct EQUALl; [auto|contradiction].
+            }
+            assert (Equal (c::s) (singleton c)). {
+              intro c0. split; intro H.
+              - apply EQUAL. right. auto.
+              - destruct H; [|inversion H]. subst c0. left. reflexivity.
+            }
+            remember (c::s) as s'. simpl.
+            destruct (List.in_dec Character.equal c s').
+            2: { exfalso. apply n. rewrite Heqs'. left. reflexivity. }
+            apply IHs. auto.
+          * remember (b::s) as s'. simpl.
+            destruct List.in_dec.
+            -- intro H. rewrite <- IHs in H.
+               intro c0. split; intro.
+               ++ destruct H0.
+                  ** subst c0. specialize (proj1 (H a) i). auto.
+                  ** apply H. auto.
+               ++ right. apply H. auto.
+            -- destruct List.nodup eqn:?. 2: discriminate.
+               replace s' with (@nil character). 2: {
+                 symmetry. Search nil List.In.
+                 assert (forall c0, ~List.In c0 s'). {
+                   intro c0. rewrite <- List.nodup_In with (decA := Character.equal), Heql.
+                   apply List.in_nil.
+                 }
+                 destruct s'; auto. exfalso. apply (H c0). left. reflexivity.
+               }
+               intro H. inversion H. subst.
+               intro c0. split; auto.
+    Qed.
+
+
+    Theorem unique_succ_spec: forall (F: Type) (H: Result.AssertionError F) (c: character) (s: char_set),
+      unique F H s = Success c <-> Equal s (singleton c).
+    Proof.
+      intros F H c s. split.
+      - unfold unique, Result.assertion_failed. destruct H.
+        destruct List.nodup eqn:?; try discriminate.
+        destruct l; try discriminate.
+        intro H. injection H as ->. apply Equal_singleton_nodup. auto.
+      - intro H0. unfold unique. apply Equal_singleton_nodup in H0. rewrite H0. reflexivity.
+    Qed.
+    Theorem unique_succ_error: forall (F: Type) (H: Result.AssertionError F) (s: char_set),
+      (exists c, unique F H s = Success c) \/ unique F H s = Error (@Result.f F H).
+    Proof.
+      intros F H s. unfold unique.
+      destruct List.nodup.
+      - right. unfold Result.assertion_failed, Result.f. destruct H. reflexivity.
+      - destruct l. + left. eexists. reflexivity. +  right. unfold Result.assertion_failed, Result.f. destruct H. reflexivity.
+    Qed.
+    Theorem filter_spec: forall f c s,
+      In c (filter s f) <-> In c s /\ f c = true.
+    Proof. apply List.filter_In. Qed.
+    Theorem exist_spec: forall f s,
+      exist s f = true <-> Exists (fun c => f c = true) s.
+    Proof. apply List.existsb_exists. Qed.
+    Theorem elements_spec1: forall c s, List.In c (elements s) <-> In c s.
+    Proof. intros c s. apply List.nodup_In. Qed.
+    Theorem elements_spec2: forall s, List.NoDup (elements s).
+    Proof. intros s. apply List.NoDup_nodup. Qed.
+
+    Lemma union_empty_actual s: union s empty = s.
+    Proof. reflexivity. Qed.
+
+    Lemma Empty_empty s: Empty s -> s = CharSet.empty.
+    Proof.
+      destruct s.
+      - reflexivity.
+      - intro H. exfalso. unfold Empty in H. exact (H c (or_introl eq_refl)).
+    Qed.
+
+    Theorem union_empty: forall s e, Empty e -> union s e = s.
+    Proof.
+      intros; rewrite (Empty_empty e) by assumption.
+      reflexivity.
     Qed.
   End CharSet.
 
@@ -145,6 +303,10 @@ Module NaiveEngineParameters <: API.EngineParameters.
   End Property.
 End NaiveEngineParameters.
 
+
+(* We remove the fast engine, at least for now *)
+
+(*
 From Coq Require Import OrdersEx MSetRBT.
 
 Module FastEngineParameters <: API.EngineParameters.
@@ -219,6 +381,8 @@ Module FastEngineParameters <: API.EngineParameters.
       CS.diff l r.
     Definition is_empty (cs: char_set) : bool :=
       CS.is_empty cs.
+    Definition elements (cs: char_set): list character :=
+      CS.elements cs.
     Definition contains (cs: char_set) (c: character) : bool :=
       CS.mem c cs.
     Definition range (first: character) (last: character) : char_set :=
@@ -240,12 +404,12 @@ Module FastEngineParameters <: API.EngineParameters.
         (fun c0 =>
            if Character.equal (Character.canonicalize rer c0) c
            then true else false).
-    Theorem singleton_size: forall c, size (singleton c) = 1%nat.
+    (*Theorem singleton_size: forall c, size (singleton c) = 1%nat.
     Proof. reflexivity. Qed.
     Theorem singleton_exist: forall c p, exist (singleton c) p = p c.
     Proof. cbv; destruct p; reflexivity. Qed.
     Theorem singleton_unique: forall (F: Type) (af: Result.AssertionError F) c, @unique F af (singleton c) = Success c.
-    Proof. reflexivity. Qed.
+    Proof. reflexivity. Qed.*)
     Theorem exist_canonicalized_equiv rer cs c :
       exist_canonicalized rer cs c =
         exist
@@ -256,6 +420,19 @@ Module FastEngineParameters <: API.EngineParameters.
     Proof.
       reflexivity.
     Qed.
+
+    Definition In: character -> char_set -> Prop := CS.In.
+    Definition Equal s1 s2 := forall c, In c s1 <-> In c s2.
+    Definition Empty s := forall c, ~In c s.
+    Definition Exists (P: character -> Prop) s := exists c, In c s /\ P c.
+
+    Theorem empty_spec: forall c, ~ In c empty.
+    Proof. apply CS.empty_spec. Qed.
+    Theorem from_list_spec: forall c l, In c (from_list l) <-> List.In c l.
+    Proof. Admitted.
+    Theorem union_spec: forall c s1 s2, In c (union s1 s2) <-> In c s1 \/ In c s2.
+    Proof. intros c s1 s2. apply CS.union_spec. Print CS.t.
+    Admitted.
   End CharSet.
 
   Module CharSets.
@@ -300,9 +477,10 @@ Module FastEngineParameters <: API.EngineParameters.
       p.
   End Property.
 End FastEngineParameters.
+*)
 
 Module NaiveEngine := API.Engine (NaiveEngineParameters).
-Module FastEngine := API.Engine (NaiveEngineParameters).
+(*Module FastEngine := API.Engine (NaiveEngineParameters).*)
 
 Require Import Coq.Strings.Ascii Coq.Strings.String.
 Open Scope string_scope.
@@ -310,8 +488,8 @@ Open Scope string_scope.
 Import API.Patterns Result.
 Import List.ListNotations.
 Open Scope list_scope.
-(* Import NaiveEngine. *)
-Import FastEngine.
+Import NaiveEngine.
+(* Import FastEngine. *)
 
 Definition get_success {S F} (r: Result S F) : match r with Success _ => S | Error _ => unit end :=
   match r with
