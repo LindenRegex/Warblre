@@ -128,6 +128,7 @@ module CachedCharSet (C: Engines.Character) = struct
   let singleton (e: C.t): t = mk (S.add S.empty (from_char e))
   let remove_all (l: t) (r: t): t = mk (S.diff l.set r.set)
   let is_empty (s: t): bool = S.isEmpty s.set
+  let elements (s: t): C.t list = List.map to_char (S.toList s.set)
   let contains (s: t) (c: C.t) = S.has s.set (from_char c)
   let range (l: C.t) (h: C.t): t = mk (S.fromSortedArrayUnsafe (Belt.Array.range (from_char l) (from_char h)))
   let size (s: t): BigInt.t = BigInt.of_int (S.size s.set)
