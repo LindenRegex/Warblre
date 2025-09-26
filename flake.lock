@@ -122,7 +122,34 @@
         "flake-utils": "flake-utils",
         "melange": "melange",
         "nixpkgs": "nixpkgs",
-        "nixpkgs-unstable": "nixpkgs-unstable"
+        "nixpkgs-unstable": "nixpkgs-unstable",
+        "spec-merger": "spec-merger"
+      }
+    },
+    "spec-merger": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "dir": ".nix",
+        "lastModified": 1744998158,
+        "narHash": "sha256-INH13MG/ty45xl7ppg6d3AelIZMPX34pTX7SjjsbBIE=",
+        "owner": "Ef55",
+        "repo": "SpecMerger",
+        "rev": "38ac474cca1788ec4fb4d85ecaaa8c81aecf41f6",
+        "type": "github"
+      },
+      "original": {
+        "dir": ".nix",
+        "owner": "Ef55",
+        "repo": "SpecMerger",
+        "rev": "38ac474cca1788ec4fb4d85ecaaa8c81aecf41f6",
+        "type": "github"
       }
     },
     "systems": {

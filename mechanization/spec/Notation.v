@@ -1,9 +1,9 @@
 From Coq Require Import ZArith List.
 From Warblre Require Import Typeclasses Result Numeric Characters Errors Parameters List.
-(** >>
+(** ##
     WILDCARD Sections
       ["22.2.2.1"]
-<<*)
+##*)
 (* + The section 22.2.2.1 does not match the ECMASCript specification as is because of its unique format. + *)
 (** >>
     22.2.2.1 Notation
@@ -15,7 +15,7 @@ Module Notation.
       A CaptureRange is an ordered pair (startIndex, endIndex) that represents the range of characters included in a
       capture, where startIndex is an integer representing the start index (inclusive) of the range within Input,
       and endIndex is an integer representing the end index (exclusive) of the range within Input.
-      For any CaptureRange, these indices must satisfy the invariant that startIndex ≤ endIndex. 
+      For any CaptureRange, these indices must satisfy the invariant that startIndex ≤ endIndex.
   <<*)
   Module CaptureRange.
     Record type := make {
@@ -38,7 +38,7 @@ Module Notation.
       while captures holds the results of capturing parentheses.
       The nth element of captures is either a CaptureRange representing the range of characters captured by the nth set
       of capturing parentheses, or undefined if the nth set of capturing parentheses hasn't been reached yet. Due to
-      backtracking, many States may be in use at any time during the matching process. 
+      backtracking, many States may be in use at any time during the matching process.
   <<*)
   Notation undefined := None (only parsing).
   Module MatchState.
@@ -57,7 +57,7 @@ Module Notation.
   Instance eqdec_matchState {C} `{m: CharacterMarker C} `{EqDec C}: EqDec MatchState := {}.
     decide equality; try apply EqDec.eq_dec. Defined.
 
-  (** >> 
+  (** >>
       A MatchResult is either a MatchState or the special token failure that indicates that the match failed.
   <<*)
   Definition MatchResult {Character} `{CharacterMarker Character} := Result (option MatchState) MatchError.
@@ -66,16 +66,16 @@ Module Notation.
   #[export]
   Instance eqdec_matchResult {C} `{CharacterMarker C} `{EqDec C} `{Parameters}: EqDec MatchResult := _.
 
-  (** >> 
+  (** >>
       A MatcherContinuation is an Abstract Closure that takes one MatchState argument and returns a MatchResult result.
       The MatcherContinuation attempts to match the remaining portion (specified by the closure's captured values) of
-      the pattern against Input, starting at the intermediate state given by its MatchState argument. 
+      the pattern against Input, starting at the intermediate state given by its MatchState argument.
       If the match succeeds, the MatcherContinuation returns the final MatchState that it reached; if the match fails,
       the MatcherContinuation returns failure.
   <<*)
   Definition MatcherContinuation {Character} `{CharacterMarker Character} := MatchState -> MatchResult.
 
-  (** >> 
+  (** >>
       A Matcher is an Abstract Closure that takes two arguments—a MatchState and a MatcherContinuation—and returns a
       MatchResult result.
       A Matcher attempts to match a middle subpattern (specified by the closure's captured values) of the pattern

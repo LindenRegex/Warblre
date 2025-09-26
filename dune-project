@@ -18,7 +18,8 @@
  (name warblre)
  (synopsis "A mechanization of the specification of ECMAScript regexes")
  (depends
-  (ocaml (= 4.14.2))))
+  (ocaml (= 4.14.2))
+  (coq (and (>= "8.18.0") (<= "8.19.2")))))
 
 (package
  (name warblre-engines)

@@ -63,7 +63,7 @@ jobs:
 
               echo "::group::Install opam packages"
               opam pin add -n -k version coq ${{ matrix.coq }}
-              # coq-serapi's dependencies are installed now to ensure 
+              # coq-serapi's dependencies are installed now to ensure
               opam install --confirm-level=unsafe-yes --deps-only . coq-serapi
               opam install --confirm-level=unsafe-yes coq-serapi
               echo "::endgroup::"
@@ -110,5 +110,11 @@ jobs:
         run: |
               cd specification_check
               python3 main.py > actual_text_output.txt
-              diff -u expected_text_output.txt actual_text_output.txt
-              
+              if diff -u expected_text_output.txt actual_text_output.txt; then
+                echo "Warblre is conforming to the specification!"
+              else
+                echo "::group::Actual"
+                cat actual_text_output.txt
+                echo "::endgroup::"
+                exit -1
+              fi

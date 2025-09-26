@@ -5,10 +5,10 @@ Import Result.Notations.
 Import Result.Notations.Boolean.
 Import Coercions.
 Local Open Scope result_flow.
-(** >>
+(** ##
   WILDCARD Sections
   ["22.2.2.7.3","22.2.2.9.3","22.2.2.9.4"]
-<<*)
+##*)
 (* + 22.2.2.7.3 Canonicalize is not implemented here because it is a parameter of the mechanization (see API.v) and 22.2.2.9.{3|4} are also unicode related. + *)
 (** >>
     22.2.2 Pattern Semantics
@@ -104,13 +104,13 @@ Module Semantics. Section main.
 
   Definition compileQuantifier(self: Quantifier): CompiledQuantifier := match self with
   (** >> Quantifier :: QuantifierPrefix <<*)
-  | Greedy q => 
+  | Greedy q =>
       (*>> 1. Let qp be CompileQuantifierPrefix of QuantifierPrefix. <<*)
       let qp := compileQuantifierPrefix q in
       (*>> 2. Return the Record { [[Min]]: qp.[[Min]], [[Max]]: qp.[[Max]], [[Greedy]]: true }. <<*)
       compiled_quantifier (CompiledQuantifierPrefix_min qp) (CompiledQuantifierPrefix_max qp) true
   (** >> Quantifier :: QuantifierPrefix ? <<*)
-  | Lazy q => 
+  | Lazy q =>
       (*>> 1. Let qp be CompileQuantifierPrefix of QuantifierPrefix. <<*)
       let qp := compileQuantifierPrefix q in
       (*>> 2. Return the Record { [[Min]]: qp.[[Min]], [[Max]]: qp.[[Max]], [[Greedy]]: false }. <<*)
@@ -282,10 +282,10 @@ Module Semantics. Section main.
   <<*)
   (* + ClassAtom is not matched because there is only the case "-" which is not handled specifically since there are no distinctions of having or not dashes.
        Unicode-related properties is also not handled in the project+ *)
-       
+
   (* + compileToCharSet_ClassAtom can do at most one recursive call.
       Rather than relying on complex or cumbersome mechanisms to implement this recursion, we implement this function
-      in two different functions, where one of them is not allowed any recursive call, and the other can only call 
+      in two different functions, where one of them is not allowed any recursive call, and the other can only call
       perform a recursive call by calling the other (which bound recursion to depth 1).
   +*)
 
@@ -326,7 +326,7 @@ Module Semantics. Section main.
       wordCharacters rer
 
   (** >> CharacterClassEscape :: p{ UnicodePropertyValueExpression } <<*)
-  | ClassEsc (CCharacterClassEsc (UnicodeProp p)) => 
+  | ClassEsc (CCharacterClassEsc (UnicodeProp p)) =>
       (*>> 1. Return the CharSet containing all Unicode code points included in CompileToCharSet of UnicodePropertyValueExpression with argument rer. <<*)
       CharSet.from_list (Property.code_points_for p)
 
@@ -582,7 +582,7 @@ Module Semantics. Section main.
           (*>> i. Assert: x is a MatchState. <<*)
           (*>> ii. Assert: c is a MatcherContinuation. <<*)
           (*>> iii. Let d be a new MatcherContinuation with parameters (y) that captures c and m2 and performs the following steps when called: <<*)
-          let d: MatcherContinuation := fun (s: MatchState) => 
+          let d: MatcherContinuation := fun (s: MatchState) =>
             (*>> 1. Assert: y is a MatchState. <<*)
             (*>> 2. Return m2(y, c). <<*)
             m2 s c
@@ -600,7 +600,7 @@ Module Semantics. Section main.
           let d: MatcherContinuation := fun (s: MatchState) =>
             (*>> 1. Assert: y is a MatchState. <<*)
             (*>> 2. Return m1(y, c). <<*)
-            m1 s c 
+            m1 s c
           in
           (*>> iv. Return m2(x, d). <<*)
           m2 s d): Matcher
@@ -828,7 +828,7 @@ Module Semantics. Section main.
           (*>> f. Return c(x). <<*)
           c x): Matcher
 
-    (** >> 
+    (** >>
         22.2.2.7 Runtime Semantics: CompileAtom
 
       The syntax-directed operation CompileAtom takes arguments rer (a RegExp Record) and direction (forward or backward)
@@ -836,7 +836,7 @@ Module Semantics. Section main.
       It is defined piecewise over the following productions:
     <<*)
 
-    (** >> 
+    (** >>
         WILDCARD "Atom :: (?: Disjunction )"
     <<*)
     (* + Non-capturing groups are not implemented + *)
