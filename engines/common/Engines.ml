@@ -26,6 +26,7 @@ module CharSet (C: Character) = struct
   let singleton = S.singleton
   let remove_all = S.diff
   let is_empty = S.is_empty
+  let elements = S.elements
   let contains s c = S.mem c s
   let range l h = S.of_list (List.map C.from_numeric_value (Extracted.List.Range.Nat.Bounds.range (C.numeric_value l) (BigInt.Nat.succ (C.numeric_value h))))
   let size s = BigInt.of_int  (S.cardinal s)
