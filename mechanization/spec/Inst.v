@@ -207,7 +207,7 @@ Module NaiveEngineParameters <: API.EngineParameters.
                ++ right. apply H. auto.
             -- destruct List.nodup eqn:?. 2: discriminate.
                replace s' with (@nil character). 2: {
-                 symmetry. Search nil List.In.
+                 symmetry.
                  assert (forall c0, ~List.In c0 s'). {
                    intro c0. rewrite <- List.nodup_In with (decA := Character.equal), Heql.
                    apply List.in_nil.
@@ -509,6 +509,10 @@ Example flags :=
 Notation "! r" := (get_success (initialize r flags)) (at level 0).
 Notation "$ c" := (character_of_Ascii c) (at level 0).
 Notation "$$ s" := (string_of_String s) (at level 0).
+
+(* Hide the matching functions in the outputs below*)
+Arguments Exotic {C S UP}%type_scope {H H0 H1} _ {_}.
+Arguments Null {C S UP}%type_scope {H H0 H1} {_}.
 
 Time Compute
   rmatch
