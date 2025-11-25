@@ -485,10 +485,7 @@ Section BuiltinExec.
           (*>> c. Let r be matcher(input, inputIndex). <<*)
           let! r:(option MatchState) =<< matcher input inputIndex in
           (*>> d. If r is failure, then <<*)
-          (* + LATER: change once fix is released +*)
-          (* + The more natural looking r == failure
-              Triggers https://github.com/coq/coq/issues/18358 with coq < 8.20 *)
-          if @EqDec.eq_dec _ eqdec_option r failure then
+          if r == failure then
             (*>> i. If sticky is true, then <<*)
             if sticky then
               (*>> 1. Perform ? Set(R, "lastIndex", +0𝔽, true). <<*)
@@ -497,7 +494,7 @@ Section BuiltinExec.
               Success (Terminates (Null R))
             else
             (*>> ii. Set lastIndex to AdvanceStringIndex(S, lastIndex, fullUnicode). <<*)
-            let lastIndex := @String.advanceStringIndex _ string_string S lastIndex in
+            let lastIndex := @String.advanceStringIndex _ Parameters.string_class S lastIndex in
             repeatloop lastIndex fuel'
           (*>> e. Else <<*)
           else
