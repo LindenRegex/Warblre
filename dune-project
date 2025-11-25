@@ -19,6 +19,7 @@
  (synopsis "A mechanization of the specification of ECMAScript regexes")
  (depends
   (ocaml (= 4.14.2))
+  ; LATER: move to rocq-prover once dune plugin is updated: https://github.com/ocaml/dune/pull/12035
   (coq (>= 9.1.0))))
 
 (package

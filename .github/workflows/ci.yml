@@ -63,9 +63,9 @@ jobs:
 
               echo "::group::Install opam packages"
               opam pin add -n -k version coq ${{ matrix.rocq }}
+              opam install --confirm-level=unsafe-yes --deps-only .
               # coq-serapi's dependencies are installed now to ensure
-              opam install --confirm-level=unsafe-yes --deps-only . coq-serapi
-              opam install --confirm-level=unsafe-yes coq-serapi
+              # opam install --confirm-level=unsafe-yes coq-serapi
               echo "::endgroup::"
 
               echo "::group::Print opam config (post-install)"
