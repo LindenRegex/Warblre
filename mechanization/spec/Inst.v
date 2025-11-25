@@ -528,7 +528,7 @@ Open Scope list_scope.
 Import NaiveEngine.
 (* Import FastEngine. *)
 
-Definition get_success {S F} (r: Result S F) : match r with Success _ => S | Error _ => unit end :=
+Definition get_success {S F: Type} (r: Result S F) : match r with Success _ => S | Error _ => unit end :=
   match r with
   | Success s => s
   | Error f => tt
@@ -548,8 +548,8 @@ Notation "$ c" := (character_of_Ascii c) (at level 0).
 Notation "$$ s" := (string_of_String s) (at level 0).
 
 (* Hide the matching functions in the outputs below*)
-Arguments Exotic {C S UP}%type_scope {H H0 H1} _ {_}.
-Arguments Null {C S UP}%type_scope {H H0 H1} {_}.
+Arguments Exotic {C S UP}%_type_scope {H H0 H1} _ {_}.
+Arguments Null {C S UP}%_type_scope {H H0 H1} {_}.
 
 Time Compute
   rmatch

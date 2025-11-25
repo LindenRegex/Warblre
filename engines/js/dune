@@ -10,7 +10,7 @@
 (coq.extraction
  (prelude Extraction)
  (extracted_modules Extracted)
- (theories Warblre Ltac2))
+ (theories Warblre Ltac2 Stdlib))
 
 ; Make a library out of it
 (library

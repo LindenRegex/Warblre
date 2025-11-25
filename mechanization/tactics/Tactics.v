@@ -34,8 +34,8 @@ Tactic Notation "exApplyW" hyp(H) hyp(w) "as" simple_intropattern(As) :=
 Ltac clean_injection H := injection H; clear H; intros.
 
 Ltac bookkeeper := repeat (
-      Stdlib.Program.Tactics.destruct_conjs 
-  ||  Stdlib.Program.Tactics.clear_dups 
+      destruct_conjs 
+  ||  clear_dups 
   ||  subst
   ||  lazymatch goal with
       | [ H: _ = _ |- _ ] => clean_injection H || discriminate H
