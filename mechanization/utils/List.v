@@ -1,4 +1,4 @@
-From Coq Require Import ZArith Lia List Bool.
+From Stdlib Require Import ZArith Lia List Bool.
 From Warblre Require Import Tactics Focus Result.
 
 Import Result.Notations.

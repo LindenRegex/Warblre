@@ -19,7 +19,7 @@
  (synopsis "A mechanization of the specification of ECMAScript regexes")
  (depends
   (ocaml (= 4.14.2))
-  (coq (and (>= "8.18.0") (<= "8.19.2")))))
+  (coq (>= 9.1.0))))
 
 (package
  (name warblre-engines)

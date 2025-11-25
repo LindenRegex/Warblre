@@ -1,4 +1,4 @@
-From Coq Require Import ZArith Lia.
+From Stdlib Require Import ZArith Lia.
 From Warblre Require Import Result.
 
 (** Numeric datatypes, operations and notations. *)

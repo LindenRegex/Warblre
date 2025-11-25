@@ -8,6 +8,6 @@
 (rule
  (target dummy)
  (action (progn
-  (echo "Alectryon not installed: skipping examples/coq_proof\n")
+  (echo "Alectryon not installed: skipping examples/rocq_proof\n")
   (write-file dummy "")))
  (enabled_if (not %{bin-available:alectryon})))

@@ -1,4 +1,4 @@
-From Coq Require Import PeanoNat List ListSet Structures.OrderedType FSets.FSetAVL NArith Bool.
+From Stdlib Require Import PeanoNat List ListSet Structures.OrderedType FSets.FSetAVL NArith Bool.
 From Warblre Require Import RegExpRecord Tactics List Result Numeric Typeclasses.
 
 Import Result.Notations.

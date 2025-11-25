@@ -1,5 +1,5 @@
 From Warblre Require Import Retrieve.
-From Coq Require Import ZArith Program.Equality Lia.
+From Stdlib Require Import ZArith Program.Equality Lia.
 
 Local Close Scope nat.
 

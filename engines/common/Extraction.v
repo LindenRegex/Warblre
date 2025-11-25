@@ -1,4 +1,4 @@
-(** Extract from Coq to OCaml for Melange. 
+(** Extract from Rocq to OCaml for Melange. 
 
     We will use these extraction directives twice:
     - Once for "regular" OCaml;
@@ -9,13 +9,13 @@
 *)
 
 From Warblre Require Import Result Base API.
-From Coq Require Import ZArith.
+From Stdlib Require Import ZArith.
 
-From Coq Require Extraction.
+From Stdlib Require Extraction.
 Extraction Language OCaml.
 
-From Coq Require extraction.ExtrOcamlBasic.
-From Coq Require extraction.ExtrOcamlString.
+From Stdlib Require extraction.ExtrOcamlBasic.
+From Stdlib Require extraction.ExtrOcamlString.
 
 (** nat *)
 Extract Inductive nat => "BigInt.t" [ "BigInt.zero" "BigInt.Nat.succ" ]

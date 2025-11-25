@@ -1,9 +1,12 @@
-# Coq(ide) generated files
+# Rocq/CoqIDE generated files
 .lia.cache
 \#*\#
 
 # Dune's build directory
 _build/
+
+# Opam's directory
+_opam/
 
 # VsCode's configuration
 .vscode/

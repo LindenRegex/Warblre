@@ -1,4 +1,4 @@
-From Coq Require Import ZArith.
+From Stdlib Require Import ZArith.
 From Warblre Require Import Result Numeric Characters Patterns Notation Parameters.
 Set Warnings "-uniform-inheritance".
 

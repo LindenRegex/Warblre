@@ -1,4 +1,4 @@
-From Coq Require Import List Program.Equality PeanoNat.
+From Stdlib Require Import List Program.Equality PeanoNat.
 From Warblre Require Import List Result Typeclasses Notation Numeric Characters Parameters.
 (** ##
     WILDCARD Sections

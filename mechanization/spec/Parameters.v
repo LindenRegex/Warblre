@@ -1,5 +1,5 @@
 From Warblre Require Import Result Typeclasses Numeric RegExpRecord.
-From Coq Require Import List.
+From Stdlib Require Import List.
 Import ListNotations.
 
 (**
@@ -85,7 +85,7 @@ Module CharSet.
         (fun c0 => (Character.canonicalize rer c0) == c);
 
     (* Predicates and extra properties *)
-    (* Inspired by Coq.MSets.MSetInterface, unless specified otherwise *)
+    (* Inspired by Stdlib.MSets.MSetInterface, unless specified otherwise *)
     In: Character -> type -> Prop;
     Equal s1 s2 := forall c, In c s1 <-> In c s2;
     Empty s := forall c, ~In c s;
@@ -356,7 +356,7 @@ Module Parameters.
 End Parameters.
 Notation Parameters := @Parameters.class.
 
-(* Used in Frontend.v due to bug in coq kernel (see call site). LATER: remove once bug is fixed. *)
+(* Used in Frontend.v due to bug in Rocq kernel (see call site). LATER: remove once bug is fixed. *)
 Definition string_string `{Parameters}: String.class Character := Parameters.string_class.
 
 (* Some special characters used by the specification. *)

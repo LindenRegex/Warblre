@@ -1,4 +1,4 @@
-From Coq Require Import ZArith List.
+From Stdlib Require Import ZArith List.
 From Warblre Require Import Parameters.
 From Warblre Require Import Patterns RegExpRecord.
 From Warblre Require Import EarlyErrors.
@@ -10,7 +10,7 @@ Import Patterns Coercions.Coercions Notation.Notation.
 
 (** This file demonstrates how our specification can be used to reason about regular expressions.
 
-    Specifically, we prove an extremely simple property: the fact that for any [a], the regexp [/(?:a+?)+?/] matches the string ["aaa"] (the paper describes more complex proofs, and the global README links to the corresponding Coq code). **)
+    Specifically, we prove an extremely simple property: the fact that for any [a], the regexp [/(?:a+?)+?/] matches the string ["aaa"] (the paper describes more complex proofs, and the global README links to the corresponding Rocq code). **)
 
 Section AbstractMatching.
   (** We start by assuming a concrete (yet arbitrary) instantiation of the engine. **)

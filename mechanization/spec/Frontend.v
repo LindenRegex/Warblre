@@ -1,4 +1,4 @@
-From Coq Require Import List ZArith.
+From Stdlib Require Import List ZArith.
 From Warblre Require Import RegExpRecord Base Errors Notation Patterns Node StaticSemantics Semantics Result List Characters Return.
 
 Import Result.Notations.
