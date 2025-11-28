@@ -7,7 +7,7 @@
  (files ../common/Extraction.v))
 
 ; Extract with different directives
-(coq.extraction
+(rocq.extraction
  (prelude Extraction)
  (extracted_modules Extracted)
  (theories Warblre Ltac2 Stdlib))
