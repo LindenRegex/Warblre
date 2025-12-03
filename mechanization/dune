@@ -3,4 +3,5 @@
 (rocq.theory
  (name Warblre)
  (package warblre)
+ (generate_project_file)
  (theories Ltac2 Stdlib))
