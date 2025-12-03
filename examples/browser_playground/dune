@@ -15,11 +15,11 @@
  (action (no-infer (progn
   (run npx webpack ./%{entrypoint} --config %{config} --no-stats)
   (copy dist/%{target} %{target}))))
- (enabled_if %{bin-available:webpack-cli}))
+ (enabled_if %{bin-available:webpack}))
 
 (rule
  (target dummy)
  (action (progn
   (echo "Webpack-cli not installed: skipping examples/browser_playground\n")
   (write-file dummy "")))
- (enabled_if (not %{bin-available:webpack-cli})))
+ (enabled_if (not %{bin-available:webpack})))

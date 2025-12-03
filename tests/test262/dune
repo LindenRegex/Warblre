@@ -16,11 +16,11 @@
   (run npx webpack ./%{entrypoint} --config %{config} --no-stats)
   (copy dist/warblre-node-redirect.js warblre-node-redirect.js)
   (copy dist/warblre-browser-redirect.js warblre-browser-redirect.js))))
- (enabled_if %{bin-available:webpack-cli}))
+ (enabled_if %{bin-available:webpack}))
 
 (rule
  (target dummy)
  (action (progn
   (echo "Webpack-cli not installed: skipping test262\n")
   (write-file dummy "")))
- (enabled_if (not %{bin-available:webpack-cli})))
+ (enabled_if (not %{bin-available:webpack})))

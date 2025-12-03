@@ -16,6 +16,8 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
+        oPkgs = pkgs.ocaml-ng.ocamlPackages_4_14;
+
         spec-diff = pkgs.writeShellApplication {
           name = "spec-diff";
           runtimeInputs = with pkgs; [
@@ -30,19 +32,21 @@
         devShells = {
             default = pkgs.mkShell {
               buildInputs = with pkgs; [
-                coq_9_1
-                coqPackages_9_1.stdlib
-
-                ocaml
-                dune_3
-                ocamlPackages.ocamlformat
-                ocamlPackages.ocaml-lsp
-                ocamlPackages.findlib
-                ocamlPackages.integers
-                ocamlPackages.uucp
-                ocamlPackages.ppx_expect
-                ocamlPackages.melange
-                ocamlPackages.zarith
+                rocqPackages_9_1.rocq-core
+                rocqPackages_9_1.stdlib
+                (rocqPackages_9_1.callPackage .nix/vsrocq-language-server.nix {})
+                
+                # TODO: switch back to the packages in nixpkgs once the features we need get released
+                oPkgs.ocaml
+                (oPkgs.callPackage .nix/dune.nix {})
+                oPkgs.ocamlformat
+                oPkgs.ocaml-lsp
+                oPkgs.findlib
+                oPkgs.integers
+                oPkgs.uucp
+                oPkgs.ppx_expect
+                oPkgs.melange
+                oPkgs.zarith
 
                 # coqPackages.serapi
                 # python311Packages.alectryon

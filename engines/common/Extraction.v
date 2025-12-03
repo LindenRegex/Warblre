@@ -13,6 +13,7 @@ From Stdlib Require Import ZArith.
 
 From Stdlib Require Extraction.
 Extraction Language OCaml.
+Set Extraction Output Directory ".".
 
 From Stdlib Require extraction.ExtrOcamlBasic.
 From Stdlib Require extraction.ExtrOcamlString.

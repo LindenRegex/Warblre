@@ -16,7 +16,7 @@
   (run npx webpack ./%{entrypoint} --config %{config} --no-stats)
   (copy dist/%{target} %{target})
   (run chmod u+x %{target}))))
- (enabled_if %{bin-available:webpack-cli}))
+ (enabled_if %{bin-available:webpack}))
 
 (rule
  (target warblre-node-fuzzer.js)
@@ -24,7 +24,7 @@
   (echo "Webpack-cli not installed: skipping fuzzer\n")
   (write-file %{target} "#!/usr/bin/env sh\necho \"Webpack-cli was not installed at build-time: cannot execute 'fuzzer', which was not built.\"\nexit 1")
   (run chmod u+x %{target})))
- (enabled_if (not %{bin-available:webpack-cli})))
+ (enabled_if (not %{bin-available:webpack})))
 
 (install
  (section bin)
