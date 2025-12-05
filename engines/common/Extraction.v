@@ -40,24 +40,40 @@ Extract Constant Nat.compare =>
  "(fun n m -> if BigInt.equal n m then Eq else (if BigInt.lt n m then Lt else Gt))".
 
 (** positive *)
+(* Due to the split of the library into Corelib.BindNums.PosDef and
+   Stdlib.PArith.BindPos, we duplicate all extractions directives to prevent
+   any unexpcted behaviors where a call unexpectedly end up being in a library
+   rather than the other.
+*)
 Extract Inductive positive =>
     "BigInt.t"
     [ "(fun p-> BigInt.add BigInt.one (BigInt.shift_left p 1))" "(fun p-> BigInt.shift_left p 1)" "BigInt.one" ]
     "Interop.erased".
 
-Extract Inlined Constant Pos.succ => "BigInt.Nat.succ".
-Extract Inlined Constant Pos.add => "BigInt.add".
-Extract Inlined Constant Pos.eqb => "BigInt.equal".
-Extract Constant Pos.compare =>
- "(fun n m -> if BigInt.equal n m then Eq else (if BigInt.lt n m then Lt else Gt))".
-Extract Inlined Constant Pos.to_nat => "(fun x -> x)".
+Extract Constant Corelib.BinNums.PosDef.Pos.succ => "BigInt.Nat.succ".
+Extract Constant Stdlib.PArith.BinPos.Pos.succ => "BigInt.Nat.succ".
+Extract Inlined Constant Corelib.BinNums.PosDef.Pos.add => "BigInt.add".
+Extract Inlined Constant Stdlib.PArith.BinPos.Pos.add => "BigInt.add".
+Extract Inlined Constant Corelib.BinNums.PosDef.Pos.eqb => "BigInt.equal".
+Extract Inlined Constant Stdlib.PArith.BinPos.Pos.add => "BigInt.add".
+Extract Constant Corelib.BinNums.PosDef.Pos.compare =>
+    "(fun n m -> if BigInt.equal n m then Eq else (if BigInt.lt n m then Lt else Gt))".
+Extract Constant Stdlib.PArith.BinPos.Pos.compare =>
+    "(fun n m -> if BigInt.equal n m then Eq else (if BigInt.lt n m then Lt else Gt))".
+Extract Inlined Constant Corelib.BinNums.PosDef.Pos.to_nat => "(fun x -> x)".
+Extract Inlined Constant Stdlib.PArith.BinPos.Pos.to_nat => "(fun x -> x)".
 Extract Constant eqdec_positive => "BigInt.equal".
 
-Extract Constant Pos.add_carry => "Interop.erased".
-Extract Constant Pos.pred_double => "Interop.erased".
-Extract Constant Pos.compare_cont => "Interop.erased".
-Extract Constant Pos.iter_op => "Interop.erased".
-Extract Constant Pos.of_succ_nat => "Interop.erased".
+Extract Constant Corelib.BinNums.PosDef.Pos.add_carry => "Interop.erased".
+Extract Constant Stdlib.PArith.BinPos.Pos.add_carry => "Interop.erased".
+Extract Constant Corelib.BinNums.PosDef.Pos.pred_double => "Interop.erased".
+Extract Constant Stdlib.PArith.BinPos.Pos.pred_double => "Interop.erased".
+Extract Constant Corelib.BinNums.PosDef.Pos.compare_cont => "Interop.erased".
+Extract Constant Stdlib.PArith.BinPos.Pos.compare_cont => "Interop.erased".
+Extract Constant Corelib.BinNums.PosDef.Pos.iter_op => "Interop.erased".
+Extract Constant Stdlib.PArith.BinPos.Pos.iter_op => "Interop.erased".
+Extract Constant Corelib.BinNums.PosDef.Pos.of_succ_nat => "Interop.erased".
+Extract Constant Stdlib.PArith.BinPos.Pos.of_succ_nat => "Interop.erased".
 
 (** Z *)
 Extract Inductive Z =>
