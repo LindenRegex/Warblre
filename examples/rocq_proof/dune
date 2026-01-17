@@ -1,4 +1,4 @@
-; LATER: re-enable when Alectryon supports Coq 9.0
+; LATER: re-enable when Alectryon supports Rocq 9.0
 ; (rule
 ;  (target Example.html)
 ;  (deps (package warblre) (:input (file Example.v)))
