@@ -16,7 +16,7 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
-        oPkgs = pkgs.ocaml-ng.ocamlPackages_4_14;
+        oPkgs = pkgs.rocq-core_9_1.ocamlPackages;
 
         spec-diff = pkgs.writeShellApplication {
           name = "spec-diff";
@@ -35,7 +35,7 @@
                 rocqPackages_9_1.rocq-core
                 rocqPackages_9_1.stdlib
                 (rocqPackages_9_1.callPackage .nix/vsrocq-language-server.nix {})
-                
+
                 # TODO: switch back to the packages in nixpkgs once the features we need get released
                 oPkgs.ocaml
                 (oPkgs.callPackage .nix/dune.nix {})
