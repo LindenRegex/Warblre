@@ -551,6 +551,7 @@ Notation "$$ s" := (string_of_String s) (at level 0).
 Arguments Exotic {C S UP}%_type_scope {H H0 H1} _ {_}.
 Arguments Null {C S UP}%_type_scope {H H0 H1} {_}.
 
+(*
 Time Compute
   rmatch
     ! (Char $ "l")
@@ -584,4 +585,4 @@ Time Compute
                (Quantified (Char $ "a") (Greedy Question))
                (Quantified (Char $ "b") (Lazy Question))))
          (Greedy Star))
-    $$ "ab".
+    $$ "ab". *)
