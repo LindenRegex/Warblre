@@ -30,7 +30,7 @@ The mechanization has the following properties:
 2. **[Optional]**  
     In order to pack and and run the JavaScript code, you will need to install [Node.js](https://nodejs.org/en), e.g. using [nvm](https://github.com/nvm-sh/nvm).
     ```shell
-    nvm install 21.7.2
+    nvm install 24.13.0
     ```
     as well as some JavaScript dependencies:
     ```shell

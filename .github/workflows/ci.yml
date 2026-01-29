@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        rocq: [ "9.1.0" ]
-        node: [ "21.7.2", "22.4.1" ]
+        rocq: [ "9.0.0", "9.1.0" ]
+        node: [ "24.13.0" ]
       fail-fast: false
     steps:
       - name: Checkout repository
