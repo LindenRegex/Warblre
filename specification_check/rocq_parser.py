@@ -4,7 +4,7 @@ import re
 from dataclasses import dataclass
 from typing import Dict, List, Tuple
 
-from alectryon.literate import Comment, StringView, coq_partition
+from alectryon.literate import Comment, StringView, CoqParser
 from spec_merger.aligner_utils import Position
 from spec_merger.content_classes.dictionary import Dictionary
 from spec_merger.content_classes.string import String
@@ -96,7 +96,7 @@ class ROCQParser(Parser):
         comments = []
         for filename in all_filenames:
             file = rocq_code[filename]
-            partition = coq_partition(file)
+            partition = CoqParser(file).partition()
             for field in partition:
                 if isinstance(field, Comment) and matcher.match(str(field.v)):
                     start_line_num = ROCQParser.__get_line_num(field.v)

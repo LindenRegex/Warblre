@@ -1,4 +1,4 @@
-alectryon == 1.4.0
+alectryon @ git+https://github.com/cpitclaudel/alectryon@next
 git+https://github.com/epfl-systemf/SpecMerger
 requests == 2.32.4
 beautifulsoup4 == 4.12.3

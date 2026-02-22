@@ -64,6 +64,8 @@ jobs:
               echo "::group::Install opam packages"
               opam pin add -n -k version coq ${{ matrix.rocq }}
               opam install --confirm-level=unsafe-yes --deps-only .
+              # vsrocqtop is needed by Alectryon
+              opam install --confirm-level=unsafe-yes vsrocq-language-server
               echo "::endgroup::"
 
               echo "::group::Print opam config (post-install)"
