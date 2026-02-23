@@ -1,13 +1,7 @@
-(rule
- (target Example.html)
- (deps (package warblre) (:input (file Example.v)))
- (action
-  (run alectryon --coq-driver vsrocq -Q ../../mechanization Warblre --long-line-threshold -1 %{input}))
- (enabled_if %{bin-available:alectryon}))
+(include_subdirs qualified)
 
-(rule
- (target dummy)
- (action (progn
-  (echo "Alectryon not installed: skipping examples/rocq_proof\n")
-  (write-file dummy "")))
- (enabled_if (not %{bin-available:alectryon})))
+(rocq.theory
+ (name Example)
+ (package warblre-examples)
+ (generate_project_file)
+ (theories Stdlib Warblre))

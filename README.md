@@ -37,12 +37,6 @@ The mechanization has the following properties:
     npm install # Install packages used by our JavaScript code
     npm install -g webpack-cli # Install webpack-cli, which is used to pack the code in monolithic JavaScript files
     ```
-3. **[Optional]**  
-    [Alectryon](https://github.com/cpitclaudel/alectryon) is used to produced literate examples.
-    You will also need [vsrocqtop](https://github.com/rocq-prover/vsrocq).
-    ```
-    opam install vsrocq-language-server
-    ```
 
 Alternatively, a [nix](https://nixos.org/) flake installing all the dependencies is provided:
 ```
@@ -55,7 +49,7 @@ npm install
 - `dune exec example` will run an example of matching a string with a regex ([source](examples/ocaml_example/Main.ml)).
 - **[Requires JavaScript dependencies]**  
     `dune exec fuzzer` will build and run the fuzzer to compare the extracted engine against Irregexp (Node.js's regex engine).
-- `dune build examples/rocq_proof` will build everything so that you can step through [examples/rocq-proof/Example.v](examples/rocq_proof/Example.v), which demonstrates how Warblre can be used to reason about JavaScript regexes. Alternatively, if you installed Alectryon, you can open the generated [webpage](_build/default/examples/rocq_proof/Example.html) in your web browser.
+- `dune build examples/rocq_proof` will build everything so that you can step through [examples/rocq-proof/Example.v](examples/rocq_proof/Example.v), which demonstrates how Warblre can be used to reason about JavaScript regexes.
 
 ## Structure of the repository
 
