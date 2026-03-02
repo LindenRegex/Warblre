@@ -1,4 +1,4 @@
-From Coq Require Import Program.Tactics Bool.Bool ZArith.
+From Stdlib Require Import Program.Tactics Bool.Bool ZArith.
 
 Tactic Notation "delta" reference(id) := cbv delta [ id ].
 Tactic Notation "delta" reference(id) "in" hyp(h) := cbv delta [ id ] in h.
@@ -34,8 +34,8 @@ Tactic Notation "exApplyW" hyp(H) hyp(w) "as" simple_intropattern(As) :=
 Ltac clean_injection H := injection H; clear H; intros.
 
 Ltac bookkeeper := repeat (
-      Coq.Program.Tactics.destruct_conjs 
-  ||  Coq.Program.Tactics.clear_dups 
+      destruct_conjs 
+  ||  clear_dups 
   ||  subst
   ||  lazymatch goal with
       | [ H: _ = _ |- _ ] => clean_injection H || discriminate H

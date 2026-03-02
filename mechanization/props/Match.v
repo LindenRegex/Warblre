@@ -1,4 +1,4 @@
-From Coq Require Import PeanoNat ZArith Bool Lia Program.Equality List.
+From Stdlib Require Import PeanoNat ZArith Bool Lia Program.Equality List.
 From Warblre Require Import List Tactics Retrieve Specialize Focus Result Base Errors Patterns Node NodeProps StaticSemantics Notation Semantics Definitions EarlyErrors Compile RegExpRecord.
 
 Import Result.Notations.

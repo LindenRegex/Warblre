@@ -1,20 +1,19 @@
 import json
-
-from dataclasses import dataclass
-from typing import List, Dict, Tuple
-from alectryon.literate import coq_partition, Comment, StringView
-import re
 import os
+import re
+from dataclasses import dataclass
+from typing import Dict, List, Tuple
 
-from spec_merger.utils import Path, ParserState, ParsedPage, Parser
+from alectryon.literate import Comment, StringView, CoqParser
 from spec_merger.aligner_utils import Position
 from spec_merger.content_classes.dictionary import Dictionary
 from spec_merger.content_classes.string import String
 from spec_merger.content_classes.wildcard import WildCard
+from spec_merger.utils import ParsedPage, Parser, ParserState, Path
 
 
 @dataclass(frozen=True)
-class CoqLine:
+class RocqLine:
     file_name: str
     line_number: int
     is_end_comment: bool = False
@@ -35,7 +34,7 @@ def add_case(cases: dict[str, Dictionary | WildCard], left_key: str, right_key: 
 
 
 @dataclass(frozen=True)
-class CoqPosition(Position):
+class RocqPosition(Position):
     file_positions: Dict[str, Tuple[int, int]]
 
     def html_str(self) -> str:
@@ -48,8 +47,8 @@ class CoqPosition(Position):
         return hash(self.html_str())
 
 
-class COQParser(Parser):
-    def __init__(self, files: List[Path], to_exclude: List[Path], parser_name: str = "COQ",
+class ROCQParser(Parser):
+    def __init__(self, files: List[Path], to_exclude: List[Path], parser_name: str = "ROCQ",
                  title_regex: str = r"(22\.2(?:\.[0-9]*)*)",
                  spec_regex: str = r"^\(\*(\* )?>?>(.|\n)*?<<\*\)$",
                  directive_regex: str = r"^\(\*(\* )?##(.|\n)*?##\*\)$",
@@ -76,11 +75,11 @@ class COQParser(Parser):
         if any([filename.startswith(excluded.uri) for excluded in self.to_exclude]):
             return
         with open(filename, "r") as f:
-            coq_file = f.read()
-            files_dic[filename] = coq_file
+            rocq_file = f.read()
+            files_dic[filename] = rocq_file
         all_filenames.append(filename)
 
-    def __get_coq_code(self) -> Tuple[Dict[str, str], List[str]]:
+    def __get_rocq_code(self) -> Tuple[Dict[str, str], List[str]]:
         files_dic: dict[str, str] = {}
         all_filenames: list[str] = []
         for file in self.files:
@@ -93,23 +92,23 @@ class COQParser(Parser):
         return files_dic, all_filenames
 
 
-    def __process_lines(self, coq_code, all_filenames, matcher: re.Pattern) -> list[tuple[str, CoqLine]]:
+    def __process_lines(self, rocq_code, all_filenames, matcher: re.Pattern) -> list[tuple[str, RocqLine]]:
         comments = []
         for filename in all_filenames:
-            file = coq_code[filename]
-            partition = coq_partition(file)
+            file = rocq_code[filename]
+            partition = CoqParser(file).partition()
             for field in partition:
                 if isinstance(field, Comment) and matcher.match(str(field.v)):
-                    start_line_num = COQParser.__get_line_num(field.v)
+                    start_line_num = ROCQParser.__get_line_num(field.v)
                     for i, line in enumerate(str(field.v).splitlines()):
-                        line = COQParser.__parse_line(line)
+                        line = ROCQParser.__parse_line(line)
                         if line != "":
-                            comments.append((line, CoqLine(filename, start_line_num + i)))
+                            comments.append((line, RocqLine(filename, start_line_num + i)))
                     # avoid -1 at start, would have made no sense
                     if len(comments) > 0:
-                        comments.append(("", CoqLine(filename, -1, True)))
+                        comments.append(("", RocqLine(filename, -1, True)))
             if len(comments) > 0:
-                comments.append(("", CoqLine(filename, -1, False, True)))
+                comments.append(("", RocqLine(filename, -1, False, True)))
         return comments
 
     @staticmethod
@@ -134,7 +133,7 @@ class COQParser(Parser):
             section2["description"]) else section2["description"]
         description_second = section1["description"] if len(section1["description"]) <= len(
             section2["description"]) else section2["description"]
-        pos: tuple[CoqPosition, CoqPosition] = section1.position, section2.position
+        pos: tuple[RocqPosition, RocqPosition] = section1.position, section2.position
         new_files = {}
         old_files = (pos[0].file_positions, pos[1].file_positions)
         for filename in old_files[0].keys() | old_files[1].keys():
@@ -161,7 +160,7 @@ class COQParser(Parser):
                 new_cases[case] = section1["cases"][case]
             else:
                 new_cases[case] = section2["cases"][case]
-        return Dictionary(CoqPosition(new_files), {"title": title, "description": description_first + "\n" +
+        return Dictionary(RocqPosition(new_files), {"title": title, "description": description_first + "\n" +
                                                                                   description_second,
                                                    "cases": Dictionary(None, new_cases)})
 
@@ -179,7 +178,7 @@ class COQParser(Parser):
         for comment_index, comment in enumerate(comments):
             if res2 := self.any_title_regex.match(comment[0]):
                 if current_block != "" and not section_to_be_thrown_away:
-                    title_indices[current_block] = COQParser.__merge_comments(
+                    title_indices[current_block] = ROCQParser.__merge_comments(
                         self.__parse_subsection(comments[last_block_end:comment_index]),
                         title_indices.get(current_block))
                     last_block_end = comment_index
@@ -212,14 +211,14 @@ class COQParser(Parser):
         skip_until_end_file = False
         filenames = {}
         case_line_indices = [-1, -1]
-        for parsed_comment, coq_line in comment_lines:
+        for parsed_comment, rocq_line in comment_lines:
             # We are at the end of a comment
-            if coq_line.is_end_comment or coq_line.is_end_file:
+            if rocq_line.is_end_comment or rocq_line.is_end_file:
                 match parser_state:
                     case ParserState.BEFORE_START:
                         parser_state = ParserState.READING_TITLE
                     case ParserState.READING_TITLE:
-                        if coq_line.is_end_comment:
+                        if rocq_line.is_end_comment:
                             parser_state = ParserState.READING_DESCRIPTION
                     case ParserState.READING_DESCRIPTION:
                         pass
@@ -227,20 +226,20 @@ class COQParser(Parser):
                         pass
                     case ParserState.READING_WILDCARD:
                         pass
-                if coq_line.is_end_file:
+                if rocq_line.is_end_file:
                     skip_until_end_file = False
                 continue
             if skip_until_end_file:
                 continue
             # Get file name
-            filename = coq_line.file_name
+            filename = rocq_line.file_name
             # If not already in, add it and add its current line
             if filenames.get(filename) is None:
-                filenames[filename] = (coq_line.line_number, coq_line.line_number)
+                filenames[filename] = (rocq_line.line_number, rocq_line.line_number)
             # Otherwise update last line
             else:
                 before_indices = filenames[filename]
-                added_index = coq_line.line_number
+                added_index = rocq_line.line_number
                 new_indices = (min(before_indices[0], added_index), max(before_indices[1], added_index))
                 filenames[filename] = new_indices
             if parsed_comment.startswith("WILDCARD"):
@@ -260,12 +259,12 @@ class COQParser(Parser):
             if self.case_regex.match(parsed_comment):
                 parser_state = ParserState.READING_CASES
                 if current_case != "":
-                    case_pos = CoqPosition({coq_line.file_name: tuple(case_line_indices)})
+                    case_pos = RocqPosition({rocq_line.file_name: tuple(case_line_indices)})
                     for case_title in current_case_titles:
                         add_case(cases, case_title[0], case_title[1], String(case_pos, current_case))
                     current_case_titles = []
-                case_line_indices[0] = coq_line.line_number
-                case_line_indices[1] = coq_line.line_number
+                case_line_indices[0] = rocq_line.line_number
+                case_line_indices[1] = rocq_line.line_number
                 match = self.case_regex.match(parsed_comment)
                 current_case_titles.append([match.group(1), match.group(2)])
                 current_case = ""
@@ -277,8 +276,8 @@ class COQParser(Parser):
                         if self.algo_regex.match(parsed_comment):
                             # If there is a start of an algorithm, but we are still building title, it means that there
                             # is only one case in the subsection, and therefore we set its title to ""
-                            case_line_indices[0] = coq_line.line_number
-                            case_line_indices[1] = coq_line.line_number
+                            case_line_indices[0] = rocq_line.line_number
+                            case_line_indices[1] = rocq_line.line_number
                             parser_state = ParserState.READING_CASES
                             current_case = parsed_comment + "\n"
                             if not current_case_titles:
@@ -290,8 +289,8 @@ class COQParser(Parser):
                         if self.algo_regex.match(parsed_comment):
                             # If there is a start of an algorithm, but we are still building description, it means that
                             # there is only one case in the subsection, and therefore we set its title to ""
-                            case_line_indices[0] = coq_line.line_number
-                            case_line_indices[1] = coq_line.line_number
+                            case_line_indices[0] = rocq_line.line_number
+                            case_line_indices[1] = rocq_line.line_number
                             parser_state = ParserState.READING_CASES
                             current_case = parsed_comment + "\n"
                             if not current_case_titles:
@@ -299,7 +298,7 @@ class COQParser(Parser):
                         else:
                             description += parsed_comment + " "
                     case ParserState.READING_CASES:
-                        case_line_indices[1] = coq_line.line_number
+                        case_line_indices[1] = rocq_line.line_number
                         if self.algo_regex.match(parsed_comment) or not in_case_title:
                             if not current_case_titles:
                                 current_case_titles.append(["", ""])
@@ -308,11 +307,11 @@ class COQParser(Parser):
                         elif in_case_title:
                             current_case_titles[-1][1] += "\n" + parsed_comment
         if current_case != "":
-            case_pos = CoqPosition({comment_lines[-1][1].file_name: tuple(case_line_indices)})
+            case_pos = RocqPosition({comment_lines[-1][1].file_name: tuple(case_line_indices)})
             for case_title in current_case_titles:
                 add_case(cases, case_title[0], case_title[1], String(case_pos, current_case))
         cases_dict = Dictionary(None, cases)
-        return Dictionary(CoqPosition(filenames), {"title": String(None, title),
+        return Dictionary(RocqPosition(filenames), {"title": String(None, title),
                                                    "description": String(None, description),
                                                    "cases": cases_dict})
 
@@ -320,7 +319,7 @@ class COQParser(Parser):
         state = ParserState.BEFORE_START
         acc = ''
         sections = []
-        for comment, coq_line in comments:
+        for comment, rocq_line in comments:
             if comment == '':
                 pass
             elif state == ParserState.BEFORE_START and comment.startswith('WILDCARD Sections'):
@@ -330,7 +329,7 @@ class COQParser(Parser):
             else:
                 raise Exception("Unexpected directive part: '" + comment + "' (State: " + str(state) + ")")
 
-            if coq_line.is_end_comment:
+            if rocq_line.is_end_comment:
                 sections += json.loads(acc)
                 acc = ''
                 state = ParserState.BEFORE_START
@@ -338,11 +337,11 @@ class COQParser(Parser):
 
     def get_parsed_page(self) -> ParsedPage:
         if self.sections_by_number is None:
-            coq_code, all_filenames = self.__get_coq_code()
-            spec = self.__process_lines(coq_code, all_filenames, self.spec_regex)
+            rocq_code, all_filenames = self.__get_rocq_code()
+            spec = self.__process_lines(rocq_code, all_filenames, self.spec_regex)
             self.sections_by_number = self.__get_comment_titles(spec)
 
-            directives = self.__process_lines(coq_code, all_filenames, self.directive_regex)
+            directives = self.__process_lines(rocq_code, all_filenames, self.directive_regex)
             for section in self.__parse_directives(directives):
                 self.sections_by_number[section] = WildCard(None)
         return ParsedPage(self.name, Dictionary(None, self.sections_by_number))

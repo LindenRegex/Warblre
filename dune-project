@@ -1,10 +1,10 @@
-(lang dune 3.14)
+(lang dune 3.21)
 
 (name warblre)
 
 (generate_opam_files true)
 
-(using coq 0.8)
+(using rocq 0.11)
 (using melange 0.1)
 (using directory-targets 0.1)
 
@@ -19,7 +19,7 @@
  (synopsis "A mechanization of the specification of ECMAScript regexes")
  (depends
   (ocaml (= 4.14.2))
-  (coq (and (>= "8.18.0") (<= "8.19.2")))))
+  (rocq-prover (>= 9.0.0))))
 
 (package
  (name warblre-engines)

@@ -7,10 +7,10 @@
  (files ../common/Extraction.v))
 
 ; Extract with different directives
-(coq.extraction
+(rocq.extraction
  (prelude Extraction)
  (extracted_modules Extracted)
- (theories Warblre Ltac2))
+ (theories Warblre Ltac2 Stdlib))
 
 ; Make a library out of it
 (library
@@ -24,4 +24,4 @@
 (env
  (dev
   (flags
-   (:standard -w -27 -w -39 -w -67))))
+   (:standard -w -20 -w -27 -w -39 -w -67))))

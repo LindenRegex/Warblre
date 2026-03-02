@@ -1,4 +1,4 @@
-From Coq Require Import ZArith List.
+From Stdlib Require Import ZArith List.
 From Warblre Require Import Parameters.
 From Warblre Require Import Patterns RegExpRecord.
 From Warblre Require Import EarlyErrors.
@@ -10,7 +10,7 @@ Import Patterns Coercions.Coercions Notation.Notation.
 
 (** This file demonstrates how our specification can be used to reason about regular expressions.
 
-    Specifically, we prove an extremely simple property: the fact that for any [a], the regexp [/(?:a+?)+?/] matches the string ["aaa"] (the paper describes more complex proofs, and the global README links to the corresponding Coq code). **)
+    Specifically, we prove an extremely simple property: the fact that for any [a], the regexp [/(?:a+?)+?/] matches the string ["aaa"] (the paper describes more complex proofs, and the global README links to the corresponding Rocq code). **)
 
 Section AbstractMatching.
   (** We start by assuming a concrete (yet arbitrary) instantiation of the engine. **)
@@ -56,17 +56,20 @@ Section AbstractMatching.
   Definition compilation_result :=
     Semantics.compilePattern regex_of_interest rer.
 
-  Lemma compiles_successfully:
+  Lemma compiles_successfully_refl:
      exists m, compilation_result = Result.Success m.
   Proof.
     (** Again, since the regex is concrete, we can just compute. **)
     eexists. cbn. reflexivity.
+  Qed.
 
-    (** But we can also use some theorems from the development, which would work even if the regex was left more abstract. **)
-    Restart.
+  (** But we can also use some theorems from the development, which would work even if the regex was left more abstract: **)
 
-    Search Semantics.compilePattern Result.Success.
+  Search Semantics.compilePattern Result.Success.
 
+  Lemma compiles_successfully_thm:
+     exists m, compilation_result = Result.Success m.
+  Proof.
     (** We use the theorem listed in section 4.2.1 in the paper, [compilePattern_success], which states that compilation always succeeds if a regex passes early error checks. **)
     apply compilePattern_success.
     - (** We have to show that the number of groups per [rer] matches the actual number

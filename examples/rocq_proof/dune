@@ -1,0 +1,7 @@
+(include_subdirs qualified)
+
+(rocq.theory
+ (name Example)
+ (package warblre-examples)
+ (generate_project_file)
+ (theories Stdlib Warblre))

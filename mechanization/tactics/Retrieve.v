@@ -1,13 +1,6 @@
 Require Import Ltac2.Ltac2.
 From Ltac2 Require Import Control Pattern List.
 
-(*  LATER:
-    once updated to a newer version (8.20?) supporting https://github.com/coq/coq/pull/18690,
-    remove and use builtin.
-*)
-Ltac2 numgoals (_: unit): int :=
-  1.
-
 (** A tactic to retrieve an hypothesis by the shape of its type. *)
 Ltac2 retrieve (pat: pattern) (into: ident): unit :=
   let hyp_patterns := (None, (Pattern.MatchPattern, pat)) :: [] in

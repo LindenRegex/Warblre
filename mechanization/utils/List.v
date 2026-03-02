@@ -1,4 +1,4 @@
-From Coq Require Import ZArith Lia List Bool.
+From Stdlib Require Import ZArith Lia List Bool.
 From Warblre Require Import Tactics Focus Result.
 
 Import Result.Notations.
@@ -49,7 +49,7 @@ Module List.
   Proof.
     intros l1 l2 p12 p21 Eq_l1 Eq_l2. 
     pose proof (@f_equal _ _ (@length _) _ _ Eq_l1). pose proof (@f_equal _ _ (@length _) _ _ Eq_l2).
-    rewrite -> app_length in *.
+    rewrite -> length_app in *.
     assert (length p12 = 0)%nat as Eq_p12 by lia. assert (length p21 = 0)%nat as Eq_p21 by lia.
     rewrite -> length_zero_iff_nil in *. subst. reflexivity.
   Qed.

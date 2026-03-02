@@ -1,6 +1,6 @@
-# Warblre: A Coq mechanization of ECMAScript regexes
+# Warblre: A Rocq mechanization of ECMAScript regexes
 
-This repository contains *Warblre*, a Coq mechanization of ECMAScript regexes.
+This repository contains *Warblre*, a Rocq mechanization of ECMAScript regexes.
 [ECMAScript](https://ecma-international.org/publications-and-standards/standards/ecma-262/) is the specification followed by JavaScript implementations, and a mechanization of its regex semantics makes it possible to reason formally about these regexes from a proof assistant.
 
 The mechanization has the following properties:
@@ -26,22 +26,16 @@ The mechanization has the following properties:
     ```shell
     opam install . --deps-only
     ```
-    This will allow you to step through the Coq code, extract the OCaml code and compile it.
+    This will allow you to step through the Rocq code, extract the OCaml code and compile it.
 2. **[Optional]**  
     In order to pack and and run the JavaScript code, you will need to install [Node.js](https://nodejs.org/en), e.g. using [nvm](https://github.com/nvm-sh/nvm).
     ```shell
-    nvm install 21.7.2
+    nvm install 24.13.0
     ```
     as well as some JavaScript dependencies:
     ```shell
     npm install # Install packages used by our JavaScript code
     npm install -g webpack-cli # Install webpack-cli, which is used to pack the code in monolithic JavaScript files
-    ```
-3. **[Optional]**  
-    [Alectryon](https://github.com/cpitclaudel/alectryon) is used to produced literate examples.
-    You will also need [serapi](https://github.com/ejgallego/coq-serapi).
-    ```
-    opam install coq-serapi
     ```
 
 Alternatively, a [nix](https://nixos.org/) flake installing all the dependencies is provided:
@@ -55,7 +49,7 @@ npm install
 - `dune exec example` will run an example of matching a string with a regex ([source](examples/ocaml_example/Main.ml)).
 - **[Requires JavaScript dependencies]**  
     `dune exec fuzzer` will build and run the fuzzer to compare the extracted engine against Irregexp (Node.js's regex engine).
-- `dune build examples/coq_proof` will build everything so that you can step through [examples/coq-proof/Example.v](examples/coq_proof/Example.v), which demonstrates how Warblre can be used to reason about JavaScript regexes. Alternatively, if you installed Alectryon, you can open the generated [webpage](_build/default/examples/coq_proof/Example.html) in your web browser.
+- `dune build examples/rocq_proof` will build everything so that you can step through [examples/rocq-proof/Example.v](examples/rocq_proof/Example.v), which demonstrates how Warblre can be used to reason about JavaScript regexes.
 
 ## Structure of the repository
 
@@ -76,7 +70,7 @@ The repository is structured as follows:
 ├── examples
 │   ├── browser_playground
 │   ├── cmd_playground
-│   ├── coq_proof
+│   ├── rocq_proof
 │   └── ocaml_example
 └── tests
     ├── tests
@@ -84,7 +78,7 @@ The repository is structured as follows:
     └── test262
 ```
 
-- **[Mechanization](#mechanization)**: Warblre proper, the mechanization in Coq of the ECMASCript semantics of regexes.
+- **[Mechanization](#mechanization)**: Warblre proper, the mechanization in Rocq of the ECMASCript semantics of regexes.
 - **[Engines](#engines)**: Extraction directives and extra code to allow a smooth usage of the extracted engine in different programming languages. Most of the code is in `common`; the other directories contain code specific to one particular language.
 - **Examples**: Code snippets which show how to use the mechanization and extracted engines.
 - **Tests:**
@@ -96,7 +90,7 @@ The follow subsections further detail some of these.
 
 ## Mechanization
 
-The `mechanization` directory contains the Coq code mechanizing the subset of the ECMAScript specification which describes regexes and their semantics.
+The `mechanization` directory contains the Rocq code mechanizing the subset of the ECMAScript specification which describes regexes and their semantics.
 It is based on the 14th edition from June 2023, available [here](https://262.ecma-international.org/14.0/).
 Regexes are described in chapter [22.2](https://tc39.es/ecma262/2023/multipage/text-processing.html#sec-regexp-regular-expression-objects).
 
@@ -115,7 +109,7 @@ The mechanization depends on external types and parameters (for instance for uni
 This is encoded with a functor, whose parameter is described in `mechanization/spec/API.v`.
 
 Files are organized as follows:
-- **spec**: the mechanization in itself, translating the paper specification into Coq.
+- **spec**: the mechanization in itself, translating the paper specification into Rocq.
 - **props**: proofs about the specification. The main proofs are
     - *Compilation failure-free*: if a regex is early-errors-free, then its compilation into a matcher does not raise an error.
     - *Matching failure-free*: if a matcher is provided with valid inputs, then the matching process does not raise an error.

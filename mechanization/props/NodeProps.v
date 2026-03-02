@@ -1,4 +1,4 @@
-From Coq Require Import List Program.Equality PeanoNat.
+From Stdlib Require Import List Program.Equality PeanoNat.
 From Warblre Require Import List Result Base Patterns Node.
 
 Import Patterns.
@@ -342,4 +342,3 @@ Section Induction.
       forall r ctx, Root root (r, ctx) -> P (r, ctx).
     Proof. induction r; try eauto. Qed.
 End Induction.
-

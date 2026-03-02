@@ -1,4 +1,4 @@
-From Coq Require Import List.
+From Stdlib Require Import List.
 From Warblre Require Import Result Typeclasses Base Notation Patterns.
 
 (** +

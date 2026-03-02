@@ -1,4 +1,4 @@
-From Coq Require Import PeanoNat ZArith Bool Lia Program.Equality List Program.Wf.
+From Stdlib Require Import PeanoNat ZArith Bool Lia Program.Equality List Program.Wf.
 From Warblre Require Import RegExpRecord Tactics Focus Result Base Patterns Errors StaticSemantics Node Notation List Typeclasses.
 
 Import Result.Notations.
@@ -469,7 +469,7 @@ Module Semantics. Section main.
       parenIndex (a non-negative integer), and parenCount (a non-negative integer) and returns a MatchResult.
       It performs the following steps when called:
   <<*)
-  (* + Coq wants to make sure the function will terminate; we do so by bounding recursion by an arbitrary fuel amount +*)
+  (* + Rocq wants to make sure the function will terminate; we do so by bounding recursion by an arbitrary fuel amount +*)
   Fixpoint repeatMatcher' (m: Matcher) (min: non_neg_integer) (max: non_neg_integer_or_inf) (greedy: bool) (x: MatchState) (c: MatcherContinuation) (parenIndex parenCount: non_neg_integer) (fuel: nat): MatchResult :=
   match fuel with
   | 0 => out_of_fuel

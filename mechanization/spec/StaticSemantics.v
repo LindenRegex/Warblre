@@ -1,4 +1,4 @@
-From Coq Require Import PeanoNat List Bool.
+From Stdlib Require Import PeanoNat List Bool.
 From Warblre Require Import Result List Base Errors Result Patterns Node NodeProps Typeclasses.
 
 Import Coercions.

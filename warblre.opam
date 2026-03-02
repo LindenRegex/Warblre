@@ -7,9 +7,9 @@ license: "BSD-3-Clause"
 homepage: "https://github.com/epfl-systemf/warblre"
 bug-reports: "https://github.com/epfl-systemf/warblre/issues"
 depends: [
-  "dune" {>= "3.14"}
+  "dune" {>= "3.21"}
   "ocaml" {= "4.14.2"}
-  "coq" {>= "8.18.0" & <= "8.19.2"}
+  "rocq-prover" {>= "9.0.0"}
   "odoc" {with-doc}
 ]
 build: [
@@ -26,3 +26,4 @@ build: [
     "@doc" {with-doc}
   ]
 ]
+x-maintenance-intent: ["(latest)"]

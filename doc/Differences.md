@@ -110,15 +110,15 @@ The specification contains a few assertions which ensure that numbers can be saf
 >
 >> Assert: n < 2^32 - 1.
 
-These checks are currently not mechanized, as unbound integers are used in Coq, OCaml and JavaScript.
+These checks are currently not mechanized, as unbound integers are used in Rocq, OCaml and JavaScript.
 
 ## Non-structurally recursive functions
 
 Some functions in the specification, `RepeatMatcher` being the the most infamous one, are generally recursive.
-Such definitions would be rejected by Coq, as it cannot syntactically ensure their termination.
+Such definitions would be rejected by Rocq, as it cannot syntactically ensure their termination.
 
 We modified such definitions into fuel-based functions.
-This transformation allows Coq to ensure their termination,
+This transformation allows Rocq to ensure their termination,
 since the function is then structurally recursive on the fuel (which is represented using a `nat`).
 
 Intuitively, the equivalence of the two functions (before and after transformation) relies on being able to compute a sufficient amount of fuel **prior** to the first call, and on the fact that such a fuel amount exists to begin with.
@@ -200,11 +200,14 @@ Some of these other functions were mechanized (`CodePointAt`, `AdvanceStringInde
 The axiomatization of functions left abstract is *minimal*, in the sense that only axioms which are necessary to ensure the safety and termination of the specification: these functions should most likely satisfy other properties to be considered correct.
 
 > For instance, `canonicalize` has no applicable axiom, which would allow for characters such that
-> ```Coq
+>
+> ```rocq
 > canonicalize c1 = c2 /\ canonicalize c2 = c1
 > ```
+>
 > which would yield some surprising behaviors. In fact, `canonicalize` should most likely be idempotent:
-> ```Coq
+>
+> ```rocq
 > forall c, canonicalize c = canonicalize (canonicalize c)
 > ```
 

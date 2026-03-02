@@ -1,4 +1,4 @@
-From Coq Require Import Bool Nat.
+From Stdlib Require Import Bool Nat.
 From Warblre Require Import Base Errors Result Return RegExpRecord Patterns Notation Semantics Frontend.
 
 Module API.

@@ -14,15 +14,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        coq: [ "8.18.0", "8.19.2" ]
-        node: [ "21.7.2", "22.4.1" ]
+        rocq: [ "9.0.0", "9.1.0" ]
+        node: [ "24.13.0" ]
       fail-fast: false
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
           cache: 'npm'
@@ -51,9 +51,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /home/runner/work/Warblre/Warblre/_opam
-          key: opam-packages-cache-${{runner.os}}-coq${{matrix.coq}}-${{ hashFiles('**/*.opam') }}
+          key: opam-packages-cache-${{runner.os}}-rocq${{matrix.rocq}}-${{ hashFiles('**/*.opam') }}
           restore-keys: |
-                        opam-packages-cache-${{runner.os}}-coq${{matrix.coq}}
+                        opam-packages-cache-${{runner.os}}-rocq${{matrix.rocq}}
                         opam-packages-cache-${{runner.os}}
       - name: Install opam dependencies
         run:  |
@@ -62,10 +62,8 @@ jobs:
               echo "::endgroup::"
 
               echo "::group::Install opam packages"
-              opam pin add -n -k version coq ${{ matrix.coq }}
-              # coq-serapi's dependencies are installed now to ensure
-              opam install --confirm-level=unsafe-yes --deps-only . coq-serapi
-              opam install --confirm-level=unsafe-yes coq-serapi
+              opam pin add -n -k version coq ${{ matrix.rocq }}
+              opam install --confirm-level=unsafe-yes --deps-only .
               echo "::endgroup::"
 
               echo "::group::Print opam config (post-install)"
@@ -80,10 +78,10 @@ jobs:
         run:  |
               opam exec -- dune test --force --display=verbose
 
-      - name: Check compiled libraries (coqchk)
+      - name: Check compiled libraries (rocqchk)
         run:  |
               ALL_VOS=$(find _build/default/mechanization/ -name '*.vo');
-              opam exec -- coqchk -silent --output-context -Q _build/default/mechanization Warblre $ALL_VOS
+              opam exec -- rocqchk -silent --output-context -Q _build/default/mechanization Warblre $ALL_VOS
 
       - name: Test install of Warblre
         run:  |

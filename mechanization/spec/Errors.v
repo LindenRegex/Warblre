@@ -4,8 +4,7 @@ From Warblre Require Import Typeclasses Result.
 
 (* Errors which occur during the early errors phase. *)
 Module SyntaxError.
-  (* Weird syntax to work around https://github.com/coq/coq/issues/7424 *)
-  Inductive type: let t := Type in t :=
+  Inductive type: Type :=
   | AssertionFailed.
 End SyntaxError.
 Notation SyntaxError := SyntaxError.type.
@@ -16,8 +15,7 @@ Instance syntax_assertion_error: Result.AssertionError SyntaxError := { f := Syn
 
 (* Errors which occur during the compilation phase. *)
 Module CompileError.
-  (* Weird syntax to work around https://github.com/coq/coq/issues/7424 *)
-  Inductive type: let t := Type in t :=
+  Inductive type: Type :=
   | AssertionFailed.
 End CompileError.
 Notation CompileError := CompileError.type.

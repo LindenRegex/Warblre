@@ -1,4 +1,4 @@
-From Coq Require Import PeanoNat List Lia NArith Program.Equality.
+From Stdlib Require Import PeanoNat List Lia NArith Program.Equality.
 From Warblre Require Import Tactics List Result Errors Focus Base Characters Patterns Node NodeProps StaticSemantics.
 
 Section EarlyErrors.

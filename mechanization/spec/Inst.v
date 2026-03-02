@@ -1,6 +1,6 @@
 From Warblre Require Import API.
 From Warblre Require Import Frontend.
-From Coq Require Import Lia.
+From Stdlib Require Import Lia.
 
 (* This is one instantiation of the alphabet that can be executed within Rocq. *)
 (* This encodes the ASCII alphabet *)
@@ -184,7 +184,7 @@ Module NaiveEngineParameters <: API.EngineParameters.
       - apply ListSet.set_mem_correct2 with (Aeq_dec := Character.equal). auto.
     Qed.
 
-    Lemma range_seq: forall base l, List.List.Range.Nat.Length.range base l = Coq.Lists.List.seq base l.
+    Lemma range_seq: forall base l, List.List.Range.Nat.Length.range base l = Stdlib.Lists.List.seq base l.
     Proof.
       intros base l.
       revert base.
@@ -344,7 +344,7 @@ End NaiveEngineParameters.
 (* We remove the fast engine, at least for now *)
 
 (*
-From Coq Require Import OrdersEx MSetRBT.
+From Stdlib Require Import OrdersEx MSetRBT.
 
 Module FastEngineParameters <: API.EngineParameters.
   Import RegExpRecord Numeric List ZArith Result.
@@ -519,7 +519,7 @@ End FastEngineParameters.
 Module NaiveEngine := API.Engine (NaiveEngineParameters).
 (*Module FastEngine := API.Engine (NaiveEngineParameters).*)
 
-Require Import Coq.Strings.Ascii Coq.Strings.String.
+Require Import Stdlib.Strings.Ascii Stdlib.Strings.String.
 Open Scope string_scope.
 
 Import API.Patterns Result.
@@ -528,16 +528,16 @@ Open Scope list_scope.
 Import NaiveEngine.
 (* Import FastEngine. *)
 
-Definition get_success {S F} (r: Result S F) : match r with Success _ => S | Error _ => unit end :=
+Definition get_success {S F: Type} (r: Result S F) : match r with Success _ => S | Error _ => unit end :=
   match r with
   | Success s => s
   | Error f => tt
   end.
 
-Definition string_of_String (s: Coq.Strings.String.string) :=
+Definition string_of_String (s: Stdlib.Strings.String.string) :=
   List.map Byte.to_nat (String.list_byte_of_string s).
 
-Definition character_of_Ascii (a: Coq.Strings.Ascii.ascii) :=
+Definition character_of_Ascii (a: Stdlib.Strings.Ascii.ascii) :=
   Byte.to_nat (byte_of_ascii a).
 
 Example flags :=
@@ -548,9 +548,10 @@ Notation "$ c" := (character_of_Ascii c) (at level 0).
 Notation "$$ s" := (string_of_String s) (at level 0).
 
 (* Hide the matching functions in the outputs below*)
-Arguments Exotic {C S UP}%type_scope {H H0 H1} _ {_}.
-Arguments Null {C S UP}%type_scope {H H0 H1} {_}.
+Arguments Exotic {C S UP}%_type_scope {H H0 H1} _ {_}.
+Arguments Null {C S UP}%_type_scope {H H0 H1} {_}.
 
+(*
 Time Compute
   rmatch
     ! (Char $ "l")
@@ -584,4 +585,4 @@ Time Compute
                (Quantified (Char $ "a") (Greedy Question))
                (Quantified (Char $ "b") (Lazy Question))))
          (Greedy Star))
-    $$ "ab".
+    $$ "ab". *)

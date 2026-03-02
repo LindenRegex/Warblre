@@ -23,25 +23,26 @@ Inductive focus :=
 | LetBound (f: focus).
 
 (** Grammar to write focuses. *)
+(* TODO: the levels were changed to avoid factorization issues, but
+   I have not put enough thoughts into it to be sure these changes are fine. *)
 Declare Custom Entry focus.
 Notation "'<!' e '!>'" := e (e custom focus at level 99).
 Notation "'[]'" := Here (in custom focus at level 0).
 Notation "'(' f ')'" := f (in custom focus at level 0, f at level 99).
 Notation "'if' f 'then' '_' 'else' '_'" := (IteCond f) (in custom focus at level 99).
-Notation "f '_'" := (AppL f) (in custom focus at level 50, left associativity).
-Notation "'_' f" := (AppR f) (in custom focus at level 50, f at level 49, left associativity).
-Notation "f -> '_'" := (ArrowL f) (in custom focus at level 70, right associativity).
-Notation "'_' -> f" := (ArrowR f) (in custom focus at level 70, right associativity).
-Notation "'_' f" := (AppR f) (in custom focus at level 50, f at level 49, left associativity).
-Notation "'_' '_' f" := (AppR f) (in custom focus at level 50, f at level 49, left associativity, only parsing).
-Notation "'_' '_' '_' f" := (AppR f) (in custom focus at level 50, f at level 49, left associativity, only parsing).
-Notation "'_' '_' '_' '_' f" := (AppR f) (in custom focus at level 50, f at level 49, left associativity, only parsing).
-Notation "'_' '_' '_' '_' '_' f" := (AppR f) (in custom focus at level 50, f at level 49, left associativity, only parsing).
-Notation "'_' '_' '_' '_' '_' '_' f" := (AppR f) (in custom focus at level 50, f at level 49, left associativity, only parsing).
-Notation "'_' '_' '_' '_' '_' '_' '_' f" := (AppR f) (in custom focus at level 50, f at level 49, left associativity, only parsing).
-Notation "'_' '_' '_' '_' '_' '_' '_' '_' f" := (AppR f) (in custom focus at level 50, f at level 49, left associativity, only parsing).
-Notation "'_' '_' '_' '_' '_' '_' '_' '_' '_' f" := (AppR f) (in custom focus at level 50, f at level 49, left associativity, only parsing).
-Notation "'_' '_' '_' '_' '_' '_' '_' '_' '_' '_' f" := (AppR f) (in custom focus at level 50, f at level 49, left associativity, only parsing).
+Notation "f '->' '_'" := (ArrowL f) (in custom focus at level 70, right associativity).
+Notation "'_' '->' f" := (ArrowR f) (in custom focus at level 70, right associativity).
+Notation "f '_'" := (AppL f) (in custom focus at level 70, no associativity).
+Notation "'_' f" := (AppR f) (in custom focus at level 70, no associativity).
+Notation "'_' '_' f" := (AppR f) (in custom focus at level 70, no associativity, only parsing).
+Notation "'_' '_' '_' f" := (AppR f) (in custom focus at level 70, no associativity, only parsing).
+Notation "'_' '_' '_' '_' f" := (AppR f) (in custom focus at level 70, no associativity, only parsing).
+Notation "'_' '_' '_' '_' '_' f" := (AppR f) (in custom focus at level 70, no associativity, only parsing).
+Notation "'_' '_' '_' '_' '_' '_' f" := (AppR f) (in custom focus at level 70, no associativity, only parsing).
+Notation "'_' '_' '_' '_' '_' '_' '_' f" := (AppR f) (in custom focus at level 70, no associativity, only parsing).
+Notation "'_' '_' '_' '_' '_' '_' '_' '_' f" := (AppR f) (in custom focus at level 70, no associativity, only parsing).
+Notation "'_' '_' '_' '_' '_' '_' '_' '_' '_' f" := (AppR f) (in custom focus at level 70, no associativity, only parsing).
+Notation "'_' '_' '_' '_' '_' '_' '_' '_' '_' '_' f" := (AppR f) (in custom focus at level 70, no associativity, only parsing).
 
 (** Internal implementation *)
 Local Fixpoint focus_insert (f inserted: focus) := match f with
