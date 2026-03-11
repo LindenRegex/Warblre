@@ -846,7 +846,7 @@ Module Semantics. Section main.
         (*>> 1. Let ch be the character matched by PatternCharacter. <<*)
         let ch := c in
         (*>> 2. Let A be a one-element CharSet containing the character ch. <<*)
-        let A := CharSet.singleton c in
+        let A := CharSet.singleton ch in
         (*>> 3. Return CharacterSetMatcher(rer, A, false, direction). <<*)
         characterSetMatcher rer A false direction
 
