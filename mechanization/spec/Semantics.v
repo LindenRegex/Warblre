@@ -647,7 +647,7 @@ Module Semantics. Section main.
           (*>> d. Let e be x's endIndex. <<*)
           let e := MatchState.endIndex x in
           (*>> e. If e = 0, or if rer.[[Multiline]] is true and the character Input[e - 1] is matched by LineTerminator, then <<*)
-          if! (e =? 0)%Z ||! ((RegExpRecord.multiline rer is true) &&! (let! c =<< input[(e-1)%Z] in CharSet.contains Characters.line_terminators c)) then
+          if! (e =? 0)%Z ||! ((RegExpRecord.multiline rer is true) &&! (let! d =<< input[(e-1)%Z] in CharSet.contains Characters.line_terminators d)) then
             (*>> i. Return c(x). <<*)
             c x
           else
@@ -667,7 +667,7 @@ Module Semantics. Section main.
           (*>> e. Let InputLength be the number of elements in Input. <<*)
           let inputLength := List.length input in
           (*>> f. If e = InputLength, or if rer.[[Multiline]] is true and the character Input[e] is matched by LineTerminator, then <<*)
-          if! (e =? inputLength)%Z ||! ((RegExpRecord.multiline rer is true) &&! (let! c =<< input[e] in CharSet.contains Characters.line_terminators c)) then
+          if! (e =? inputLength)%Z ||! ((RegExpRecord.multiline rer is true) &&! (let! d =<< input[e] in CharSet.contains Characters.line_terminators d)) then
             (*>> i. Return c(x). <<*)
             c x
           else
