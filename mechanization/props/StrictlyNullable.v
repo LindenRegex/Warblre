@@ -375,6 +375,8 @@ Proof.
                CompiledQuantifier_max (compileQuantifier q))%NoI); [ discriminate |].
     inversion COMPILE as [M].
     clear COMPILE M m.
+    change (countLeftCapturingParensBefore (Quantified r q) ctx)
+      with (countLeftCapturingParensBefore r ctx).
     apply repeat_matcher_sn with (root:=root); auto.
     unfold repeatMatcherFuel. lia.
   (* concatenation *)
@@ -567,6 +569,9 @@ Proof.
   unfold Coercions.wrap_Matcher in COMPILESTAR. inversion COMPILESTAR as [STAR]. clear COMPILESTAR.
   apply strictly_nullable_repeatmatcher' with (x:=x) (c:=c) (root:=root) in SUBSTAR; auto.
   simpl in SUBSTAR. rewrite PeanoNat.Nat.add_0_r in SUBSTAR.
-  unfold repeatMatcher. rewrite SUBSTAR. auto.
+  unfold repeatMatcher. 
+  change (countLeftCapturingParensBefore (Quantified r (Greedy Star)) ctx)
+    with (countLeftCapturingParensBefore r ctx).
+  rewrite SUBSTAR. auto.
 Qed.
 End StriclyNullable.

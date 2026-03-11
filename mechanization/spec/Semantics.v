@@ -614,7 +614,7 @@ Module Semantics. Section main.
       (*>> 3. Assert: q.[[Min]] ≤ q.[[Max]]. <<*)
       assert! (CompiledQuantifier_min q <=? CompiledQuantifier_max q)%NoI;
       (*>> 4. Let parenIndex be CountLeftCapturingParensBefore(Term). <<*)
-      let parenIndex := countLeftCapturingParensBefore r ctx in
+      let parenIndex := countLeftCapturingParensBefore self ctx in
       (*>> 5. Let parenCount be CountLeftCapturingParensWithin(Atom). <<*)
       let parenCount := countLeftCapturingParensWithin r (Quantified_inner qu :: ctx) in
       (*>> 6. Return a new Matcher with parameters (x, c) that captures m, q, parenIndex, and parenCount and performs the following steps when called: <<*)
