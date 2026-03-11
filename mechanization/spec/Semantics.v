@@ -932,16 +932,16 @@ Module Semantics. Section main.
           (*>> 2. Let ch be the character whose character value is cv. <<*)
           let ch := Character.from_numeric_value cv in
           (*>> 3. Let A be a one-element CharSet containing the character ch. <<*)
-          let a := CharSet.singleton ch in
+          let A := CharSet.singleton ch in
           (*>> 4. Return CharacterSetMatcher(rer, A, false, direction). <<*)
-          characterSetMatcher rer a false direction
+          characterSetMatcher rer A false direction
 
       (** >> AtomEscape :: CharacterClassEscape <<*)
       | AtomEsc (ACharacterClassEsc cce) =>
           (*>> 1. Let A be CompileToCharSet of CharacterClassEscape with argument rer. <<*)
-          let! a =<< compileToCharSet cce rer in
+          let! A =<< compileToCharSet cce rer in
           (*>> 2. Return CharacterSetMatcher(rer, A, false, direction). <<*)
-          characterSetMatcher rer a false direction
+          characterSetMatcher rer A false direction
 
       (** >> AtomEscape :: k GroupName <<*)
       | AtomEsc (GroupEsc gn) =>
