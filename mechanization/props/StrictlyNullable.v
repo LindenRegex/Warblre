@@ -419,7 +419,7 @@ Proof.
     rewrite NOFAIL. rewrite Nat.add_sub.
     (* the update is independent of the direction *)
     match goal with
-    | [ |- context[(if ?c then ?i else ?e)]] => replace (if c then i else e) with e
+    | [ |- context[(if ?c then ?i else ?e)]] => replace (if c then i else e) with i
     end.
     2: { destruct dir; auto. } simpl.
     destruct (List.Update.Nat.One.update (CaptureRange_or_undefined (CaptureRange.make (endIndex y) (endIndex y))) (captures y) (countLeftCapturingParensBefore (Group name r) ctx)) eqn:UPD.

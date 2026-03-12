@@ -901,6 +901,7 @@ Module Semantics. Section main.
               (*>> vii. Else, <<*)
               else
                 (*>> 1. Assert: direction is backward. <<*)
+                  assert! (direction == backward) ;
                 (*>> 2. Assert: ye ≤ xe. <<*)
                 assert! (ye <=? xe)%Z ;
                 (*>> 3. Let r be the CaptureRange (ye, xe). <<*)
