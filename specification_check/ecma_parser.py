@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Dict, List
+from pathlib import Path
 
 import bs4
 import requests
@@ -9,6 +10,7 @@ from spec_merger.content_classes.string import String
 from spec_merger.aligner_utils import Position
 from spec_merger.utils import ParserState, ParsedPage, Parser
 
+SCRIPT_DIR = Path(__file__).parent
 
 @dataclass(frozen=True)
 class URLPosition(Position):
@@ -40,9 +42,12 @@ class ECMAParser(Parser):
         self.avoid = {None, "emu-note", "\n"}
 
     def __get_page(self):
-        html_spec = requests.get(self.url).content
-        soup = BeautifulSoup(html_spec, 'html.parser')
-        return soup
+        if (cache := SCRIPT_DIR / f"ecma-{self.version}.html").exists():
+            html_spec = cache.read_bytes()
+        else:
+            html_spec = requests.get(self.url).content
+            _ = cache.write_bytes(html_spec)
+        return BeautifulSoup(html_spec, 'html.parser')
 
     def __parse_section(self, section_html: BeautifulSoup, sections_by_number: Dict[str, Dictionary]):
         position = URLPosition(self.url + "#" + section_html.get("id"))
