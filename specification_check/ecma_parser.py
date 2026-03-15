@@ -28,14 +28,15 @@ def add_case(cases: dict[str, Dictionary], case: tuple[str, String], key: str):
 
 class ECMAParser(Parser):
 
-    def __init__(self, url, parser_name="ECMA", sections=None):
-        self.name = parser_name
+    def __init__(self, version: str, sections=None):
+        self.name = f"ECMAScript v{version}"
         if sections is None:
             sections = ["sec-regexp-regular-expression-objects"]
         self.sections = sections
-        self.url = url
+        self.version = version
+        self.url = f"https://262.ecma-international.org/{version}/"
         self.page = self.__get_page()
-        self.sections_by_number: Dict[str, Dictionary] = None
+        self.sections_by_number: dict[str, Dictionary] = None
         self.avoid = {None, "emu-note", "\n"}
 
     def __get_page(self):
@@ -128,7 +129,7 @@ class ECMAParser(Parser):
             result.append(tmp)
         return result
 
-    def __parse_p(self, p: BeautifulSoup):
+    def __parse_p(self, p):
         res = ""
         if type(p) is bs4.NavigableString:
             return p.text
@@ -183,7 +184,7 @@ class ECMAParser(Parser):
                                      current_case_title[0])
                         current_case = ""
                     current_case_titles = self.__parse_emu_grammar(children)
-                case "span" | "emu-table" | "emu-import" | "h2" | "emu-table":
+                case "span" | "emu-table" | "emu-import" | "h2":
                     pass
                 case _:
                     print(f"ERROR: Unhandled tag in html section : {children.name}, {children.text}")
