@@ -375,6 +375,8 @@ Proof.
                CompiledQuantifier_max (compileQuantifier q))%NoI); [ discriminate |].
     inversion COMPILE as [M].
     clear COMPILE M m.
+    change (countLeftCapturingParensBefore (Quantified r q) ctx)
+      with (countLeftCapturingParensBefore r ctx).
     apply repeat_matcher_sn with (root:=root); auto.
     unfold repeatMatcherFuel. lia.
   (* concatenation *)
@@ -417,7 +419,7 @@ Proof.
     rewrite NOFAIL. rewrite Nat.add_sub.
     (* the update is independent of the direction *)
     match goal with
-    | [ |- context[(if ?c then ?i else ?e)]] => replace (if c then i else e) with e
+    | [ |- context[(if ?c then ?i else ?e)]] => replace (if c then i else e) with i
     end.
     2: { destruct dir; auto. } simpl.
     destruct (List.Update.Nat.One.update (CaptureRange_or_undefined (CaptureRange.make (endIndex y) (endIndex y))) (captures y) (countLeftCapturingParensBefore (Group name r) ctx)) eqn:UPD.
@@ -567,6 +569,9 @@ Proof.
   unfold Coercions.wrap_Matcher in COMPILESTAR. inversion COMPILESTAR as [STAR]. clear COMPILESTAR.
   apply strictly_nullable_repeatmatcher' with (x:=x) (c:=c) (root:=root) in SUBSTAR; auto.
   simpl in SUBSTAR. rewrite PeanoNat.Nat.add_0_r in SUBSTAR.
-  unfold repeatMatcher. rewrite SUBSTAR. auto.
+  unfold repeatMatcher. 
+  change (countLeftCapturingParensBefore (Quantified r (Greedy Star)) ctx)
+    with (countLeftCapturingParensBefore r ctx).
+  rewrite SUBSTAR. auto.
 Qed.
 End StriclyNullable.

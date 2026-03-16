@@ -387,7 +387,7 @@ Module Semantics. Section main.
       (*>> 3. Return the union of CharSets A and B. <<*)
       CharSet.union A B
 
-  (** >> NonemptyClassRangesNoDash :: ClassAtomNoDash - ClassAtom ClassRanges <<*)
+  (** >> [OMITTED] NonemptyClassRangesNoDash :: ClassAtomNoDash - ClassAtom ClassRanges <<*)
       (*>> 1. Let A be CompileToCharSet of ClassAtomNoDash with argument rer. <<*)
       (*>> 2. Let B be CompileToCharSet of ClassAtom with argument rer. <<*)
       (*>> 3. Let C be CompileToCharSet of ClassRanges with argument rer. <<*)
@@ -512,7 +512,7 @@ Module Semantics. Section main.
     (*>> 9. If greedy is false, then <<*)
     if greedy is false then
       (*>> a. Let z be c(x). <<*)
-      let! z =<< c x in
+      let z := c x in
       (*>> b. If z is not failure, return z. <<*)
       if z != failure
         then z else
@@ -520,7 +520,7 @@ Module Semantics. Section main.
       m xr d
     else
     (*>> 10. Let z be m(xr, d). <<*)
-    let! z =<< m xr d in
+    let z := m xr d in
     (*>> 11. If z is not failure, return z. <<*)
     if z != failure
       then z else
@@ -614,7 +614,7 @@ Module Semantics. Section main.
       (*>> 3. Assert: q.[[Min]] ≤ q.[[Max]]. <<*)
       assert! (CompiledQuantifier_min q <=? CompiledQuantifier_max q)%NoI;
       (*>> 4. Let parenIndex be CountLeftCapturingParensBefore(Term). <<*)
-      let parenIndex := countLeftCapturingParensBefore r ctx in
+      let parenIndex := countLeftCapturingParensBefore self ctx in
       (*>> 5. Let parenCount be CountLeftCapturingParensWithin(Atom). <<*)
       let parenCount := countLeftCapturingParensWithin r (Quantified_inner qu :: ctx) in
       (*>> 6. Return a new Matcher with parameters (x, c) that captures m, q, parenIndex, and parenCount and performs the following steps when called: <<*)
@@ -647,7 +647,7 @@ Module Semantics. Section main.
           (*>> d. Let e be x's endIndex. <<*)
           let e := MatchState.endIndex x in
           (*>> e. If e = 0, or if rer.[[Multiline]] is true and the character Input[e - 1] is matched by LineTerminator, then <<*)
-          if! (e =? 0)%Z ||! ((RegExpRecord.multiline rer is true) &&! (let! c =<< input[(e-1)%Z] in CharSet.contains Characters.line_terminators c)) then
+          if! (e =? 0)%Z ||! ((RegExpRecord.multiline rer is true) &&! (let! d =<< input[(e-1)%Z] in CharSet.contains Characters.line_terminators d)) then
             (*>> i. Return c(x). <<*)
             c x
           else
@@ -667,7 +667,7 @@ Module Semantics. Section main.
           (*>> e. Let InputLength be the number of elements in Input. <<*)
           let inputLength := List.length input in
           (*>> f. If e = InputLength, or if rer.[[Multiline]] is true and the character Input[e] is matched by LineTerminator, then <<*)
-          if! (e =? inputLength)%Z ||! ((RegExpRecord.multiline rer is true) &&! (let! c =<< input[e] in CharSet.contains Characters.line_terminators c)) then
+          if! (e =? inputLength)%Z ||! ((RegExpRecord.multiline rer is true) &&! (let! d =<< input[e] in CharSet.contains Characters.line_terminators d)) then
             (*>> i. Return c(x). <<*)
             c x
           else
@@ -846,7 +846,7 @@ Module Semantics. Section main.
         (*>> 1. Let ch be the character matched by PatternCharacter. <<*)
         let ch := c in
         (*>> 2. Let A be a one-element CharSet containing the character ch. <<*)
-        let A := CharSet.singleton c in
+        let A := CharSet.singleton ch in
         (*>> 3. Return CharacterSetMatcher(rer, A, false, direction). <<*)
         characterSetMatcher rer A false direction
 
@@ -901,6 +901,7 @@ Module Semantics. Section main.
               (*>> vii. Else, <<*)
               else
                 (*>> 1. Assert: direction is backward. <<*)
+                  assert! (direction == backward) ;
                 (*>> 2. Assert: ye ≤ xe. <<*)
                 assert! (ye <=? xe)%Z ;
                 (*>> 3. Let r be the CaptureRange (ye, xe). <<*)
@@ -932,16 +933,16 @@ Module Semantics. Section main.
           (*>> 2. Let ch be the character whose character value is cv. <<*)
           let ch := Character.from_numeric_value cv in
           (*>> 3. Let A be a one-element CharSet containing the character ch. <<*)
-          let a := CharSet.singleton ch in
+          let A := CharSet.singleton ch in
           (*>> 4. Return CharacterSetMatcher(rer, A, false, direction). <<*)
-          characterSetMatcher rer a false direction
+          characterSetMatcher rer A false direction
 
       (** >> AtomEscape :: CharacterClassEscape <<*)
       | AtomEsc (ACharacterClassEsc cce) =>
           (*>> 1. Let A be CompileToCharSet of CharacterClassEscape with argument rer. <<*)
-          let! a =<< compileToCharSet cce rer in
+          let! A =<< compileToCharSet cce rer in
           (*>> 2. Return CharacterSetMatcher(rer, A, false, direction). <<*)
-          characterSetMatcher rer a false direction
+          characterSetMatcher rer A false direction
 
       (** >> AtomEscape :: k GroupName <<*)
       | AtomEsc (GroupEsc gn) =>
