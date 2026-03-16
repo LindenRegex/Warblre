@@ -387,7 +387,7 @@ Module Semantics. Section main.
       (*>> 3. Return the union of CharSets A and B. <<*)
       CharSet.union A B
 
-  (** >> NonemptyClassRangesNoDash :: ClassAtomNoDash - ClassAtom ClassRanges <<*)
+  (** >> [OMITTED] NonemptyClassRangesNoDash :: ClassAtomNoDash - ClassAtom ClassRanges <<*)
       (*>> 1. Let A be CompileToCharSet of ClassAtomNoDash with argument rer. <<*)
       (*>> 2. Let B be CompileToCharSet of ClassAtom with argument rer. <<*)
       (*>> 3. Let C be CompileToCharSet of ClassRanges with argument rer. <<*)
