@@ -512,7 +512,7 @@ Module Semantics. Section main.
     (*>> 9. If greedy is false, then <<*)
     if greedy is false then
       (*>> a. Let z be c(x). <<*)
-      let! z =<< c x in
+      let z := c x in
       (*>> b. If z is not failure, return z. <<*)
       if z != failure
         then z else
@@ -520,7 +520,7 @@ Module Semantics. Section main.
       m xr d
     else
     (*>> 10. Let z be m(xr, d). <<*)
-    let! z =<< m xr d in
+    let z := m xr d in
     (*>> 11. If z is not failure, return z. <<*)
     if z != failure
       then z else
