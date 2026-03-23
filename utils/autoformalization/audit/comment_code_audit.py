@@ -35,12 +35,12 @@ def extract_defs(filename):
 
             # Start collecting the current definition
             while i < len(lines):
-                line = lines[i]
-                current.append(line)
+                line = lines[i].strip()
+                current.append(lines[i])
                 if line.startswith("(*"):
                     insideComment = True
                 
-                if lines[i].strip().endswith(".") and not insideComment:
+                if line.endswith(".") and not insideComment:
                     break
 
                 if line.endswith("*)"):
