@@ -128,7 +128,23 @@ with open(prompt_file, "r") as f:
 
 systemPrompt = prompt_data["system"]
 prompts = prompt_data["prompts"]
-defs = extract_defs("../../../mechanization/spec/Semantics.v")
+
+files = [
+    "../../../mechanization/spec/API.v",
+    "../../../mechanization/spec/Frontend.v",
+    "../../../mechanization/spec/Node.v",
+    "../../../mechanization/spec/Notation.v",
+    "../../../mechanization/spec/Patterns.v",
+    "../../../mechanization/spec/RegExpRecord.v",
+    "../../../mechanization/spec/StaticSemantics.v",
+    "../../../mechanization/spec/Semantics.v",
+
+]
+
+for file in files:
+    defs_file = extract_defs(file)
+    defs = defs + defs_file if 'defs' in locals() else defs_file
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
