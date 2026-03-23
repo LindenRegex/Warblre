@@ -25,6 +25,7 @@ def extract_defs(filename):
         lines = f.readlines()
     
     i = 0
+    insideComment = False
     while i < len(lines):
         line = lines[i]
 
@@ -34,9 +35,16 @@ def extract_defs(filename):
 
             # Start collecting the current definition
             while i < len(lines):
-                current.append(lines[i])
-                if lines[i].strip().endswith("end."):
+                line = lines[i]
+                current.append(line)
+                if line.startswith("(*"):
+                    insideComment = True
+                
+                if lines[i].strip().endswith(".") and not insideComment:
                     break
+
+                if line.endswith("*)"):
+                    insideComment = False
                 i += 1
 
             defs.append("".join(current))
