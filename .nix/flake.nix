@@ -1,5 +1,5 @@
 {
-  description = "A mechanization of the specification of ECMAScript regexes.";
+  description = "A mechanization of ECMAScript specification of regexes.";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -23,6 +23,7 @@
           runtimeInputs = with pkgs; [
             spec-merger.packages.${system}.spec-merger
           ];
+          # TODO: find way to guarantee this runs from the root of this repo
           text = ''
             python3 main.py > actual_text_output.txt
             diff -y --color=always expected_text_output.txt actual_text_output.txt
@@ -34,11 +35,11 @@
               buildInputs = with pkgs; [
                 rocqPackages_9_1.rocq-core
                 rocqPackages_9_1.stdlib
-                (rocqPackages_9_1.callPackage .nix/vsrocq-language-server.nix {})
+                (rocqPackages_9_1.callPackage ./vsrocq-language-server.nix {})
 
                 # TODO: switch back to the packages in nixpkgs once the features we need get released
                 oPkgs.ocaml
-                (oPkgs.callPackage .nix/dune.nix {})
+                (oPkgs.callPackage ./dune.nix {}) # Needs to be >= 3.21
                 oPkgs.ocamlformat
                 oPkgs.ocaml-lsp
                 oPkgs.findlib
@@ -48,8 +49,6 @@
                 oPkgs.melange
                 oPkgs.zarith
 
-                # coqPackages.serapi
-                # python311Packages.alectryon
                 spec-merger.packages.${system}.spec-merger
                 spec-diff
 
