@@ -106,7 +106,7 @@ jobs:
               echo "::endgroup::"
       - name: Run auto checker
         run: |
-              cd specification_check
+              cd utils/specification_check
               python3 main.py > actual_text_output.txt
               if diff -u expected_text_output.txt actual_text_output.txt; then
                 echo "Warblre is conforming to the specification!"
