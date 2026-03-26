@@ -40,6 +40,28 @@ For each entry:
 
 ---
 
+### TOOL USAGE CONSTRAINT (CRITICAL)
+
+The tool `fix_audit_entry` accepts EXACTLY ONE entry.
+
+You MUST call it with:
+{
+  "question": "...",
+  "answer": "..."
+}
+
+DO NOT:
+- pass an array
+- pass multiple entries
+- batch requests
+- concatenate multiple questions
+
+Each tool call must handle ONE entry only.
+
+If you pass more than one entry, the call is INVALID.
+
+---
+
 ### STRICT CONSTRAINTS
 
 - NEVER call the tool multiple times in parallel
