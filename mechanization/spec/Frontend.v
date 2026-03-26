@@ -224,9 +224,9 @@ Section BuiltinExec.
         let! matchIndexPair =<<
              match matchIndices with
              (*>> b. If matchIndices is not undefined, then <<*)
-             | Some match_rec =>
+             | Some matchIndices =>
                  (*>> i. Let matchIndexPair be GetMatchIndexPair(S, matchIndices). <<*)
-                 let! mpair =<< getMatchIndexPair S match_rec in
+                 let! mpair =<< getMatchIndexPair S matchIndices in
                  Success (Some mpair)
              (*>> c. Else, <<*)
              (*>> i. Let matchIndexPair be undefined <<*)
@@ -244,18 +244,18 @@ Section BuiltinExec.
     | nil => Success nil
     (*>> a. Let matchIndices be indices[i]. <<*)
     | matchIndices::indices' =>
-        let! matchIndexPair =<<
+         let! matchIndexPair =<<
              match matchIndices with
              (*>> b. If matchIndices is not undefined, then <<*)
-             | Some match_rec =>
+             | Some matchIndices =>
                  (*>> i. Let matchIndexPair be GetMatchIndexPair(S, matchIndices). <<*)
-                 let! mpair =<< getMatchIndexPair S match_rec in
+                 let! mpair =<< getMatchIndexPair S matchIndices in
                  Success (Some mpair)
              (*>> c. Else, <<*)
              (*>> i. Let matchIndexPair be undefined <<*)
              | None => Success None
              end in
-        match groupNames with
+         match groupNames with
         | nil => Error MatchError.AssertionFailed
         | gn::groupNames' =>
             let! next =<< makeMatchIndicesGroupList S indices' groupNames' in
