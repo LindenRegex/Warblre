@@ -375,12 +375,12 @@ Section BuiltinExec.
   Fixpoint captures_to_groupnames (R:Regex) (captures:list (option CaptureRange)) (i:nat): Result.Result (list (option GroupName)) MatchError :=
     match captures with
     | nil => Success nil
-    | captureI::captures' =>
+    | _::captures' =>
         let! node =<< nth_group R i in
         destruct! (Group groupname _, _) <- node in
         let! next =<< captures_to_groupnames R captures' (i+1) in
         match groupname with
-        (*>> iii. Append s to groupNames. <<*)
+        (*>> c. Append s to groupNames. <<*)
         | Some s => Success ((Some s)::next)
         (*>> f. Else, <<*)
         (*>> i. Append undefined to groupNames. <<*)
