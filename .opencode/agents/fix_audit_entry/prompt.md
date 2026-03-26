@@ -25,6 +25,7 @@ The "answer" already contains the list of syntactic issues.
 - Do NOT refactor
 - Do NOT optimize
 - Do NOT touch unrelated lines
+- Do NOT touch comments
 
 ---
 
