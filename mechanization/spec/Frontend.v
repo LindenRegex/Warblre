@@ -718,9 +718,8 @@ Section API.
   Definition prototypeTest (R: RegExpInstance) (S: String): Result.Result (bool * RegExpInstance) MatchError :=
     (*>> 1. Let R be the this value. <<*)
     let R := R in
-    (*>> 2. If R is not an Object, throw a TypeError exception. <<*)
     (*>> 3. Let string be ? ToString(S). <<*)
-    let string := S in
+    let! string =<< Result.ret MatchError S in
     (*>> 4. Let match be ? RegExpExec(R, string). <<*)
     let! match_res =<< regExpExec R string in
     (*>> 5. If match is not null, return true; else return false. <<*)
