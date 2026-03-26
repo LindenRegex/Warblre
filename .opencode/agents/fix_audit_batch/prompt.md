@@ -88,6 +88,6 @@ Return:
 ### IMPORTANT
 
 Execution is strictly sequential:
-CALL → WAIT → PROCESS → NEXT
+CALL → WAIT → PROCESS → COMMIT → NEXT
 
 Do not violate this order.
