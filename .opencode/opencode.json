@@ -1,0 +1,17 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "agent": {
+        "filter_audit": {
+            "description": "{file:./description.md}",
+            "prompt": "{file:./prompt.md}"
+        },
+        "fix_audit_entry": {
+            "description": "{file:./agents/fix_audit_entry/description.md}",
+            "prompt": "{file:./agents/fix_audit_entry/prompt.md}"
+        },
+        "fix_audit_batch": {
+            "description": "{file:./agents/fix_audit_batch/description.md}",
+            "prompt": "{file:./agents/fix_audit_batch/prompt.md}"
+        }
+    }
+}
