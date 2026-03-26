@@ -21,11 +21,17 @@ Section StaticSemantics.
       The syntax-directed operation CapturingGroupName takes no arguments and returns a String.
       It is defined piecewise over the following productions:
   <<*)
+  (* + Placeholder for unimplemented RegExpIdentifierCodePoints operation + *)
+  Definition regExpIdentifierCodePoints (gn: GroupName): GroupName := gn.
+  (* + Placeholder for unimplemented CodePointsToString operation + *)
+  Definition codePointsToString (cps: GroupName): GroupName := cps.
+
   Definition capturingGroupName (gn: GroupName): GroupName :=
     (** >> GroupName :: < RegExpIdentifierName > <<*)
     (*>> 1. Let idTextUnescaped be RegExpIdentifierCodePoints of RegExpIdentifierName. <<*)
+    let idTextUnescaped := regExpIdentifierCodePoints gn in
     (*>> 2. Return CodePointsToString(idTextUnescaped). <<*)
-    gn.
+    codePointsToString idTextUnescaped.
 
   (** >>
       22.2.1.7 Static Semantics: GroupSpecifiersThatMatch ( thisGroupName )
