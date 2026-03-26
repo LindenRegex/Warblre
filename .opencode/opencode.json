@@ -11,6 +11,10 @@
             "tools": {
                 "task": true
             }
+        },
+        "filter_audit": {
+            "description": "{file:./agents/filter_audit/description.md}",
+            "prompt": "{file:./agents/filter_audit/prompt.md}"
         }
     }
 }
