@@ -793,12 +793,18 @@ Section API.
   Definition prototypeMatchAll (R :RegExpInstance) (S: String): Result.Result (list ExecArrayExotic * RegExpInstance) MatchError :=
     (*>> 5. Let flags be ? ToString(? Get(R, "flags")). <<*)
     let flags := RegExpInstance.originalFlags R in
+    (*>> 6. Let matcher be ? Construct(C, « R, flags »). <<*)
+    let matcher := RegExpInstance.setLastIndex R (RegExpInstance.lastIndex R) in
+    (*>> 7. Let lastIndex be ? ToLength(? Get(R, "lastIndex")). <<*)
+    let lastIndex := RegExpInstance.lastIndex R in
+    (*>> 8. Perform ? Set(matcher, "lastIndex", 𝔽(lastIndex), true). <<*)
+    let matcher := RegExpInstance.setLastIndex matcher lastIndex in
     (*>> 9. If flags contains "g", let global be true. <<*)
     let global := RegExpFlags.g flags in
     (*>> 11. If flags contains "u", let fullUnicode be true. <<*)
     let fullUnicode := RegExpFlags.u flags in
     (*>> 13. Return CreateRegExpStringIterator(matcher, S, global, fullUnicode). <<*)
-    createRegExpStringIterator R S global.
+    createRegExpStringIterator matcher S global fullUnicode.
 
   (** >>
       22.1.3.13 String.prototype.matchAll ( regexp )
