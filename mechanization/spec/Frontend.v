@@ -392,7 +392,7 @@ Section BuiltinExec.
     captures_to_groupnames R captures 1%nat.
 
   (* + transforms a capture into a matchRecord +*)
-  Definition capture_to_record (S: String) (cI: option CaptureRange) : Result.Result (option MatchRecord) MatchError :=
+  Definition capture_to_record (S: String) (fullUnicode: bool) (cI: option CaptureRange) : Result.Result (option MatchRecord) MatchError :=
     match cI with
     (* b. If captureI is undefined, then
     i. Let capturedValue be undefined. *)
@@ -404,25 +404,28 @@ Section BuiltinExec.
         (*>> ii. Let captureEnd be captureI.[[EndIndex]]. <<*)
         let! captureEnd =<< NonNegInt.from_int (CaptureRange.endIndex captureI) in
         (*>> iii. If fullUnicode is true, then <<*)
+        let (captureStart, captureEnd) := if fullUnicode then
            (*>> 1. Set captureStart to GetStringIndex(S, captureStart). <<*)
-        let captureStart := String.getStringIndex S captureStart in
+           let captureStart := String.getStringIndex S captureStart in
            (*>> 2. Set captureEnd to GetStringIndex(S, captureEnd). <<*)
-        let captureEnd := String.getStringIndex S captureEnd in
+           let captureEnd := String.getStringIndex S captureEnd in
+           (captureStart, captureEnd)
+        else (captureStart, captureEnd) in
         (*>> iv. Let capture be the Match Record { [[StartIndex]]: captureStart, [[EndIndex]]: captureEnd }. <<*)
         let! capture =<< match_record captureStart captureEnd in
-        (*>> vi. Append capture to indices. <<*)
+        (*>> v. Append capture to indices. <<*)
         Success (Some capture)
     end.
 
   (* + computes the indices list +*)
-  Fixpoint captures_to_indices (S: String) (captures:list (option CaptureRange)) : Result.Result (list (option MatchRecord)) MatchError :=
+  Fixpoint captures_to_indices (S: String) (fullUnicode: bool) (captures:list (option CaptureRange)) : Result.Result (list (option MatchRecord)) MatchError :=
     (*>> 33. For each integer i such that 1 ≤ i ≤ n, in ascending order, do <<*)
     match captures with
     | nil => Success nil
     (*>> a. Let captureI be ith element of r's captures List. <<*)
     | captureI :: captures' =>
-        let! record =<< capture_to_record S captureI in
-        let! next =<< captures_to_indices S captures' in
+        let! record =<< capture_to_record S fullUnicode captureI in
+        let! next =<< captures_to_indices S fullUnicode captures' in
         Success (record :: next)
     end.
 
@@ -551,7 +554,7 @@ Section BuiltinExec.
           Success None
         in
         (*>> 27. Append match to indices. <<*)
-        let! indices_next =<< captures_to_indices S (MatchState.captures r) in
+        let! indices_next =<< captures_to_indices S fullUnicode (MatchState.captures r) in
         let indices := (Some match_rec) :: indices_next in
         let! groupNames =<< captures_to_group_names (RegExpInstance.originalSource R) (MatchState.captures r) in
         (*>> 34. a. Let indicesArray be MakeMatchIndicesIndexPairArray(S, indices, groupNames, hasGroups). <<*)
