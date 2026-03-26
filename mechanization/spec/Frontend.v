@@ -292,12 +292,12 @@ Section BuiltinExec.
       The abstract operation GetMatchString takes arguments S (a String) and match (a Match Record) and returns a
       String. It performs the following steps when called:
   <<*)
-  Definition getMatchString (S: String) (matsh: MatchRecord) : Result.Result String MatchError :=
+  Definition getMatchString (S: String) (match': MatchRecord) : Result.Result String MatchError :=
     (*>> 1. Assert: match.[[StartIndex]] ≤ match.[[EndIndex]] ≤ the length of S. <<*)
-    assert! ((MatchRecord.startIndex matsh) <=? (MatchRecord.endIndex matsh));
-    assert! ((MatchRecord.endIndex matsh) <=? String.length S);
+    assert! ((MatchRecord.startIndex match') <=? (MatchRecord.endIndex match'));
+    assert! ((MatchRecord.endIndex match') <=? String.length S);
     (*>> 2. Return the substring of S from match.[[StartIndex]] to match.[[EndIndex]]. <<*)
-    Success (String.substring S (MatchRecord.startIndex matsh) (MatchRecord.endIndex matsh)).
+    Success (String.substring S (MatchRecord.startIndex match') (MatchRecord.endIndex match')).
 
   (** >>
       22.2.7.2 RegExpBuiltinExec ( R, S )
