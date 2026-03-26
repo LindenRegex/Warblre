@@ -589,18 +589,18 @@ Section API.
     (*>> 4. Return ? RegExpBuiltinExec(R, S). <<*)
     regExpBuiltinExec R S.
 
-  (** >>
-      22.2.6.8 RegExp.prototype [ @@match ] ( string )
-
-      This method performs the following steps when called:
-  <<*)
+  (* Helper function to get the first element of a list (used by @@match and @@matchAll) *)
   Definition get_head {A:Type} (l:list A) : Result A MatchError :=
     match l with
     | nil => Result.assertion_failed
     | a :: _ => Success a
     end.
 
+  (** >>
+      22.2.6.8 RegExp.prototype [ @@match ] ( string )
 
+      This method performs the following steps when called:
+  <<*)
   Definition prototypeMatch (R: RegExpInstance) (S: String): Result.Result ProtoMatchResult MatchError :=
     (*>> 1. Let rx be the this value. <<*)
     let rx := R in
