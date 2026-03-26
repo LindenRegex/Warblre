@@ -338,7 +338,7 @@ Module API.
         | Return.Returned v => Success v
         | Return.Continue (codeUnitCount, codePointCount) =>
             (*>> 6. Return len. <<*)
-            Success codeUnitCount
+            Success len
         end.
     End UnicodeOps.
   End Utils.
