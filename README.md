@@ -13,7 +13,7 @@ The mechanization has the following properties:
 - **Proven-safe**:
     We proved that the regex engine resulting from our mechanization always terminate and that no error (access out-of-bounds, assertion failure, ...) occurs.
 - **Faithful**:
-    Once combined with a JavaScript runtime, the extracted engine passes all tests related to regexes. 
+    Once combined with a JavaScript runtime, the extracted engine passes all tests related to regexes.
 
 ![*Curruca communis* perched on a branch](etc/cover.webp)
 
@@ -27,27 +27,26 @@ The mechanization has the following properties:
     opam install . --deps-only
     ```
     This will allow you to step through the Rocq code, extract the OCaml code and compile it.
-2. **[Optional]**  
+2. **[Optional]**
     In order to pack and and run the JavaScript code, you will need to install [Node.js](https://nodejs.org/en), e.g. using [nvm](https://github.com/nvm-sh/nvm).
     ```shell
     nvm install 24.13.0
     ```
     as well as some JavaScript dependencies:
     ```shell
-    npm install # Install packages used by our JavaScript code
-    npm install -g webpack-cli # Install webpack-cli, which is used to pack the code in monolithic JavaScript files
+    npm install .npm --no-save # Install packages used by our JavaScript code
     ```
 
 Alternatively, a [nix](https://nixos.org/) flake installing all the dependencies is provided:
 ```
 nix develop
-npm install
-``` 
+cd .npm && npm install
+```
 
 ### Running examples
 
 - `dune exec example` will run an example of matching a string with a regex ([source](examples/ocaml_example/Main.ml)).
-- **[Requires JavaScript dependencies]**  
+- **[Requires JavaScript dependencies]**
     `dune exec fuzzer` will build and run the fuzzer to compare the extracted engine against Irregexp (Node.js's regex engine).
 - `dune build examples/rocq_proof` will build everything so that you can step through [examples/rocq-proof/Example.v](examples/rocq_proof/Example.v), which demonstrates how Warblre can be used to reason about JavaScript regexes.
 
@@ -98,8 +97,8 @@ The way regexes work can be described using the following pipeline:
 
 ![The matching pipeline](etc/matching_pipeline/picture.svg)
 
-A regex is first parsed; 
-it is then checked for *early errors*, and rejected if any are found; 
+A regex is first parsed;
+it is then checked for *early errors*, and rejected if any are found;
 it is then compiled into a *matcher*;
 it is finally called with a concrete input string and start position, and yield a match if one is found.
 
@@ -133,8 +132,8 @@ This also includes functions to manipulate unicode characters, as well as some f
 ## See also
 
 - Our publication:
-  
-  De Santo, Noé, Aurèle Barrière, and Clément Pit-Claudel. "A Coq Mechanization of JavaScript Regular Expression Semantics."  
+
+  De Santo, Noé, Aurèle Barrière, and Clément Pit-Claudel. "A Coq Mechanization of JavaScript Regular Expression Semantics."
   [[DOI](https://doi.org/10.1145/3674666); [Preprint](https://arxiv.org/abs/2403.11919)]
 - Additional documentation on this repository (`doc` directory):
   - A list of differences between the mechanization and the specification: [`Differences.md`](doc/Differences.md);
