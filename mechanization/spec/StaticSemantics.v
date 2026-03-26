@@ -202,9 +202,9 @@ Section StaticSemantics.
   (** >>
       WILDCARD "DecimalEscape"
   <<*)
-  Definition capturingGroupNumber (n: positive_integer): positive_integer :=
+  Definition capturingGroupNumber: positive_integer -> positive_integer :=
     (* + Implementation disappears due to the representation choice in Patterns.v +*)
-    n.
+    fun n => n.
 
   (** >>
       22.2.1.2 Static Semantics: CountLeftCapturingParensWithin ( node )
