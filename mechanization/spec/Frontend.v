@@ -122,7 +122,7 @@ Section Initialization.
     (*>> 16. Set obj.[[OriginalFlags]] to F. <<*)
     let obj_originalFlags := F in
     (*>> 17. Let capturingGroupsCount be CountLeftCapturingParensWithin(parseResult). <<*)
-    let capturingGroupsCount := countLeftCapturingParensWithin pattern nil in
+    let capturingGroupsCount := countLeftCapturingParensWithin parseResult nil in
     (*>> 18. Let rer be the RegExp Record { [[IgnoreCase]]: i, [[Multiline]]: m, [[DotAll]]: s, [[Unicode]]: u, [[CapturingGroupsCount]]: capturingGroupsCount }. <<*)
     let rer := reg_exp_record i m s u capturingGroupsCount in
     (*>> 19. Set obj.[[RegExpRecord]] to rer. <<*)
