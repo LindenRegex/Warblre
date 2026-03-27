@@ -516,7 +516,7 @@ Section BuiltinExec.
         (* + Missing integer conversion +*)
         let! e: non_neg_integer =<< NonNegInt.from_int (MatchState.endIndex r) in
         (*>> 15. If fullUnicode is true, set e to GetStringIndex(S, e). <<*)
-        let e := if fullUnicode then String.getStringIndex S e else e in
+        let e := String.getStringIndex S e in
         (*>> 16. If global is true or sticky is true, then <<*)
         let R := if (orb global sticky) then
                              (*>> a. Perform ? Set(R, "lastIndex", 𝔽(e), true). <<*)
@@ -529,7 +529,6 @@ Section BuiltinExec.
         (*>> [OMITTED] 19. Assert: n < 2^32 - 1. <<*)
         (* + assert! (n <? 4294967295)%nat; +*)
         (*>> 20. Let A be ! ArrayCreate(n + 1). <<*)
-        (*>> 21. Assert: The mathematical value of A's "length" property is n + 1. <<*)
         (*>> 22. Perform ! CreateDataPropertyOrThrow(A, "index", 𝔽(lastIndex)). <<*)
         let A_index := lastIndex in
         (*>> 23. Perform ! CreateDataPropertyOrThrow(A, "input", S). <<*)
@@ -542,10 +541,8 @@ Section BuiltinExec.
         let A_array_zero := Some matchedSubstr in
         let! A_array_next =<< captures_to_array S (MatchState.captures r) in
         let A_array := A_array_zero :: A_array_next in
+        (*>> 21. Assert: The mathematical value of A's "length" property is n + 1. <<*)
         assert! (Nat.eqb (List.length A_array) (n+1));
-        (*>> 27. Append match to indices. <<*)
-        let! indices_next =<< captures_to_indices S fullUnicode (MatchState.captures r) in
-        let indices := (Some match_rec) :: indices_next in
         (*>> 30. If R contains any GroupName, then <<*)
         let hasGroups := StaticSemantics.defines_groups (RegExpInstance.originalSource R) in
         let! A_groups =<< if hasGroups then
@@ -556,8 +553,11 @@ Section BuiltinExec.
           (*>> a. Let groups be undefined. <<*)
           Success None
         in
+        (*>> 27. Append match to indices. <<*)
+        let! indices_next =<< captures_to_indices S fullUnicode (MatchState.captures r) in
+        let indices := (Some match_rec) :: indices_next in
         let! groupNames =<< captures_to_group_names (RegExpInstance.originalSource R) (MatchState.captures r) in
-        (*>> 32. a. Let indicesArray be MakeMatchIndicesIndexPairArray(S, indices, groupNames, hasGroups). <<*)
+        (*>> 34. a. Let indicesArray be MakeMatchIndicesIndexPairArray(S, indices, groupNames, hasGroups). <<*)
         let! A_indices_array =<<
              if hasIndices then
                let! array =<< makeMatchIndicesArray S indices in
