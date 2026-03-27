@@ -801,7 +801,7 @@ Section API.
     (*>> 11. If flags contains "u", let fullUnicode be true. <<*)
     let fullUnicode := RegExpFlags.u flags in
     (*>> 13. Return CreateRegExpStringIterator(matcher, S, global, fullUnicode). <<*)
-    createRegExpStringIterator matcher S global fullUnicode.
+    createRegExpStringIterator matcher S global.
 
   (** >>
       22.1.3.13 String.prototype.matchAll ( regexp )
