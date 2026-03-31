@@ -27,8 +27,15 @@ You are given a RegExp proposal (TC39 style).
 
 ### PROOF RULES (VERY IMPORTANT)
 
-- You MAY use:
-  Admitted.
+
+1. Read and understand the proposal
+2. Identify:
+   - New syntax
+   - New abstract operations
+   - Modified algorithms
+3. Locate the corresponding parts in the Coq codebase
+4. Implement the proposal
+5. Implement tests 
 
 - You MUST NOT:
   - Change lemma statements

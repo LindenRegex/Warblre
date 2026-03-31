@@ -19,6 +19,10 @@
         "implement_proposal": {
             "description": "{file:./agents/implement_proposal/description.md}",
             "prompt": "{file:./agents/implement_proposal/prompt.md}"
+        },
+        "run_local_audit": {
+            "description": "{file:./agents/run_local_audit/description.md}",
+            "prompt": "{file:./agents/run_local_audit/prompt.md}"
         }
     }
 }
