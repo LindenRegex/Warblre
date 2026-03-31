@@ -22,6 +22,7 @@ You are given:
    - Modified algorithms
 3. Locate the corresponding parts in the Coq codebase
 4. Implement the proposal
+5. Implement tests 
 
 ---
 
