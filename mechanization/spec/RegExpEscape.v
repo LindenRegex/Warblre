@@ -61,18 +61,17 @@ Module RegExpEscape. Section main.
     nat_to_hex_string_aux n (n + 1).
 
   (* Helper to pad a string on the left to a minimum length with a given character *)
-  Fixpoint string_pad_left_aux (s: Stdlib.Strings.String.string) (min_len: nat) (pad_char: Stdlib.Strings.String.string): Stdlib.Strings.String.string :=
-    match min_len with
+  Fixpoint string_pad_left_aux (s: Stdlib.Strings.String.string) (remaining: nat) (pad_char: Stdlib.Strings.String.string): Stdlib.Strings.String.string :=
+    match remaining with
     | 0 => s
-    | S min_len' =>
-        let slen := Stdlib.Strings.String.length s in
-        if PeanoNat.Nat.ltb slen min_len
-        then string_pad_left_aux (Stdlib.Strings.String.append pad_char s) min_len' pad_char
-        else s
+    | S remaining' =>
+        string_pad_left_aux (Stdlib.Strings.String.append pad_char s) remaining' pad_char
     end.
 
   Definition string_pad_left (s: Stdlib.Strings.String.string) (min_len: nat) (pad_char: Stdlib.Strings.String.string): Stdlib.Strings.String.string :=
-    string_pad_left_aux s min_len pad_char.
+    let slen := Stdlib.Strings.String.length s in
+    let remaining := min_len - slen in
+    string_pad_left_aux s remaining pad_char.
 
   (* Helper to check if a character is a decimal digit (0-9) *)
   Definition isDecimalDigit (c: Character): bool :=
