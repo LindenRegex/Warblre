@@ -178,7 +178,7 @@ Module RegExpEscape. Section main.
       Stdlib.Strings.String.append (Stdlib.Strings.String.append (Stdlib.Strings.String.append "\u" lead_padded) "\u") trail_padded.
 
   (* Create a string from a single character (its ASCII representation) *)
-  (* For BMP characters <= 0xFF, use \xNN escape *)
+  (* For BMP characters > 0x7F and <= 0xFF, use \xNN escape *)
   (* For BMP characters > 0xFF, use \uNNNN escape *)
   (* For astral code points, encode as surrogate pair *)
   Definition char_to_string (c: Character): Stdlib.Strings.String.string :=
