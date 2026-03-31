@@ -43,7 +43,7 @@ Module RegExpEscape. Section main.
     end.
 
   (* Helper function to convert a nat to a hex string (lowercase, no padding) *)
-  (* Uses well-founded recursion on n *)
+  (* Uses structural recursion on fuel *)
   Fixpoint nat_to_hex_string_aux (n: nat) (fuel: nat): Stdlib.Strings.String.string :=
     match fuel with
     | 0 => nat_to_hex_digit n
