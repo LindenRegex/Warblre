@@ -7,6 +7,7 @@ import html
 import json
 from dotenv import load_dotenv
 from openai import OpenAI
+import argparse
 
 KEYWORDS = [
     "Definition",
@@ -129,24 +130,15 @@ with open(prompt_file, "r") as f:
 systemPrompt = prompt_data["system"]
 prompts = prompt_data["prompts"]
 
-files = [
-    "../../../mechanization/spec/API.v",
-    "../../../mechanization/spec/Frontend.v",
-    "../../../mechanization/spec/Node.v",
-    "../../../mechanization/spec/Notation.v",
-    "../../../mechanization/spec/Patterns.v",
-    "../../../mechanization/spec/RegExpRecord.v",
-    "../../../mechanization/spec/StaticSemantics.v",
-    "../../../mechanization/spec/Semantics.v",
-
-]
-
-for file in files:
-    defs_file = extract_defs(file)
-    defs = defs + defs_file if 'defs' in locals() else defs_file
 
 
 parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--files",
+    nargs="*",
+    help="List of files to process (override default)"
+)
+
 parser.add_argument(
     "--start",
     nargs=1,
@@ -158,7 +150,26 @@ parser.add_argument(
     nargs=1,
     help="End at question X"
 )
+
 args = parser.parse_args()
+
+files = [
+    "../../../mechanization/spec/API.v",
+    "../../../mechanization/spec/Frontend.v",
+    "../../../mechanization/spec/Node.v",
+    "../../../mechanization/spec/Notation.v",
+    "../../../mechanization/spec/Patterns.v",
+    "../../../mechanization/spec/RegExpRecord.v",
+    "../../../mechanization/spec/StaticSemantics.v",
+    "../../../mechanization/spec/Semantics.v",
+]
+
+files = args.files if args.files else files
+
+for file in files:
+    defs_file = extract_defs(file)
+    defs = defs + defs_file if 'defs' in locals() else defs_file
+
 
 start = 0
 end = len(defs)
