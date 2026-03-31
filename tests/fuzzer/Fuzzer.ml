@@ -289,14 +289,6 @@ module Fuzzer (P: EngineParameters) (S: Warblre_js.Encoding.StringLike with type
             let r1 = random_ast (depth-1) in
             NegativeLookahead (r1)
       );
-      ( 1, fun depth random_ast ->
-              let r1 = random_ast (depth-1) in
-              Lookbehind (r1)
-      );
-      ( 1, fun depth random_ast ->
-              let r1 = random_ast (depth-1) in
-              NegativeLookbehind (r1)
-      );
     ]
 
     module Lookup = Map.Make (Int)
@@ -362,8 +354,6 @@ module Fuzzer (P: EngineParameters) (S: Warblre_js.Encoding.StringLike with type
         | InputStart | InputEnd | WordBoundary | NotWordBoundary -> r
         | Lookahead (r1) -> Lookahead (iter r1)
         | NegativeLookahead (r1) -> NegativeLookahead (iter r1)
-        | Lookbehind (r1) -> Lookbehind (iter r1)
-        | NegativeLookbehind (r1) -> NegativeLookbehind (iter r1)
       in
       let res = iter r in 
       assert(group_count = (!group_id));

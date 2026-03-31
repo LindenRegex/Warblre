@@ -21,9 +21,7 @@ module CharNotations (P: EngineParameters) (S: Encoding.StringLike with type t :
   let (--) r1 r2 = Seq (r1, r2)
 
   let (?=) r = Lookahead r
-  let (?<=) r = Lookbehind r
   let (?!) r = NegativeLookahead r
-  let (?<!) r = NegativeLookbehind r
 
   let (!$) n = assert(0 < n); AtomEsc (DecimalEsc (BigInt.of_int n))
   let (!&) n = AtomEsc (GroupEsc (S.of_string n))

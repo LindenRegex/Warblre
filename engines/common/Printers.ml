@@ -288,8 +288,6 @@ module Printer(P: EngineParameters) (S: Encoding.StringLike with type t := P.str
       | NotWordBoundary -> prio_if_strict "\\B" 3 current
       | Lookahead (r1) -> prio_if_strict  ("(?=" ^ iter r1 0 ^ ")") 3 current
       | NegativeLookahead (r1) -> prio_if_strict  ("(?!" ^ iter r1 0 ^ ")") 3 current
-      | Lookbehind (r1) -> prio_if_strict  ("(?<=" ^ iter r1 0 ^ ")") 3 current
-      | NegativeLookbehind (r1) -> prio_if_strict  ("(?<!" ^ iter r1 0 ^ ")") 3 current
     in
     let res = iter r 0 in
     if delimited then "/" ^ res ^ "/" else res

@@ -772,62 +772,6 @@ Module Semantics. Section main.
           (*>> f. Return c(x). <<*)
           c x): Matcher
 
-    (** >> Assertion :: (?<= Disjunction ) <<*)
-    | Lookbehind r =>
-        (*>> 1. Let m be CompileSubpattern of Disjunction with arguments rer and backward. <<*)
-        let! m =<< compileSubPattern r (Lookbehind_inner :: ctx) rer backward in
-        (*>> 2. Return a new Matcher with parameters (x, c) that captures m and performs the following steps when called: <<*)
-        (fun (x: MatchState) (c: MatcherContinuation) =>
-          (*>> a. Assert: x is a MatchState. <<*)
-          (*>> b. Assert: c is a MatcherContinuation. <<*)
-          (*>> c. Let d be a new MatcherContinuation with parameters (y) that captures nothing and performs the following steps when called: <<*)
-          let d: MatcherContinuation := fun (y: MatchState) =>
-            (*>> i. Assert: y is a MatchState. <<*)
-            (*>> ii. Return y. <<*)
-            y
-          in
-          (*>> d. Let r be m(x, d). <<*)
-          let! r =<< m x d in
-          (*>> e. If r is failure, return failure. <<*)
-          if r == failure then
-            failure
-          else
-          (*>> f. Let y be r's MatchState. <<*)
-          destruct! (Some y) <- r in
-          (*>> g. Let cap be y's captures List. <<*)
-          let cap := MatchState.captures y in
-          (*>> h. Let Input be x's input. <<*)
-          let input := MatchState.input x in
-          (*>> i. Let xe be x's endIndex. <<*)
-          let xe := MatchState.endIndex x in
-          (*>> j. Let z be the MatchState (Input, xe, cap). <<*)
-          let z := match_state input xe cap in
-          (*>> k. Return c(z). <<*)
-          c z): Matcher
-
-    (** >> Assertion :: (?<! Disjunction ) <<*)
-    | NegativeLookbehind r =>
-        (*>> 1. Let m be CompileSubpattern of Disjunction with arguments rer and backward. <<*)
-        let! m =<< compileSubPattern r (NegativeLookbehind_inner :: ctx) rer backward in
-        (*>> 2. Return a new Matcher with parameters (x, c) that captures m and performs the following steps when called: <<*)
-        (fun (x: MatchState) (c: MatcherContinuation) =>
-          (*>> a. Assert: x is a MatchState. <<*)
-          (*>> b. Assert: c is a MatcherContinuation. <<*)
-          (*>> c. Let d be a new MatcherContinuation with parameters (y) that captures nothing and performs the following steps when called: <<*)
-          let d: MatcherContinuation := fun (y: MatchState) =>
-            (*>> i. Assert: y is a MatchState. <<*)
-            (*>> ii. Return y. <<*)
-            y
-          in
-          (*>> d. Let r be m(x, d). <<*)
-          let! r =<< m x d in
-          (*>> e. If r is not failure, return failure. <<*)
-          if r != failure then
-            failure
-          else
-          (*>> f. Return c(x). <<*)
-          c x): Matcher
-
     (** >>
         22.2.2.7 Runtime Semantics: CompileAtom
 

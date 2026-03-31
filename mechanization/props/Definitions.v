@@ -50,10 +50,6 @@ Module Definitions.
       Semantics.compileSubPattern r (Lookahead_inner :: ctx) rer forward = Success m ->
       Semantics.compileSubPattern (Patterns.Lookahead r) ctx rer dir = Success (matcher m).
     Proof. intros ? ? ? ? ? G. cbn. rewrite -> G. reflexivity. Qed.
-    Lemma lookbehind_correctness `{Parameters}: forall r ctx rer dir m,
-      Semantics.compileSubPattern r (Lookbehind_inner :: ctx) rer backward = Success m ->
-      Semantics.compileSubPattern (Patterns.Lookbehind r) ctx rer dir = Success (matcher m).
-    Proof. intros ? ? ? ? ? G. cbn. rewrite -> G. reflexivity. Qed.
 
   End PositiveLookaround.
 
@@ -70,10 +66,6 @@ Module Definitions.
     Lemma negativeLookahead_correctness `{Parameters}: forall r ctx rer dir m,
       Semantics.compileSubPattern r (NegativeLookahead_inner :: ctx) rer forward = Success m ->
       Semantics.compileSubPattern (Patterns.NegativeLookahead r) ctx rer dir = Success (matcher m).
-    Proof. intros ? ? ? ? ? G. cbn. rewrite -> G. reflexivity. Qed.
-    Lemma negativeLookbehind_correctness `{Parameters}: forall r ctx rer dir m,
-      Semantics.compileSubPattern r (NegativeLookbehind_inner :: ctx) rer backward = Success m ->
-      Semantics.compileSubPattern (Patterns.NegativeLookbehind r) ctx rer dir = Success (matcher m).
     Proof. intros ? ? ? ? ? G. cbn. rewrite -> G. reflexivity. Qed.
   End NegativeLookaround.
 End Definitions.

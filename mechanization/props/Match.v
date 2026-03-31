@@ -902,10 +902,6 @@ Module Match.
         focus <! _ [] _ !> auto destruct in Eq_m. injection Eq_m as <-. apply positiveLookaroundMatcher with (dir' := forward). auto.
       - (* Negative lookahead *)
         focus <! _ [] _ !> auto destruct in Eq_m. injection Eq_m as <-. apply negativeLookaroundMatcher with (dir' := forward). auto.
-      - (* Lookbehind *)
-        focus <! _ [] _ !> auto destruct in Eq_m. injection Eq_m as <-. apply positiveLookaroundMatcher with (dir' := backward). auto.
-      - (* Negative lookbehind *)
-        focus <! _ [] _ !> auto destruct in Eq_m. injection Eq_m as <-. apply negativeLookaroundMatcher with (dir' := backward). auto.
     Qed.
   End main. End MatcherInvariant.
 

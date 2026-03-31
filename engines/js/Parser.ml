@@ -102,8 +102,6 @@ module Parser(P: Engines.EngineParameters)(S: Encoding.StringLike with type t :=
         match a.kind, a.negate with
         | "lookahead", false -> Lookahead r
         | "lookahead", true -> NegativeLookahead r
-        | "lookbehind", false -> Lookbehind r
-        | "lookbehind", true -> NegativeLookbehind r
         | _, _ -> failwith ("Invalid boundary assertion. Kind: " ^ a.kind ^ "; Negate: " ^ (string_of_bool a.negate)))
       ~onBackreference:(fun b ->
         (* Test whether the backref is named using "ref"'s type *)

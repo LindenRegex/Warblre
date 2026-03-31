@@ -228,8 +228,6 @@ Section StaticSemantics.
     | NotWordBoundary => 0
     | Lookahead r0 => countLeftCapturingParensWithin_impl r0
     | NegativeLookahead r0 => countLeftCapturingParensWithin_impl r0
-    | Lookbehind r0 => countLeftCapturingParensWithin_impl r0
-    | NegativeLookbehind r0 => countLeftCapturingParensWithin_impl r0
     end.
   Definition countLeftCapturingParensWithin (r: Regex) (ctx: RegexContext): non_neg_integer := countLeftCapturingParensWithin_impl r.
 
@@ -254,8 +252,6 @@ Section StaticSemantics.
       | Group_inner _ => 1
       | Lookahead_inner => 0
       | NegativeLookahead_inner => 0
-      | Lookbehind_inner => 0
-      | NegativeLookbehind_inner => 0
       end
     end.
   Definition countLeftCapturingParensBefore (r: Regex) (ctx: RegexContext): non_neg_integer := countLeftCapturingParensBefore_impl ctx.
@@ -335,8 +331,6 @@ Section StaticSemantics.
     | NotWordBoundary => false
     | Lookahead r => earlyErrors_rec r (Lookahead_inner :: ctx)
     | NegativeLookahead r => earlyErrors_rec r (NegativeLookahead_inner :: ctx)
-    | Lookbehind r => earlyErrors_rec r (Lookbehind_inner :: ctx)
-    | NegativeLookbehind r => earlyErrors_rec r (NegativeLookbehind_inner :: ctx)
     end.
 
   Definition earlyErrors (r: Regex) (ctx: RegexContext): Result bool SyntaxError :=

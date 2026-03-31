@@ -207,11 +207,7 @@ Module Patterns.
     (*>> (?= Disjunction[?UnicodeMode, ?N] ) <<*)
     | Lookahead (r: Regex)
     (*>> (?! Disjunction[?UnicodeMode, ?N] ) <<*)
-    | NegativeLookahead (r: Regex)
-    (*>> (?<= Disjunction[?UnicodeMode, ?N] ) <<*)
-    | Lookbehind (r: Regex)
-    (*>> (?<! Disjunction[?UnicodeMode, ?N] ) <<*)
-    | NegativeLookbehind (r: Regex).
+    | NegativeLookahead (r: Regex).
   End Types.
 
   Section EqDec.

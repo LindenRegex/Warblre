@@ -38,9 +38,7 @@ Section Zipper.
   | Seq_right (l: Regex)
   | Group_inner (name: option GroupName)
   | Lookahead_inner
-  | NegativeLookahead_inner
-  | Lookbehind_inner
-  | NegativeLookbehind_inner.
+  | NegativeLookahead_inner.
   Notation RegexContext := (list RegexContextLayer).
   Notation RegexNode := (Regex * RegexContext)%type.
 
@@ -53,8 +51,6 @@ Section Zipper.
   | Group_inner name => Group name focus
   | Lookahead_inner => Lookahead focus
   | NegativeLookahead_inner => NegativeLookahead focus
-  | Lookbehind_inner => Lookbehind focus
-  | NegativeLookbehind_inner => NegativeLookbehind focus
   end.
 
   (* Reconstructs the root regex. *)

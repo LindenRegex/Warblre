@@ -138,10 +138,6 @@ Section Compile.
         exfalso. apply IHr with (3 := ltac:(eassumption)); assumption.
       - focus <! _ (_ [] _) !> auto destruct; destruct f; try easy.
         exfalso. apply IHr with (3 := ltac:(eassumption)); assumption.
-      - focus <! _ (_ [] _) !> auto destruct; destruct f; try easy.
-        exfalso. apply IHr with (3 := ltac:(eassumption)); assumption.
-      - focus <! _ (_ [] _) !> auto destruct; destruct f; try easy.
-        exfalso. apply IHr with (3 := ltac:(eassumption)); assumption.
     Qed.
 
     Lemma compilePattern: forall r rer,

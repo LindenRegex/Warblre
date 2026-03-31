@@ -75,9 +75,7 @@ Section EarlyErrors.
   | Pass_WordBoundary: forall ctx, Pass_Regex Patterns.WordBoundary ctx
   | Pass_NotWordBoundary: forall ctx, Pass_Regex Patterns.NotWordBoundary ctx
   | Pass_Lookahead: forall r ctx, Pass_Regex r (Lookahead_inner :: ctx) -> Pass_Regex (Patterns.Lookahead r) ctx
-  | Pass_NegativeLookahead: forall r ctx, Pass_Regex r (NegativeLookahead_inner :: ctx) -> Pass_Regex (Patterns.NegativeLookahead r) ctx
-  | Pass_Lookbehind: forall r ctx, Pass_Regex r (Lookbehind_inner :: ctx) -> Pass_Regex (Patterns.Lookbehind r) ctx
-  | Pass_NegativeLookbehind: forall r ctx, Pass_Regex r (NegativeLookbehind_inner :: ctx) -> Pass_Regex (Patterns.NegativeLookbehind r) ctx.
+  | Pass_NegativeLookahead: forall r ctx, Pass_Regex r (NegativeLookahead_inner :: ctx) -> Pass_Regex (Patterns.NegativeLookahead r) ctx.
 
   Lemma countLeftCapturingParensBefore_contextualized: forall ctx f r,
     Root r (f, ctx) ->
@@ -268,8 +266,6 @@ Section EarlyErrors.
       - apply (IHr _ H).
       - apply (IHr _ H).
       - apply (IHr _ H).
-      - apply (IHr _ H).
-      - apply (IHr _ H).
     Qed.
 
     Lemma Safety_earlyErrors: forall r, earlyErrors r nil <> Error SyntaxError.AssertionFailed.
@@ -367,8 +363,6 @@ Section EarlyErrors.
       - constructor.
       - constructor.
       - constructor.
-      - constructor. cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr; try assumption.
-      - constructor. cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr; try assumption.
       - constructor. cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr; try assumption.
       - constructor. cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr; try assumption.
       Qed.

@@ -22,7 +22,7 @@ Section StriclyNullable.
 
 Fixpoint strictly_nullable (r:Regex) : bool :=
   match r with
-  | Empty | Lookahead _ | NegativeLookahead _ | Lookbehind _ | NegativeLookbehind _ => true
+  | Empty | Lookahead _ | NegativeLookahead _ => true
   | InputStart | InputEnd | WordBoundary | NotWordBoundary => true
   | Char _ | Dot | CharacterClass _ | AtomEsc _ => false
   | Disjunction r1 r2 | Seq r1 r2 => andb (strictly_nullable r1) (strictly_nullable r2)
@@ -487,23 +487,6 @@ Proof.
     apply valid_trans with (x:=x) (y:=y); auto.
   (* NegativeLookahead *)
   - destruct (compileSubPattern r (NegativeLookahead_inner :: ctx) rer forward) eqn:SNM; try solve[inversion COMPILE].
-    eapply MatcherInvariant.compileSubPattern in SNM as LOOK_INV; eauto.
-    inversion COMPILE as [M]. clear COMPILE M m.
-    specialize (LOOK_INV x (fun y => y) VALID). destruct LOOK_INV as [NONE | [y [VALIDy [PROGRESS EQUAL]]]].
-    2: { rewrite <- EQUAL. auto. }
-    rewrite NONE. simpl.
-    right. exists x. split; auto.
-  (* Lookbehind *)
-  - destruct (compileSubPattern r (Lookbehind_inner :: ctx) rer backward) eqn:SNM; try solve[inversion COMPILE].
-    eapply MatcherInvariant.compileSubPattern in SNM as LOOK_INV; eauto.
-    inversion COMPILE as [M]. clear COMPILE M m.
-    specialize (LOOK_INV x (fun y => y) VALID). destruct LOOK_INV as [NONE | [y [VALIDy [PROGRESS EQUAL]]]].
-    { rewrite NONE. auto. }
-    rewrite <- EQUAL. simpl.
-    right. exists (match_state (input x) (endIndex x) (captures y)). split; auto.
-    apply valid_trans with (x:=x) (y:=y); auto.
-    (* NegativeLookbehind *)
-  - destruct (compileSubPattern r (NegativeLookbehind_inner :: ctx) rer backward) eqn:SNM; try solve[inversion COMPILE].
     eapply MatcherInvariant.compileSubPattern in SNM as LOOK_INV; eauto.
     inversion COMPILE as [M]. clear COMPILE M m.
     specialize (LOOK_INV x (fun y => y) VALID). destruct LOOK_INV as [NONE | [y [VALIDy [PROGRESS EQUAL]]]].

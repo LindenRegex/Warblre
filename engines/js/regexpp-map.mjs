@@ -88,7 +88,7 @@ export class RegExpMapper {
         return this._handlers.onAlternative(node, elements);
     }
     visitAssertion(node) {
-        if (node.kind === "lookahead" || node.kind === "lookbehind") {
+        if (node.kind === "lookahead") {
             let alternatives = node.alternatives.map(alternative => this.visit(alternative));
             return this._handlers.onLookaroundAssertion(node, alternatives);
         }
