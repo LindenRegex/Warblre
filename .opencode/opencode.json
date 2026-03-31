@@ -15,6 +15,10 @@
         "filter_audit": {
             "description": "{file:./agents/filter_audit/description.md}",
             "prompt": "{file:./agents/filter_audit/prompt.md}"
+        },
+        "implement_proposal": {
+            "description": "{file:./agents/implement_proposal/description.md}",
+            "prompt": "{file:./agents/implement_proposal/prompt.md}"
         }
     }
 }
