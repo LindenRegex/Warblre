@@ -1,5 +1,5 @@
 From Stdlib Require Import Bool Nat.
-From Warblre Require Import Base Errors Result Return RegExpRecord Patterns Notation Semantics Frontend.
+From Warblre Require Import Base Errors Result Return RegExpRecord Patterns Notation Semantics Frontend RegExpEscape.
 
 Module API.
   Module Patterns := Patterns.
@@ -338,9 +338,12 @@ Module API.
         | Return.Returned v => Success v
         | Return.Continue (codeUnitCount, codePointCount) =>
             (*>> 6. Return len. <<*)
-            Success codeUnitCount
+            Success len
         end.
     End UnicodeOps.
   End Utils.
+
+  (* RegExp.escape function exposed for testing *)
+  Module RegExpEscape := RegExpEscape.
 
 End API.
