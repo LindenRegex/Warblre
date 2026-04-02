@@ -16,7 +16,7 @@ def main():
     ecma_parsed_page = ECMAParser(ecma_version).get_parsed_page()
 
     result = Aligner().align(rocq_parsed_page.entries, ecma_parsed_page.entries)
-    print(result.to_text(), end="")
+    print(result.to_text(0), end="")
 
 
 if __name__ == "__main__":
