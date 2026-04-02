@@ -33,8 +33,8 @@ Module HexDigit.
     r3.
 
 End HexDigit.
-Notation HexDigit := HexDigit.type.
-Notation Hex4Digits := HexDigit.Hex4Digits.
+Abbreviation HexDigit := HexDigit.type.
+Abbreviation Hex4Digits := HexDigit.Hex4Digits.
 #[refine] #[export]
 Instance eqdec_HexDigit: EqDec HexDigit := {}. decide equality. Defined.
 
@@ -52,7 +52,7 @@ Module AsciiLetter.
     end.
 
 End AsciiLetter.
-Notation AsciiLetter := AsciiLetter.type.
+Abbreviation AsciiLetter := AsciiLetter.type.
 #[refine] #[export]
 Instance eqdec_AsciiLetter: EqDec AsciiLetter := {}. decide equality. Defined.
 

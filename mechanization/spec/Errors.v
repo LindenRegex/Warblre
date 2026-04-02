@@ -7,7 +7,7 @@ Module SyntaxError.
   Inductive type: Type :=
   | AssertionFailed.
 End SyntaxError.
-Notation SyntaxError := SyntaxError.type.
+Abbreviation SyntaxError := SyntaxError.type.
 #[refine] #[export]
 Instance eqdec_syntaxError: EqDec SyntaxError := {}. decide equality. Defined.
 #[export]
@@ -18,7 +18,7 @@ Module CompileError.
   Inductive type: Type :=
   | AssertionFailed.
 End CompileError.
-Notation CompileError := CompileError.type.
+Abbreviation CompileError := CompileError.type.
 #[refine] #[export]
 Instance eqdec_compileError: EqDec CompileError := {}. decide equality. Defined.
 #[export]
@@ -29,7 +29,7 @@ Module MatchError.
   | OutOfFuel
   | AssertionFailed.
 End MatchError.
-Notation MatchError := MatchError.type.
+Abbreviation MatchError := MatchError.type.
 #[refine] #[export]
 Instance eqdec_matchError: EqDec MatchError := {}. decide equality. Defined.
 #[export]
@@ -37,6 +37,6 @@ Instance match_assertion_error: Result.AssertionError MatchError := { f := Match
 
 
 (* Shorthands *)
-Notation compile_assertion_failed := (Error CompileError.AssertionFailed).
-Notation out_of_fuel := (Error MatchError.OutOfFuel).
-Notation match_assertion_failed := (Error MatchError.AssertionFailed).
+Abbreviation compile_assertion_failed := (Error CompileError.AssertionFailed).
+Abbreviation out_of_fuel := (Error MatchError.OutOfFuel).
+Abbreviation match_assertion_failed := (Error MatchError.AssertionFailed).

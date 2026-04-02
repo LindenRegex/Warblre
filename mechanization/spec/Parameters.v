@@ -41,7 +41,7 @@ Module Character.
     assumption.
   Qed.
 End Character.
-Notation Character := Character.type.
+Abbreviation Character := Character.type.
 
 (* Represent sets of characters *)
 (*>>
@@ -309,7 +309,7 @@ Module CharSet.
 
 
 End CharSet.
-Notation CharSet := CharSet.type.
+Abbreviation CharSet := CharSet.type.
 
 (* Represent strings, before they are converted to lists of characters. *)
 Module String.
@@ -327,7 +327,7 @@ Module String.
 
   Definition isEmpty `{class} (string: type) := length string == 0.
 End String.
-Notation String := String.type.
+Abbreviation String := String.type.
 
 (* Represents unicode properties. *)
 Module Property.
@@ -338,7 +338,7 @@ Module Property.
     code_points_for: type -> list char;
   }.
 End Property.
-Notation Property := Property.type.
+Abbreviation Property := Property.type.
 
 (* Wraps all parameters in a single parameter. *)
 Module Parameters.
@@ -354,7 +354,7 @@ Module Parameters.
     #[global] unicode_property_marker::> UnicodePropertyMarker Property.type;
   }.
 End Parameters.
-Notation Parameters := @Parameters.class.
+Abbreviation Parameters := @Parameters.class.
 
 (* Some special characters used by the specification. *)
 Module Characters. Section main.
