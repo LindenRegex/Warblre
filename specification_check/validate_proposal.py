@@ -24,88 +24,140 @@ from spec_merger.content_classes.wildcard import WildCard
 from ecma_parser import ECMAParser
 
 
+def extract_section_number(section: Tag) -> str:
+    """Extract section number from a section element."""
+    sec_num_elem = section.find("span", class_="secnum")
+    if sec_num_elem:
+        return sec_num_elem.get_text(strip=True)
+    return ""
+
+
+def extract_title(section: Tag) -> str:
+    """Extract title from a section element."""
+    header = section.find(["h1", "h2", "h3", "h4", "h5", "h6"])
+    return header.get_text(strip=True) if header else ""
+
+
+def is_direct_child_of(parent: Tag, child: Tag, stop_at: list = None) -> bool:
+    """Check if child is a direct descendant of parent, stopping at certain elements."""
+    if stop_at is None:
+        stop_at = ["emu-clause", "section"]
+
+    current = child.parent
+    while current and current != parent:
+        if current.name in stop_at:
+            return False
+        current = current.parent
+    return current == parent
+
+
+def extract_changes_from_section(section: Tag):
+    """Extract grammar and algorithm changes from a section (excluding nested sections)."""
+    grammar = []
+    algorithms = []
+
+    # Find all grammar productions
+    for prod in section.find_all("emu-production"):
+        # Skip if this production is inside a nested section
+        if not is_direct_child_of(section, prod, ["emu-clause", "section"]):
+            continue
+
+        prod_has_ins = bool(prod.find("ins"))
+        prod_has_del = bool(prod.find("del"))
+
+        if not prod_has_ins and not prod_has_del:
+            continue
+
+        nt = prod.find("emu-nt")
+        nt_name = nt.get_text(strip=True) if nt else "unknown"
+
+        for rhs in prod.find_all("emu-rhs"):
+            rhs_text = rhs.get_text(strip=True)
+            in_ins = bool(rhs.find_parent("ins") or rhs.find("ins"))
+            in_del = bool(rhs.find_parent("del") or rhs.find("del"))
+
+            if in_ins or in_del:
+                grammar.append(
+                    {
+                        "production": nt_name,
+                        "rhs": rhs_text,
+                        "added": in_ins,
+                        "removed": in_del,
+                    }
+                )
+
+    # Find all algorithm steps
+    for alg in section.find_all("emu-alg"):
+        # Skip if this algorithm is inside a nested section
+        if not is_direct_child_of(section, alg, ["emu-clause", "section"]):
+            continue
+
+        for li in alg.find_all("li"):
+            # Check if this step is new or modified
+            in_ins = bool(li.find_parent("ins") or li.find("ins"))
+            in_del = bool(li.find_parent("del") or li.find("del"))
+
+            if not in_ins and not in_del:
+                continue
+
+            # For steps that are inside <ins> (new steps), get text normally
+            # For steps with both <ins> and <del> (modified steps), we need to be careful
+            # The HTML diff tool wraps changed parts in <ins>/<del>
+            if li.find_parent("ins"):
+                # Step is completely new (wrapped in <ins>)
+                step_text = li.get_text(separator=" ", strip=True)
+            elif li.find("ins") or li.find("del"):
+                # Step has inline changes - get only the <ins> content for additions
+                ins_parts = []
+                for ins in li.find_all("ins"):
+                    ins_parts.append(ins.get_text(separator=" ", strip=True))
+
+                # Also get the static parts (not in del/ins)
+                # This is tricky - let's just get all text but clean up artifacts
+                step_text = li.get_text(separator=" ", strip=True)
+
+                # Clean up common diff artifacts like "1 4 ." (old and new step numbers)
+                # Pattern: number number . -> number .
+                step_text = re.sub(r"^(\d+)\s+(\d+)\s*\.", r"\2.", step_text)
+            else:
+                step_text = li.get_text(separator=" ", strip=True)
+
+            if in_ins or in_del:
+                algorithms.append(
+                    {"step": step_text, "added": in_ins, "removed": in_del}
+                )
+
+    return grammar, algorithms
+
+
 def extract_proposal_changes(html_path: str):
     """Extract all changes from the proposal diff HTML."""
     with open(html_path, "r") as f:
         soup = BeautifulSoup(f.read(), "html.parser")
 
-    changes = {}  # section_num -> {'grammar': [], 'algorithm': [], 'title': ''}
-    seen = set()
+    changes = {}
 
-    for section in soup.find_all(["section", "emu-clause", "div"]):
+    # Find all sections with IDs
+    for section in soup.find_all(["section", "emu-clause"]):
         sec_id = section.get("id", "")
         if not sec_id.startswith("sec-"):
             continue
 
-        has_ins = bool(section.find("ins"))
-        has_del = bool(section.find("del"))
-
-        if not has_ins and not has_del:
-            continue
-
-        # Get section number
-        sec_num = ""
-        sec_num_elem = section.find("span", class_="secnum")
-        if sec_num_elem:
-            sec_num = sec_num_elem.get_text(strip=True)
-
+        sec_num = extract_section_number(section)
         if not sec_num:
             continue
 
-        if sec_num in seen:
-            continue
-        seen.add(sec_num)
+        # Extract changes from this section only (not nested)
+        grammar, algorithms = extract_changes_from_section(section)
 
-        # Get title
-        header = section.find(["h1", "h2", "h3", "h4", "h5", "h6"])
-        title = header.get_text(strip=True) if header else ""
-
-        # Extract grammar changes
-        grammar = []
-        for prod in section.find_all("emu-production"):
-            prod_has_ins = bool(prod.find("ins"))
-            prod_has_del = bool(prod.find("del"))
-
-            if not prod_has_ins and not prod_has_del:
-                continue
-
-            nt = prod.find("emu-nt")
-            nt_name = nt.get_text(strip=True) if nt else "unknown"
-
-            for rhs in prod.find_all("emu-rhs"):
-                rhs_text = rhs.get_text(strip=True)
-                in_ins = bool(rhs.find_parent("ins") or rhs.find("ins"))
-                in_del = bool(rhs.find_parent("del") or rhs.find("del"))
-
-                if in_ins or in_del:
-                    grammar.append(
-                        {
-                            "production": nt_name,
-                            "rhs": rhs_text,
-                            "added": in_ins,
-                            "removed": in_del,
-                        }
-                    )
-
-        # Extract algorithm changes
-        algorithms = []
-        for alg in section.find_all("emu-alg"):
-            for li in alg.find_all("li"):
-                step_text = li.get_text(strip=True)
-                in_ins = bool(li.find_parent("ins") or li.find("ins"))
-                in_del = bool(li.find_parent("del") or li.find("del"))
-
-                if in_ins or in_del:
-                    algorithms.append(
-                        {"step": step_text, "added": in_ins, "removed": in_del}
-                    )
-
-        changes[sec_num] = {
-            "id": sec_id,
-            "title": title,
-            "grammar": grammar,
-            "algorithms": algorithms,
-        }
+        # Only include if there are actual changes
+        if grammar or algorithms:
+            changes[sec_num] = {
+                "id": sec_id,
+                "title": extract_title(section),
+                "grammar": grammar,
+                "algorithms": algorithms,
+            }
 
     return changes
 
@@ -121,29 +173,20 @@ def get_rocq_section_content(rocq_entries: dict, section_num: str):
         return {"type": "wildcard", "content": None}
 
     if isinstance(entry, Dictionary):
-        content = {}
 
-        # Get title
-        title = entry.entries.get("title")
-        if isinstance(title, String):
-            content["title"] = title.value
+        def extract_content(obj):
+            """Recursively extract content from Dictionary/String objects."""
+            if isinstance(obj, String):
+                return obj.value
+            elif isinstance(obj, Dictionary):
+                result = {}
+                for k, v in obj.entries.items():
+                    result[k] = extract_content(v)
+                return result
+            else:
+                return str(obj)
 
-        # Get description
-        desc = entry.entries.get("description")
-        if isinstance(desc, String):
-            content["description"] = desc.value
-
-        # Get cases/algorithms
-        cases = entry.entries.get("cases")
-        if isinstance(cases, Dictionary):
-            content["cases"] = {}
-            for case_name, case_content in cases.entries.items():
-                if isinstance(case_content, String):
-                    content["cases"][case_name] = case_content.value
-                elif isinstance(case_content, Dictionary):
-                    # Nested case
-                    content["cases"][case_name] = "nested"
-
+        content = extract_content(entry)
         return {"type": "dictionary", "content": content}
 
     return {"type": "unknown", "content": str(entry)}
@@ -159,8 +202,6 @@ def validate_section(sec_num: str, proposal_change: dict, rocq_content: dict):
         return errors, warnings
 
     if rocq_content["type"] == "wildcard":
-        # Section is marked as wildcard - this means we're skipping it
-        # But if the proposal modifies it, that's a problem
         warnings.append(
             f"Section {sec_num} is marked as wildcard but proposal modifies it"
         )
@@ -172,40 +213,64 @@ def validate_section(sec_num: str, proposal_change: dict, rocq_content: dict):
 
     content = rocq_content["content"]
 
+    # Recursively collect all text from nested dictionaries
+    def collect_all_text(data, result=None):
+        if result is None:
+            result = []
+        if isinstance(data, dict):
+            for k, v in data.items():
+                if isinstance(v, str):
+                    result.append(v)
+                elif isinstance(v, String):
+                    result.append(v.value)
+                elif isinstance(v, Dictionary):
+                    collect_all_text(v.entries, result)
+                else:
+                    collect_all_text(v, result)
+        elif isinstance(data, str):
+            result.append(data)
+        elif isinstance(data, String):
+            result.append(data.value)
+        elif isinstance(data, Dictionary):
+            collect_all_text(data.entries, result)
+        return result
+
+    all_text = collect_all_text(content)
+
+    # Normalize function for comparison
+    def normalize_text(text):
+        # Collapse all whitespace to single spaces
+        text = " ".join(text.split())
+        # Remove spaces around punctuation (including periods)
+        text = re.sub(r"\s*([(){}[\],;.])\s*", r"\1", text)
+        return text
+
     # Check grammar changes
     for gc in proposal_change["grammar"]:
-        # For now, just check if the production name appears somewhere
         prod_name = gc["production"]
         rhs = gc["rhs"]
 
-        # Look in cases
         found = False
-        for case_name, case_text in content.get("cases", {}).items():
-            if isinstance(case_text, str):
-                if prod_name in case_text or rhs in case_text:
-                    found = True
-                    break
-
-        # Also check description
-        if not found and prod_name in content.get("description", ""):
-            found = True
+        for text in all_text:
+            if prod_name in text or rhs in text:
+                found = True
+                break
 
         if gc["added"] and not found:
-            errors.append(f"Grammar addition not found: {prod_name} ::= {rhs[:50]}...")
+            errors.append(f"Grammar not found: {prod_name} ::= {rhs[:50]}...")
 
     # Check algorithm changes
     for ac in proposal_change["algorithms"]:
         step = ac["step"]
         found = False
 
-        for case_name, case_text in content.get("cases", {}).items():
-            if isinstance(case_text, str):
-                # Normalize whitespace for comparison
-                normalized_step = " ".join(step.split())
-                normalized_case = " ".join(case_text.split())
-                if normalized_step in normalized_case:
-                    found = True
-                    break
+        normalized_step = normalize_text(step)
+
+        for text in all_text:
+            normalized_text = normalize_text(text)
+            if normalized_step in normalized_text:
+                found = True
+                break
 
         if ac["added"] and not found:
             errors.append(f"Algorithm step not found: {step[:80]}...")
@@ -272,7 +337,6 @@ def main():
 
         errors, warnings = validate_section(sec_num, change, rocq_content)
 
-        # Print results
         status = "OK"
         if errors:
             status = "FAIL"
@@ -296,7 +360,8 @@ def main():
         if change["grammar"]:
             print(f"       Grammar changes: {len(change['grammar'])}")
             for gc in change["grammar"]:
-                marker = "+" if gc["added"] else "-"
+                marker = "+" if gc["added"] else " "
+                marker += "-" if gc["removed"] else " "
                 print(f"         [{marker}] {gc['production']}")
 
         # Show algorithm changes
