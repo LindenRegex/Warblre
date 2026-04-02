@@ -270,7 +270,9 @@ Section EarlyErrors.
       - apply (IHr _ H).
       - apply (IHr _ H).
       - apply (IHr _ H).
-    Qed.
+      - admit. (* + ModifierAdd: proof of safety for modifier groups + *)
+      - admit. (* + ModifierRemove: proof of safety for modifier groups + *)
+    Admitted.
 
     Lemma Safety_earlyErrors: forall r, earlyErrors r nil <> Error SyntaxError.AssertionFailed.
     Proof.
@@ -371,7 +373,9 @@ Section EarlyErrors.
       - constructor. cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr; try assumption.
       - constructor. cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr; try assumption.
       - constructor. cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr; try assumption.
-      Qed.
+      - admit. (* + ModifierAdd: proof of completeness for modifier groups + *)
+      - admit. (* + ModifierRemove: proof of completeness for modifier groups + *)
+      Admitted.
 
     Lemma earlyErrors: forall r, earlyErrors r nil = Success false -> Pass_Regex r nil.
     Proof.

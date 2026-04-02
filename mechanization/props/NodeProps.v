@@ -66,7 +66,9 @@ Module Zipper.
     | Down_Lookahead_inner: forall r ctx, Down (r, Lookahead_inner :: ctx) (Lookahead r, ctx)
     | Down_NegativeLookahead_inner: forall r ctx, Down (r, NegativeLookahead_inner :: ctx) (NegativeLookahead r, ctx)
     | Down_Lookbehind_inner: forall r ctx, Down (r, Lookbehind_inner :: ctx) (Lookbehind r, ctx)
-    | Down_NegativeLookbehind_inner: forall r ctx, Down (r, NegativeLookbehind_inner :: ctx) (NegativeLookbehind r, ctx).
+    | Down_NegativeLookbehind_inner: forall r ctx, Down (r, NegativeLookbehind_inner :: ctx) (NegativeLookbehind r, ctx)
+    | Down_ModifierAdd_inner: forall mods r ctx, Down (r, ModifierAdd_inner mods :: ctx) (ModifierAdd mods r, ctx)
+    | Down_ModifierRemove_inner: forall add remove r ctx, Down (r, ModifierRemove_inner add remove :: ctx) (ModifierRemove add remove r, ctx).
 
     Definition Down_Star := (Relation_Operators.clos_refl_trans _ Down).
   End Down.
@@ -153,6 +155,8 @@ Module Zipper.
       | NegativeLookahead r0 => walk r0 (NegativeLookahead_inner :: ctx)
       | Lookbehind r0 => walk r0 (Lookbehind_inner :: ctx)
       | NegativeLookbehind r0 => walk r0 (NegativeLookbehind_inner :: ctx)
+      | ModifierAdd mods r0 => walk r0 (ModifierAdd_inner mods :: ctx)
+      | ModifierRemove add remove r0 => walk r0 (ModifierRemove_inner add remove :: ctx)
       end.
 
     (* First element of the walk is the node passed as argument. *)
@@ -210,6 +214,8 @@ Module Zipper.
       - rewrite -> List.Indexing.Nat.nil in Eq_indexed. Result.assertion_failed_helper.
       - rewrite -> List.Indexing.Nat.nil in Eq_indexed. Result.assertion_failed_helper.
       - rewrite -> List.Indexing.Nat.nil in Eq_indexed. Result.assertion_failed_helper.
+      - specialize (IHr _ _ _ Eq_indexed). apply Relation_Operators.rt_trans with (1 := IHr). apply Relation_Operators.rt_step. constructor.
+      - specialize (IHr _ _ _ Eq_indexed). apply Relation_Operators.rt_trans with (1 := IHr). apply Relation_Operators.rt_step. constructor.
       - specialize (IHr _ _ _ Eq_indexed). apply Relation_Operators.rt_trans with (1 := IHr). apply Relation_Operators.rt_step. constructor.
       - specialize (IHr _ _ _ Eq_indexed). apply Relation_Operators.rt_trans with (1 := IHr). apply Relation_Operators.rt_step. constructor.
       - specialize (IHr _ _ _ Eq_indexed). apply Relation_Operators.rt_trans with (1 := IHr). apply Relation_Operators.rt_step. constructor.
@@ -280,6 +286,8 @@ Module Zipper.
       - f_equal. eapply IHr; eassumption.
       - f_equal. eapply IHr; eassumption.
       - f_equal. eapply IHr; eassumption.
+      - f_equal. eapply IHr; eassumption.
+      - f_equal. eapply IHr; eassumption.
     Qed.
   End main. End Walk.
 End Zipper.
@@ -339,6 +347,12 @@ Section Induction.
       (forall ctx r,
         Root root (r, NegativeLookbehind_inner :: ctx) -> P (r, NegativeLookbehind_inner :: ctx) ->
         Root root (NegativeLookbehind r, ctx) -> P (NegativeLookbehind r, ctx)) ->
+      (forall ctx mods r,
+        Root root (r, ModifierAdd_inner mods :: ctx) -> P (r, ModifierAdd_inner mods :: ctx) ->
+        Root root (ModifierAdd mods r, ctx) -> P (ModifierAdd mods r, ctx)) ->
+      (forall ctx add remove r,
+        Root root (r, ModifierRemove_inner add remove :: ctx) -> P (r, ModifierRemove_inner add remove :: ctx) ->
+        Root root (ModifierRemove add remove r, ctx) -> P (ModifierRemove add remove r, ctx)) ->
       forall r ctx, Root root (r, ctx) -> P (r, ctx).
     Proof. induction r; try eauto. Qed.
 End Induction.

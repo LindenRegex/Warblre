@@ -364,6 +364,8 @@ module Fuzzer (P: EngineParameters) (S: Warblre_js.Encoding.StringLike with type
         | NegativeLookahead (r1) -> NegativeLookahead (iter r1)
         | Lookbehind (r1) -> Lookbehind (iter r1)
         | NegativeLookbehind (r1) -> NegativeLookbehind (iter r1)
+        | ModifierAdd (mods, r1) -> ModifierAdd (mods, iter r1)
+        | ModifierRemove (add, remove, r1) -> ModifierRemove (add, remove, iter r1)
       in
       let res = iter r in 
       assert(group_count = (!group_id));

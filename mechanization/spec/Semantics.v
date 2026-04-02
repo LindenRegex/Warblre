@@ -534,6 +534,45 @@ Module Semantics. Section main.
     repeatMatcher' m min max greedy x c parenIndex parenCount (repeatMatcherFuel min x).
 
   (** >>
+      22.2.2.7.4 UpdateModifiers ( rer, add, remove )
+
+      The abstract operation UpdateModifiers takes arguments rer (a RegExp Record), add (a String), and
+      remove (a String) and returns a RegExp Record. It performs the following steps when called:
+  <<*)
+  Definition updateModifiers (rer: RegExpRecord) (add: list Character) (remove: list Character): RegExpRecord :=
+    (*>> 1. Assert: add and remove have no elements in common. <<*)
+    (* + Assertion: add and remove have no elements in common. + *)
+    (*>> 2. Let ignoreCase be rer.[[IgnoreCase]]. <<*)
+    let ignoreCase := RegExpRecord.ignoreCase rer in
+    (*>> 3. Let multiline be rer.[[Multiline]]. <<*)
+    let multiline := RegExpRecord.multiline rer in
+    (*>> 4. Let dotAll be rer.[[DotAll]]. <<*)
+    let dotAll := RegExpRecord.dotAll rer in
+    (*>> 5. Let unicode be rer.[[Unicode]]. <<*)
+    let unicode := RegExpRecord.unicode rer in
+    (*>> 6. Let unicodeSets be rer.[[UnicodeSets]]. <<*)
+    (* + Note: unicodeSets is not stored in our RegExpRecord, treated as part of unicode flag + *)
+    (*>> 7. Let capturingGroupsCount be rer.[[CapturingGroupsCount]]. <<*)
+    let capturingGroupsCount := RegExpRecord.capturingGroupsCount rer in
+    (*>> 8. If remove contains "i", set ignoreCase to false. <<*)
+    let i_char := Character.from_numeric_value 105 in (* "i" = 105 *)
+    let ignoreCase := if List.existsb (fun c => c == i_char) remove then false else ignoreCase in
+    (*>> 9. Else if add contains "i", set ignoreCase to true. <<*)
+    let ignoreCase := if List.existsb (fun c => c == i_char) add then true else ignoreCase in
+    (*>> 10. If remove contains "m", set multiline to false. <<*)
+    let m_char := Character.from_numeric_value 109 in (* "m" = 109 *)
+    let multiline := if List.existsb (fun c => c == m_char) remove then false else multiline in
+    (*>> 11. Else if add contains "m", set multiline to true. <<*)
+    let multiline := if List.existsb (fun c => c == m_char) add then true else multiline in
+    (*>> 12. If remove contains "s", set dotAll to false. <<*)
+    let s_char := Character.from_numeric_value 115 in (* "s" = 115 *)
+    let dotAll := if List.existsb (fun c => c == s_char) remove then false else dotAll in
+    (*>> 13. Else if add contains "s", set dotAll to true. <<*)
+    let dotAll := if List.existsb (fun c => c == s_char) add then true else dotAll in
+    (*>> 14. Return the RegExp Record { [[IgnoreCase]]: ignoreCase, [[Multiline]]: multiline, [[DotAll]]: dotAll, [[Unicode]]: unicode, [[UnicodeSets]]: unicodeSets, [[CapturingGroupsCount]]: capturingGroupsCount }. <<*)
+    reg_exp_record ignoreCase multiline dotAll unicode capturingGroupsCount.
+
+  (** >>
       22.2.2.3 Runtime Semantics: CompileSubpattern
 
       The syntax-directed operation CompileSubpattern takes arguments rer (a RegExp Record) and
@@ -829,28 +868,6 @@ Module Semantics. Section main.
           c x): Matcher
 
     (** >>
-        22.2.2.7.4 UpdateModifiers ( rer, add, remove )
-
-        The abstract operation UpdateModifiers takes arguments rer (a RegExp Record), add (a String), and
-        remove (a String) and returns a RegExp Record. It performs the following steps when called:
-
-        (*>> 1. Assert : add and remove have no elements in common. <<*)
-        (*>> 2. Let ignoreCase be rer . [[IgnoreCase]] . <<*)
-        (*>> 3. Let multiline be rer . [[Multiline]] . <<*)
-        (*>> 4. Let dotAll be rer . [[DotAll]] . <<*)
-        (*>> 5. Let unicode be rer . [[Unicode]] . <<*)
-        (*>> 6. Let unicodeSets be rer . [[UnicodeSets]] . <<*)
-        (*>> 7. Let capturingGroupsCount be rer . [[CapturingGroupsCount]] . <<*)
-        (*>> 8. If remove contains "i" , set ignoreCase to false . <<*)
-        (*>> 9. Else if add contains "i" , set ignoreCase to true . <<*)
-        (*>> 10. If remove contains "m" , set multiline to false . <<*)
-        (*>> 11. Else if add contains "m" , set multiline to true . <<*)
-        (*>> 12. If remove contains "s" , set dotAll to false . <<*)
-        (*>> 13. Else if add contains "s" , set dotAll to true . <<*)
-        (*>> 14. Return the RegExp Record { [[IgnoreCase]] : ignoreCase , [[Multiline]] : multiline , [[DotAll]] : dotAll , [[Unicode]] : unicode , [[UnicodeSets]] : unicodeSets , [[CapturingGroupsCount]] : capturingGroupsCount } . <<*)
-    <<*)
-
-    (** >>
         22.2.2.7 Runtime Semantics: CompileAtom
 
       The syntax-directed operation CompileAtom takes arguments rer (a RegExp Record) and direction (forward or backward)
@@ -895,16 +912,26 @@ Module Semantics. Section main.
         characterSetMatcher rer (CompiledCharacterClass_charSet cc) (CompiledCharacterClass_invert cc) direction
 
     (** >> Atom :: (? RegularExpressionModifiers : Disjunction) <<*)
-    (*>> 1. Let addModifiers be the source text matched by RegularExpressionModifiers . <<*)
-    (*>> 2. Let removeModifiers be the empty String. <<*)
-    (*>> 3. Let modifiedRer be UpdateModifiers ( rer , CodePointsToString ( addModifiers ), removeModifiers ). <<*)
-    (*>> 4. Return CompileSubpattern of Disjunction with arguments modifiedRer and direction . <<*)
+    | ModifierAdd mods r =>
+        (*>> 1. Let addModifiers be the source text matched by RegularExpressionModifiers. <<*)
+        let addModifiers := mods in
+        (*>> 2. Let removeModifiers be the empty String. <<*)
+        let removeModifiers := nil in
+        (*>> 3. Let modifiedRer be UpdateModifiers(rer, CodePointsToString(addModifiers), removeModifiers). <<*)
+        let modifiedRer := updateModifiers rer addModifiers removeModifiers in
+        (*>> 4. Return CompileSubpattern of Disjunction with arguments modifiedRer and direction. <<*)
+        compileSubPattern r (ModifierAdd_inner mods :: ctx) modifiedRer direction
 
     (** >> Atom :: (? RegularExpressionModifiers - RegularExpressionModifiers : Disjunction) <<*)
-    (*>> 1. Let addModifiers be the source text matched by the first RegularExpressionModifiers . <<*)
-    (*>> 2. Let removeModifiers be the source text matched by the second RegularExpressionModifiers . <<*)
-    (*>> 3. Let modifiedRer be UpdateModifiers ( rer , CodePointsToString ( addModifiers ), CodePointsToString ( removeModifiers )). <<*)
-    (*>> 4. Return CompileSubpattern of Disjunction with arguments modifiedRer and direction . <<*)
+    | ModifierRemove add remove r =>
+        (*>> 1. Let addModifiers be the source text matched by the first RegularExpressionModifiers. <<*)
+        let addModifiers := add in
+        (*>> 2. Let removeModifiers be the source text matched by the second RegularExpressionModifiers. <<*)
+        let removeModifiers := remove in
+        (*>> 3. Let modifiedRer be UpdateModifiers(rer, CodePointsToString(addModifiers), CodePointsToString(removeModifiers)). <<*)
+        let modifiedRer := updateModifiers rer addModifiers removeModifiers in
+        (*>> 4. Return CompileSubpattern of Disjunction with arguments modifiedRer and direction. <<*)
+        compileSubPattern r (ModifierRemove_inner add remove :: ctx) modifiedRer direction
 
     (** >> Atom :: ( GroupSpecifier_opt Disjunction ) <<*)
     | Group id r =>

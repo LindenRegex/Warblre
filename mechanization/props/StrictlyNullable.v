@@ -26,7 +26,7 @@ Fixpoint strictly_nullable (r:Regex) : bool :=
   | InputStart | InputEnd | WordBoundary | NotWordBoundary => true
   | Char _ | Dot | CharacterClass _ | AtomEsc _ => false
   | Disjunction r1 r2 | Seq r1 r2 => andb (strictly_nullable r1) (strictly_nullable r2)
-  | Quantified r1 _ | Group _ r1 => strictly_nullable r1
+  | Quantified r1 _ | Group _ r1 | ModifierAdd _ r1 | ModifierRemove _ _ r1 => strictly_nullable r1
   end.
 
 (* For a few constructors, we could be more precise *)
@@ -502,7 +502,7 @@ Proof.
     rewrite <- EQUAL. simpl.
     right. exists (match_state (input x) (endIndex x) (captures y)). split; auto.
     apply valid_trans with (x:=x) (y:=y); auto.
-    (* NegativeLookbehind *)
+  (* NegativeLookbehind *)
   - destruct (compileSubPattern r (NegativeLookbehind_inner :: ctx) rer backward) eqn:SNM; try solve[inversion COMPILE].
     eapply MatcherInvariant.compileSubPattern in SNM as LOOK_INV; eauto.
     inversion COMPILE as [M]. clear COMPILE M m.
@@ -510,6 +510,10 @@ Proof.
     2: { rewrite <- EQUAL. auto. }
     rewrite NONE. simpl.
     right. exists x. split; auto.
+  (* ModifierAdd *)
+  - cbn in COMPILE. apply IHr with (root:=root) in COMPILE; auto.
+  (* ModifierRemove *)
+  - cbn in COMPILE. apply IHr with (root:=root) in COMPILE; auto.
 Qed.
 
 

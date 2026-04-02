@@ -40,7 +40,9 @@ Section Zipper.
   | Lookahead_inner
   | NegativeLookahead_inner
   | Lookbehind_inner
-  | NegativeLookbehind_inner.
+  | NegativeLookbehind_inner
+  | ModifierAdd_inner (mods: Modifiers)
+  | ModifierRemove_inner (add: Modifiers) (remove: Modifiers).
   Notation RegexContext := (list RegexContextLayer).
   Notation RegexNode := (Regex * RegexContext)%type.
 
@@ -55,6 +57,8 @@ Section Zipper.
   | NegativeLookahead_inner => NegativeLookahead focus
   | Lookbehind_inner => Lookbehind focus
   | NegativeLookbehind_inner => NegativeLookbehind focus
+  | ModifierAdd_inner mods => ModifierAdd mods focus
+  | ModifierRemove_inner add remove => ModifierRemove add remove focus
   end.
 
   (* Reconstructs the root regex. *)
