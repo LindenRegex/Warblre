@@ -829,6 +829,28 @@ Module Semantics. Section main.
           c x): Matcher
 
     (** >>
+        22.2.2.7.4 UpdateModifiers ( rer, add, remove )
+
+        The abstract operation UpdateModifiers takes arguments rer (a RegExp Record), add (a String), and
+        remove (a String) and returns a RegExp Record. It performs the following steps when called:
+
+        (*>> 1. Assert : add and remove have no elements in common. <<*)
+        (*>> 2. Let ignoreCase be rer . [[IgnoreCase]] . <<*)
+        (*>> 3. Let multiline be rer . [[Multiline]] . <<*)
+        (*>> 4. Let dotAll be rer . [[DotAll]] . <<*)
+        (*>> 5. Let unicode be rer . [[Unicode]] . <<*)
+        (*>> 6. Let unicodeSets be rer . [[UnicodeSets]] . <<*)
+        (*>> 7. Let capturingGroupsCount be rer . [[CapturingGroupsCount]] . <<*)
+        (*>> 8. If remove contains "i" , set ignoreCase to false . <<*)
+        (*>> 9. Else if add contains "i" , set ignoreCase to true . <<*)
+        (*>> 10. If remove contains "m" , set multiline to false . <<*)
+        (*>> 11. Else if add contains "m" , set multiline to true . <<*)
+        (*>> 12. If remove contains "s" , set dotAll to false . <<*)
+        (*>> 13. Else if add contains "s" , set dotAll to true . <<*)
+        (*>> 14. Return the RegExp Record { [[IgnoreCase]] : ignoreCase , [[Multiline]] : multiline , [[DotAll]] : dotAll , [[Unicode]] : unicode , [[UnicodeSets]] : unicodeSets , [[CapturingGroupsCount]] : capturingGroupsCount } . <<*)
+    <<*)
+
+    (** >>
         22.2.2.7 Runtime Semantics: CompileAtom
 
       The syntax-directed operation CompileAtom takes arguments rer (a RegExp Record) and direction (forward or backward)
@@ -837,9 +859,11 @@ Module Semantics. Section main.
     <<*)
 
     (** >>
-        WILDCARD "Atom :: (?: Disjunction )"
+        Atom :: (?: Disjunction )
+
+        1. Return CompileSubpattern of Disjunction with arguments rer and direction.
     <<*)
-    (* + Non-capturing groups are not implemented + *)
+    (* + Non-capturing groups without modifiers are not implemented; replaced by (? RegularExpressionModifiers : Disjunction) in proposal + *)
 
     (** >> Atom :: PatternCharacter <<*)
     | Char c =>
@@ -869,6 +893,18 @@ Module Semantics. Section main.
         let! cc =<< compileCharacterClass cc rer in
         (*>> 2. Return CharacterSetMatcher(rer, cc.[[CharSet]], cc.[[Invert]], direction). <<*)
         characterSetMatcher rer (CompiledCharacterClass_charSet cc) (CompiledCharacterClass_invert cc) direction
+
+    (** >> Atom :: (? RegularExpressionModifiers : Disjunction) <<*)
+    (*>> 1. Let addModifiers be the source text matched by RegularExpressionModifiers . <<*)
+    (*>> 2. Let removeModifiers be the empty String. <<*)
+    (*>> 3. Let modifiedRer be UpdateModifiers ( rer , CodePointsToString ( addModifiers ), removeModifiers ). <<*)
+    (*>> 4. Return CompileSubpattern of Disjunction with arguments modifiedRer and direction . <<*)
+
+    (** >> Atom :: (? RegularExpressionModifiers - RegularExpressionModifiers : Disjunction) <<*)
+    (*>> 1. Let addModifiers be the source text matched by the first RegularExpressionModifiers . <<*)
+    (*>> 2. Let removeModifiers be the source text matched by the second RegularExpressionModifiers . <<*)
+    (*>> 3. Let modifiedRer be UpdateModifiers ( rer , CodePointsToString ( addModifiers ), CodePointsToString ( removeModifiers )). <<*)
+    (*>> 4. Return CompileSubpattern of Disjunction with arguments modifiedRer and direction . <<*)
 
     (** >> Atom :: ( GroupSpecifier_opt Disjunction ) <<*)
     | Group id r =>
