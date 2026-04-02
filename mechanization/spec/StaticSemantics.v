@@ -337,6 +337,13 @@ Section StaticSemantics.
     | NegativeLookahead r => earlyErrors_rec r (NegativeLookahead_inner :: ctx)
     | Lookbehind r => earlyErrors_rec r (Lookbehind_inner :: ctx)
     | NegativeLookbehind r => earlyErrors_rec r (NegativeLookbehind_inner :: ctx)
+    (** >> Atom :: (? RegularExpressionModifiers : Disjunction) <<*)
+    (*>> * It is a Syntax Error if the source text matched by RegularExpressionModifiers contains the same code point more than once. <<*)
+    (** >> Atom :: (? RegularExpressionModifiers - RegularExpressionModifiers : Disjunction) <<*)
+    (*>> * It is a Syntax Error if the source text matched by the first RegularExpressionModifiers and the source text matched by the second RegularExpressionModifiers are both empty. <<*)
+    (*>> * It is a Syntax Error if the source text matched by the first RegularExpressionModifiers contains the same code point more than once. <<*)
+    (*>> * It is a Syntax Error if the source text matched by the second RegularExpressionModifiers contains the same code point more than once. <<*)
+    (*>> * It is a Syntax Error if any code point in the source text matched by the first RegularExpressionModifiers is also contained in the source text matched by the second RegularExpressionModifiers. <<*)
     end.
 
   Definition earlyErrors (r: Regex) (ctx: RegexContext): Result bool SyntaxError :=
