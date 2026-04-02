@@ -290,6 +290,13 @@ module Printer(P: EngineParameters) (S: Encoding.StringLike with type t := P.str
       | NegativeLookahead (r1) -> prio_if_strict  ("(?!" ^ iter r1 0 ^ ")") 3 current
       | Lookbehind (r1) -> prio_if_strict  ("(?<=" ^ iter r1 0 ^ ")") 3 current
       | NegativeLookbehind (r1) -> prio_if_strict  ("(?<!" ^ iter r1 0 ^ ")") 3 current
+      | ModifierAdd (mods, r1) ->
+          let mods_str = List.fold_left (fun acc c -> acc ^ char_lit_to_string c false) "" mods in
+          prio_if_strict  ("(?" ^ mods_str ^ ":" ^ iter r1 0 ^ ")") 3 current
+      | ModifierRemove (add, remove, r1) ->
+          let add_str = List.fold_left (fun acc c -> acc ^ char_lit_to_string c false) "" add in
+          let remove_str = List.fold_left (fun acc c -> acc ^ char_lit_to_string c false) "" remove in
+          prio_if_strict  ("(?" ^ add_str ^ "-" ^ remove_str ^ ":" ^ iter r1 0 ^ ")") 3 current
     in
     let res = iter r 0 in
     if delimited then "/" ^ res ^ "/" else res

@@ -230,6 +230,8 @@ Section StaticSemantics.
     | NegativeLookahead r0 => countLeftCapturingParensWithin_impl r0
     | Lookbehind r0 => countLeftCapturingParensWithin_impl r0
     | NegativeLookbehind r0 => countLeftCapturingParensWithin_impl r0
+    | ModifierAdd _ r0 => countLeftCapturingParensWithin_impl r0
+    | ModifierRemove _ _ r0 => countLeftCapturingParensWithin_impl r0
     end.
   Definition countLeftCapturingParensWithin (r: Regex) (ctx: RegexContext): non_neg_integer := countLeftCapturingParensWithin_impl r.
 
@@ -256,6 +258,8 @@ Section StaticSemantics.
       | NegativeLookahead_inner => 0
       | Lookbehind_inner => 0
       | NegativeLookbehind_inner => 0
+      | ModifierAdd_inner _ => 0
+      | ModifierRemove_inner _ _ => 0
       end
     end.
   Definition countLeftCapturingParensBefore (r: Regex) (ctx: RegexContext): non_neg_integer := countLeftCapturingParensBefore_impl ctx.
@@ -311,6 +315,15 @@ Section StaticSemantics.
   | Greedy q => earlyErrors_quantifier_prefix q
   end.
 
+  Fixpoint hasDuplicates (chars: list Character): bool :=
+    match chars with
+    | nil => false
+    | c :: rest => if List.existsb (fun x => x == c) rest then true else hasDuplicates rest
+    end.
+
+  Definition hasCommonElement (l1 l2: list Character): bool :=
+    List.existsb (fun c => List.existsb (fun d => c == d) l2) l1.
+
   Fixpoint earlyErrors_rec (r: Regex) (ctx: RegexContext): Result bool SyntaxError := match r with
     | Empty => false
     | Char _ => false
@@ -338,12 +351,20 @@ Section StaticSemantics.
     | Lookbehind r => earlyErrors_rec r (Lookbehind_inner :: ctx)
     | NegativeLookbehind r => earlyErrors_rec r (NegativeLookbehind_inner :: ctx)
     (** >> Atom :: (? RegularExpressionModifiers : Disjunction) <<*)
-    (*>> * It is a Syntax Error if the source text matched by RegularExpressionModifiers contains the same code point more than once. <<*)
+    | ModifierAdd mods r =>
+        (*>> * It is a Syntax Error if the source text matched by RegularExpressionModifiers contains the same code point more than once. <<*)
+        if hasDuplicates mods then true else earlyErrors_rec r (ModifierAdd_inner mods :: ctx)
     (** >> Atom :: (? RegularExpressionModifiers - RegularExpressionModifiers : Disjunction) <<*)
-    (*>> * It is a Syntax Error if the source text matched by the first RegularExpressionModifiers and the source text matched by the second RegularExpressionModifiers are both empty. <<*)
-    (*>> * It is a Syntax Error if the source text matched by the first RegularExpressionModifiers contains the same code point more than once. <<*)
-    (*>> * It is a Syntax Error if the source text matched by the second RegularExpressionModifiers contains the same code point more than once. <<*)
-    (*>> * It is a Syntax Error if any code point in the source text matched by the first RegularExpressionModifiers is also contained in the source text matched by the second RegularExpressionModifiers. <<*)
+    | ModifierRemove add remove r =>
+        (*>> * It is a Syntax Error if the source text matched by the first RegularExpressionModifiers and the source text matched by the second RegularExpressionModifiers are both empty. <<*)
+        (*>> * It is a Syntax Error if the source text matched by the first RegularExpressionModifiers contains the same code point more than once. <<*)
+        (*>> * It is a Syntax Error if the source text matched by the second RegularExpressionModifiers contains the same code point more than once. <<*)
+        (*>> * It is a Syntax Error if any code point in the source text matched by the first RegularExpressionModifiers is also contained in the source text matched by the second RegularExpressionModifiers. <<*)
+        if ((List.length add) =? 0)%nat && ((List.length remove) =? 0)%nat then true
+        else if hasDuplicates add then true
+        else if hasDuplicates remove then true
+        else if hasCommonElement add remove then true
+        else earlyErrors_rec r (ModifierRemove_inner add remove :: ctx)
     end.
 
   Definition earlyErrors (r: Regex) (ctx: RegexContext): Result bool SyntaxError :=

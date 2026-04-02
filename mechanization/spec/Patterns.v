@@ -171,6 +171,9 @@ Module Patterns.
     (*>> [^ ClassRanges[?UnicodeMode] ] <<*)
     | InvertedCC (crs: ClassRanges).
 
+    (** >> RegularExpressionModifiers :: <<*)
+    Definition Modifiers := list Character.
+
     (** >> Pattern :: <<*)
     (** >> Disjunction :: <<*)
     (** >> Alternative :: <<*)
@@ -211,7 +214,11 @@ Module Patterns.
     (*>> (?<= Disjunction[?UnicodeMode, ?N] ) <<*)
     | Lookbehind (r: Regex)
     (*>> (?<! Disjunction[?UnicodeMode, ?N] ) <<*)
-    | NegativeLookbehind (r: Regex).
+    | NegativeLookbehind (r: Regex)
+    (*>> (? RegularExpressionModifiers : Disjunction[?UnicodeMode, ?N] ) <<*)
+    | ModifierAdd (mods: Modifiers) (r: Regex)
+    (*>> (? RegularExpressionModifiers - RegularExpressionModifiers : Disjunction[?UnicodeMode, ?N] ) <<*)
+    | ModifierRemove (add: Modifiers) (remove: Modifiers) (r: Regex).
   End Types.
 
   Section EqDec.
