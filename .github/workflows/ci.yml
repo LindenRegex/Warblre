@@ -62,7 +62,8 @@ jobs:
               echo "::endgroup::"
 
               echo "::group::Install opam packages"
-              opam pin add -n -k version coq ${{ matrix.rocq }}
+              opam repo add rocq-released https://rocq-prover.org/opam/released
+              opam pin add -n -k version rocq-core ${{ matrix.rocq }}
               opam install --confirm-level=unsafe-yes --deps-only .
               echo "::endgroup::"
 
