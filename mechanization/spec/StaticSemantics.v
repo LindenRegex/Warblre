@@ -71,6 +71,11 @@ Section StaticSemantics.
     HexDigit.to_integer_4 self.
 
   Definition characterValue {F: Type} {_: Result.AssertionError F} (self: ClassAtom): Result non_neg_integer F := match self with
+  (** >> ClassAtom :: - <<*)
+  | Dash =>
+      (*>> 1. Return the numeric value of U+002D (HYPHEN-MINUS). <<*)
+      Character.numeric_value Characters.HYPHEN_MINUS
+
   (** >> ClassAtomNoDash :: SourceCharacter but not one of \ or ] or - <<*)
   | SourceCharacter chr =>
       (*>> 1. Let ch be the code point matched by SourceCharacter. <<*)
@@ -167,6 +172,9 @@ Section StaticSemantics.
   Definition isCharacterClass (ca: ClassAtom): bool := match ca with
   (** >> ClassAtom :: <<*)
   (*>> - <<*)
+  | Dash =>
+      (*>> 1. Return false. <<*)
+      false
 
   (*>> ClassAtomNoDash :: <<*)
   (*>> SourceCharacter but not one of \ or ] or - <<*)

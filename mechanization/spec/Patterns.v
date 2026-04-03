@@ -145,6 +145,7 @@ Module Patterns.
     (** >> ClassAtomNoDash :: <<*)
     Inductive ClassAtom :=
     (*>> - <<*)
+    | Dash
     (*>> SourceCharacter but not one of \ or ] or - <<*)
     | SourceCharacter (chr: Character)
     (*>> \ ClassEscape[?UnicodeMode] <<*)

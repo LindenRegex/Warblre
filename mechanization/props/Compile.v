@@ -14,6 +14,7 @@ Section Compile.
     Qed.
 
     Lemma compileToCharSet_ClassAtom_rel_ind: forall (P: ClassAtom -> Prop),
+      P Dash ->
       (forall chr, P (SourceCharacter chr)) ->
       P (ClassEsc (esc_b)) ->
       P (ClassEsc (esc_Dash)) ->
@@ -28,7 +29,7 @@ Section Compile.
       (forall p, P (ClassEsc (CCharacterClassEsc (UnicodeProp p))) -> P (ClassEsc (CCharacterClassEsc (UnicodePropNeg p))) ) ->
       forall ca, P ca.
     Proof.
-      intros P H_char H_b H_dash H_char_esc H_d H_s H_w H_D H_S H_W.
+      intros P H_dash H_char H_b H_esc_dash H_char_esc H_d H_s H_w H_D H_S H_W.
       destruct ca; auto.
       destruct esc; auto.
       destruct esc; auto.
@@ -49,12 +50,13 @@ Section Compile.
     Proof.
       induction a; intros rer c r Sing_a Eq_r; dependent destruction Sing_a; cbn in Eq_r.
       - injection Eq_r as <-. rewrite -> Character.numeric_pseudo_bij. reflexivity.
+      - injection Eq_r as <-. rewrite -> Character.numeric_pseudo_bij. reflexivity.
       - unfold nat_to_nni in Eq_r; cbn in Eq_r. rewrite -> Character.numeric_pseudo_bij in Eq_r; injection Eq_r as <-.
         rewrite -> Character.numeric_pseudo_bij. reflexivity.
       - unfold nat_to_nni in Eq_r; cbn in Eq_r. rewrite -> Character.numeric_pseudo_bij in Eq_r; injection Eq_r as <-.
         rewrite -> Character.numeric_pseudo_bij. reflexivity.
       - destruct ce; try destruct esc; dependent destruction H.
-        all: unfold nat_to_nni in Eq_r; cbn in Eq_r; unfold characterValue_Hex4Digits in Eq_r. 
+        all: unfold nat_to_nni in Eq_r; cbn in Eq_r; unfold characterValue_Hex4Digits in Eq_r.
         all: try rewrite -> Character.numeric_pseudo_bij in Eq_r; injection Eq_r as <-.
         all: try rewrite -> Character.numeric_pseudo_bij; try reflexivity.
     Qed.

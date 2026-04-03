@@ -22,9 +22,10 @@ Section EarlyErrors.
   | Singleton_unicode_cp: forall c, SingletonCharacterEscape (UnicodeEsc (CodePoint c)) (Character.numeric_value c).
 
   Inductive SingletonClassAtom: ClassAtom -> non_neg_integer -> Prop :=
+  | Singleton_dash: SingletonClassAtom Dash (Character.numeric_value Characters.HYPHEN_MINUS)
   | Singleton_SourceCharacter: forall c, SingletonClassAtom (SourceCharacter c) (Character.numeric_value c)
   | Singleton_b: SingletonClassAtom (ClassEsc esc_b) (Character.numeric_value Characters.BACKSPACE)
-  | Singleton_dash: SingletonClassAtom (ClassEsc esc_Dash) (Character.numeric_value Characters.HYPHEN_MINUS)
+  | Singleton_esc_dash: SingletonClassAtom (ClassEsc esc_Dash) (Character.numeric_value Characters.HYPHEN_MINUS)
   | Singleton_char_esc: forall ce c,
       SingletonCharacterEscape ce c -> SingletonClassAtom (ClassEsc (CCharacterEsc ce)) c.
 
@@ -190,6 +191,7 @@ Section EarlyErrors.
   Lemma isCharacterClass_singleton {F: Type} {_: Result.AssertionError F}: forall c, isCharacterClass c = false -> exists v, SingletonClassAtom c v.
   Proof.
     intros [ ]; cbn.
+    - eexists; repeat econstructor.
     - eexists; repeat econstructor.
     - destruct esc eqn:Esc; try discriminate; intros _.
       + eexists. econstructor.

@@ -159,6 +159,7 @@ module Printer(P: EngineParameters) (S: Encoding.StringLike with type t := P.str
 
     let class_atom_to_string (ca: (P.character, P.property) coq_ClassAtom) : ocaml_string =
       match ca with
+      | Dash -> "-"
       | SourceCharacter c -> char_lit_to_string c true
       | ClassEsc Coq_esc_b -> "\\b"
       | ClassEsc Coq_esc_Dash -> "\\-"

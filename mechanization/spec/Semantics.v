@@ -291,6 +291,11 @@ Module Semantics. Section main.
 
   (* + Part without recursion +*)
   Definition compileToCharSet_ClassAtom_0 (self: ClassAtom) (rer: RegExpRecord) : Result CharSet CompileError := match self with
+  (** >> ClassAtom :: - <<*)
+  | Dash =>
+      (*>> 1. Return the CharSet containing the single character U+002D (HYPHEN-MINUS). <<*)
+      CharSet.singleton Characters.HYPHEN_MINUS
+
   (** >> ClassAtomNoDash :: SourceCharacter but not one of \ or ] or - <<*)
   | SourceCharacter chr =>
       (*>> 1. Return the CharSet containing the character matched by SourceCharacter. <<*)
