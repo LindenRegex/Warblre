@@ -274,10 +274,6 @@ Module Semantics. Section main.
       It is defined piecewise over the following productions:
   <<*)
   (** >>
-    WILDCARD "ClassAtom"
-  <<*)
-
-  (** >>
     WILDCARD "UnicodePropertyValueExpression"
   <<*)
   (* + ClassAtom is not matched because there is only the case "-" which is not handled specifically since there are no distinctions of having or not dashes.
