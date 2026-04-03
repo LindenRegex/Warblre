@@ -60,9 +60,6 @@ Section StaticSemantics.
       The syntax-directed operation CharacterValue takes no arguments and returns a non-negative integer.
       It is defined piecewise over the following productions:
   <<*)
-  (** >>
-      WILDCARD "ClassAtom"
-  <<*)
   Definition characterValue_Hex4Digits (self: Hex4Digits): non_neg_integer :=
     (** >> HexLeadSurrogate :: Hex4Digits <<*)
     (** >> HexTrailSurrogate :: Hex4Digits <<*)
