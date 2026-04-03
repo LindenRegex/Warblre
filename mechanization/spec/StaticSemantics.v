@@ -395,7 +395,7 @@ Section StaticSemantics.
   Section Extensions.
     Definition all_groups_in (r: RegexNode) : list RegexNode :=
       let (pattern, ctx) := r in
-      List.filter ( fun r => match r with
+      List.filter ( fun node => match node with
         | (Group _ _, _) => true
         | _ => false
         end
