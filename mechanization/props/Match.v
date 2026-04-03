@@ -280,7 +280,7 @@ Module Match.
 
     (*  Normalize the hypotheses/goals related to progress:
         - Normalize all MatchStates (using MatchState.normalize)
-        - Uniformizes all captures, which are irrelevant to progress (replaces all of them by DMap.empty)
+        - Uniformizes all captures, which are irrelevant to progress (replaces all of them by List.empty)
         - Derives that two MatchStates have the same input from progress hypotheses *)
     Ltac normalize := repeat (
         MatchState.normalize
