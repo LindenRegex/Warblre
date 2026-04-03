@@ -10,7 +10,7 @@ Local Open Scope result_flow.
   WILDCARD Sections
   ["22.2.1.9","22.2.1.10"]
 ##*)
-(* + The section 22.1.9 and 22.1.10 RegExpIdentifierCodePoints are not implemented + *)
+(* + The section 22.2.1.9 and 22.2.1.10 RegExpIdentifierCodePoints are not implemented + *)
 Section StaticSemantics.
   Context `{specParameters: Parameters}.
   Import Patterns.
@@ -18,7 +18,7 @@ Section StaticSemantics.
   (** >>
       22.2.1.8 Static Semantics: CapturingGroupName
 
-      The syntax-directed operation CapturingGroupName takes no arguments and returns a String.
+      The syntax-directed operation CapturingGroupName takes arguments (gn: GroupName) and returns a String.
       It is defined piecewise over the following productions:
   <<*)
   Definition capturingGroupName (gn: GroupName): GroupName :=
