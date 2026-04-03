@@ -625,32 +625,32 @@ Module Semantics. Section main.
       (*>> 3. If direction is forward, then <<*)
       if direction is forward then
         (*>> a. Return a new Matcher with parameters (x, c) that captures m1 and m2 and performs the following steps when called: <<*)
-        (fun (s: MatchState) (c: MatcherContinuation) =>
+        (fun (x: MatchState) (c: MatcherContinuation) =>
           (*>> i. Assert: x is a MatchState. <<*)
           (*>> ii. Assert: c is a MatcherContinuation. <<*)
           (*>> iii. Let d be a new MatcherContinuation with parameters (y) that captures c and m2 and performs the following steps when called: <<*)
-          let d: MatcherContinuation := fun (s: MatchState) =>
+          let d: MatcherContinuation := fun (y: MatchState) =>
             (*>> 1. Assert: y is a MatchState. <<*)
             (*>> 2. Return m2(y, c). <<*)
-            m2 s c
+            m2 y c
           in
           (*>> iv. Return m1(x, d). <<*)
-          m1 s d): Matcher
+          m1 x d): Matcher
       (*>> 4. Else, <<*)
       else
         (*>> a. Assert: direction is backward. <<*)
         (*>> b. Return a new Matcher with parameters (x, c) that captures m1 and m2 and performs the following steps when called: <<*)
-        (fun (s: MatchState) (c: MatcherContinuation) =>
+        (fun (x: MatchState) (c: MatcherContinuation) =>
           (*>> i. Assert: x is a MatchState. <<*)
           (*>> ii. Assert: c is a MatcherContinuation. <<*)
           (*>> iii. Let d be a new MatcherContinuation with parameters (y) that captures c and m1 and performs the following steps when called: <<*)
-          let d: MatcherContinuation := fun (s: MatchState) =>
+          let d: MatcherContinuation := fun (y: MatchState) =>
             (*>> 1. Assert: y is a MatchState. <<*)
             (*>> 2. Return m1(y, c). <<*)
-            m1 s c
+            m1 y c
           in
           (*>> iv. Return m2(x, d). <<*)
-          m2 s d): Matcher
+          m2 x d): Matcher
 
   (** >> Term :: Atom Quantifier <<*)
   | Quantified r qu =>
