@@ -332,7 +332,7 @@ Module Semantics. Section main.
 
   (** >> CharacterClassEscape :: p{ UnicodePropertyValueExpression } <<*)
   | ClassEsc (CCharacterClassEsc (UnicodeProp p)) =>
-      (*>> 1. Return the CharSet containing all Unicode code points included in CompileToCharSet of UnicodePropertyValueExpression with argument rer. <<*)
+      (*>> 1. Return the CharSet containing all Unicode code points included in CompileToCharSet of UnicodePropertyValueExpression. <<*)
       CharSet.from_list (Property.code_points_for p)
 
   (* + These require a recursive call, but this function is not allowed to. +*)
