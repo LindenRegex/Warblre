@@ -33,6 +33,7 @@ Section AbstractMatching.
       RegExpRecord.multiline := true;
       RegExpRecord.dotAll := true;
       RegExpRecord.unicode := tt;
+      RegExpRecord.unicodeSets := tt;
       RegExpRecord.capturingGroupsCount := 0
     |}.
 

@@ -22,6 +22,8 @@ Module RegExpRecord.
     dotAll: bool;
     (*>> [[Unicode]] <<*)
     unicode: unit;
+    (*>> [[UnicodeSets]] <<*)
+    unicodeSets: unit;
     (*>> [[CapturingGroupsCount]] <<*)
     capturingGroupsCount: non_neg_integer;
   }.

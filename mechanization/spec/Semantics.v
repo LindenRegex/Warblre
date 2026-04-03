@@ -556,26 +556,29 @@ Module Semantics. Section main.
     (*>> 5. Let unicode be rer.[[Unicode]]. <<*)
     let unicode := RegExpRecord.unicode rer in
     (*>> 6. Let unicodeSets be rer.[[UnicodeSets]]. <<*)
-    (* + Note: unicodeSets is not stored in our RegExpRecord, treated as part of unicode flag + *)
+    let unicodeSets := RegExpRecord.unicodeSets rer in
     (*>> 7. Let capturingGroupsCount be rer.[[CapturingGroupsCount]]. <<*)
     let capturingGroupsCount := RegExpRecord.capturingGroupsCount rer in
     (*>> 8. If remove contains "i", set ignoreCase to false. <<*)
     let i_char := Character.from_numeric_value 105 in (* "i" = 105 *)
-    let ignoreCase := if List.existsb (fun c => c == i_char) remove then false else ignoreCase in
+    let remove_contains_i := List.existsb (fun c => c == i_char) remove in
+    let add_contains_i := List.existsb (fun c => c == i_char) add in
+    let ignoreCase := if remove_contains_i then false else if add_contains_i then true else ignoreCase in
     (*>> 9. Else if add contains "i", set ignoreCase to true. <<*)
-    let ignoreCase := if List.existsb (fun c => c == i_char) add then true else ignoreCase in
     (*>> 10. If remove contains "m", set multiline to false. <<*)
     let m_char := Character.from_numeric_value 109 in (* "m" = 109 *)
-    let multiline := if List.existsb (fun c => c == m_char) remove then false else multiline in
+    let remove_contains_m := List.existsb (fun c => c == m_char) remove in
+    let add_contains_m := List.existsb (fun c => c == m_char) add in
+    let multiline := if remove_contains_m then false else if add_contains_m then true else multiline in
     (*>> 11. Else if add contains "m", set multiline to true. <<*)
-    let multiline := if List.existsb (fun c => c == m_char) add then true else multiline in
     (*>> 12. If remove contains "s", set dotAll to false. <<*)
     let s_char := Character.from_numeric_value 115 in (* "s" = 115 *)
-    let dotAll := if List.existsb (fun c => c == s_char) remove then false else dotAll in
+    let remove_contains_s := List.existsb (fun c => c == s_char) remove in
+    let add_contains_s := List.existsb (fun c => c == s_char) add in
+    let dotAll := if remove_contains_s then false else if add_contains_s then true else dotAll in
     (*>> 13. Else if add contains "s", set dotAll to true. <<*)
-    let dotAll := if List.existsb (fun c => c == s_char) add then true else dotAll in
     (*>> 14. Return the RegExp Record { [[IgnoreCase]]: ignoreCase, [[Multiline]]: multiline, [[DotAll]]: dotAll, [[Unicode]]: unicode, [[UnicodeSets]]: unicodeSets, [[CapturingGroupsCount]]: capturingGroupsCount }. <<*)
-    reg_exp_record ignoreCase multiline dotAll unicode capturingGroupsCount.
+    reg_exp_record ignoreCase multiline dotAll unicode unicodeSets capturingGroupsCount.
 
   (** >>
       22.2.2.3 Runtime Semantics: CompileSubpattern
