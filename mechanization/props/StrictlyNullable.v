@@ -37,7 +37,7 @@ Fixpoint strictly_nullable (r:Regex) : bool :=
 (** * Strictly Nullable Matchers  *)
 
 Definition strictly_nullable_matcher (m:Matcher) (rer:RegExpRecord) : Prop :=
-  (* for any valid state x and continuation c *)
+  (* for any valid state x (with input string) and continuation c *)
   forall x c (VALID: Valid (input x) rer x),
     (* Then either the match fails *)
     (m x c = failure) \/
