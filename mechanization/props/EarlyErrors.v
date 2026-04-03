@@ -5,7 +5,7 @@ Section EarlyErrors.
   Context `{specParameters: Parameters}.
     Import Patterns.
 
-  Notation hex4digitsValue v := (let (_0, _1, _2, _3) := v in HexDigit.to_integer (_0 :: _1 :: _2 :: _3 :: nil)) (only parsing).
+  Abbreviation hex4digitsValue v := (let (_0, _1, _2, _3) := v in HexDigit.to_integer (_0 :: _1 :: _2 :: _3 :: nil)) (only parsing).
 
   Inductive SingletonCharacterEscape: CharacterEscape -> non_neg_integer -> Prop :=
   | Singleton_ctrl_t: SingletonCharacterEscape (ControlEsc esc_t) (Character.numeric_value Characters.CHARACTER_TABULATION)

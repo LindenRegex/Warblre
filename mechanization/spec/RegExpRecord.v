@@ -26,5 +26,5 @@ Module RegExpRecord.
     capturingGroupsCount: non_neg_integer;
   }.
 End RegExpRecord.
-Notation RegExpRecord := RegExpRecord.type.
-Notation reg_exp_record := RegExpRecord.make.
+Abbreviation RegExpRecord := RegExpRecord.type.
+Abbreviation reg_exp_record := RegExpRecord.make.

@@ -24,7 +24,7 @@ Module EqDec.
   Lemma reflb {T: Type} `{type T}: forall (t: T), eqb t t = true.
   Proof. intros. unfold eqb. destruct (eq_dec t t) eqn:Eq; easy. Qed.
 End EqDec.
-Notation EqDec := EqDec.type.
+Abbreviation EqDec := EqDec.type.
 Infix "=?=" := EqDec.eq_dec (at level 37, no associativity).
 Infix "==" := EqDec.eqb (at level 37, no associativity).
 Infix "!=" := EqDec.neqb (at level 37, no associativity).

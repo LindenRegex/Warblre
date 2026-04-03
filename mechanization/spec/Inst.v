@@ -543,9 +543,9 @@ Definition character_of_Ascii (a: Stdlib.Strings.Ascii.ascii) :=
 Example flags :=
   (RegExpFlags.make false false false false false tt false).
 
-Notation "! r" := (get_success (initialize r flags)) (at level 0).
-Notation "$ c" := (character_of_Ascii c) (at level 0).
-Notation "$$ s" := (string_of_String s) (at level 0).
+Notation "! r" := (get_success (initialize r flags)) (at level 9).
+Notation "$ c" := (character_of_Ascii c) (at level 9).
+Notation "$$ s" := (string_of_String s) (at level 9).
 
 (* Hide the matching functions in the outputs below*)
 Arguments Exotic {C S UP}%_type_scope {H H0 H1} _ {_}.

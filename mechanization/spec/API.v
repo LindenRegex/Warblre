@@ -184,11 +184,11 @@ Module API.
         This is done by providing equivalent, yet non-depent signatures for all functions
         exposed in this API.
     *)
-    Notation Regex := (@Patterns.Regex character string property _ _ _).
-    Notation MatchResult := (@Notation.MatchResult character _).
-    Notation RegExpInstance := (@RegExpInstance.type _ _ _ _ _ _).
-    Notation ExecResult := (@ExecResult character string property _ _ _).
-    Notation ProtoMatchResult := (@ProtoMatchResult character string property _ _ _).
+    Abbreviation Regex := (@Patterns.Regex character string property _ _ _).
+    Abbreviation MatchResult := (@Notation.MatchResult character _).
+    Abbreviation RegExpInstance := (@RegExpInstance.type _ _ _ _ _ _).
+    Abbreviation ExecResult := (@ExecResult character string property _ _ _).
+    Abbreviation ProtoMatchResult := (@ProtoMatchResult character string property _ _ _).
 
     (* API *)
     Definition countGroups: Regex -> non_neg_integer :=

@@ -41,8 +41,8 @@ Section Zipper.
   | NegativeLookahead_inner
   | Lookbehind_inner
   | NegativeLookbehind_inner.
-  Notation RegexContext := (list RegexContextLayer).
-  Notation RegexNode := (Regex * RegexContext)%type.
+  Abbreviation RegexContext := (list RegexContextLayer).
+  Abbreviation RegexNode := (Regex * RegexContext)%type.
 
   Definition zip_one (focus: Regex) (ctx: RegexContextLayer) := match ctx with
   | Disjunction_left r => Disjunction focus r
@@ -75,5 +75,5 @@ Section Zipper.
       decide equality; apply EqDec.eq_dec. Defined.
   End EqDec.
 End Zipper.
-Notation RegexContext := (list RegexContextLayer).
-Notation RegexNode := (Regex * RegexContext)%type.
+Abbreviation RegexContext := (list RegexContextLayer).
+Abbreviation RegexNode := (Regex * RegexContext)%type.

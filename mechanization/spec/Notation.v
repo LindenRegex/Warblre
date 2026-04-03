@@ -24,8 +24,8 @@ Module Notation.
     }.
   End CaptureRange.
 
-  Notation CaptureRange := CaptureRange.type.
-  Notation capture_range := CaptureRange.make.
+  Abbreviation CaptureRange := CaptureRange.type.
+  Abbreviation capture_range := CaptureRange.make.
 
   #[refine] #[export]
   Instance eqdec_captureRange: EqDec CaptureRange := {}. decide equality; apply EqDec.eq_dec. Defined.
@@ -40,7 +40,7 @@ Module Notation.
       of capturing parentheses, or undefined if the nth set of capturing parentheses hasn't been reached yet. Due to
       backtracking, many States may be in use at any time during the matching process.
   <<*)
-  Notation undefined := None (only parsing).
+  Abbreviation undefined := None (only parsing).
   Module MatchState.
     Record type {Character} `{CharacterMarker Character} := make {
       input: list Character;
@@ -50,8 +50,8 @@ Module Notation.
     #[global] Arguments make {_} {_}.
   End MatchState.
 
-  Notation MatchState := MatchState.type.
-  Notation match_state := MatchState.make.
+  Abbreviation MatchState := MatchState.type.
+  Abbreviation match_state := MatchState.make.
 
   #[export] #[refine]
   Instance eqdec_matchState {C} `{m: CharacterMarker C} `{EqDec C}: EqDec MatchState := {}.
@@ -61,7 +61,7 @@ Module Notation.
       A MatchResult is either a MatchState or the special token failure that indicates that the match failed.
   <<*)
   Definition MatchResult {Character} `{CharacterMarker Character} := Result (option MatchState) MatchError.
-  Notation failure := (@None MatchState) (only parsing).
+  Abbreviation failure := (@None MatchState) (only parsing).
 
   #[export]
   Instance eqdec_matchResult {C} `{CharacterMarker C} `{EqDec C} `{Parameters}: EqDec MatchResult := _.

@@ -24,6 +24,7 @@ The mechanization has the following properties:
 1.
     All of the core dependencies can be installed through [opam](https://opam.ocaml.org/):
     ```shell
+    opam repo add rocq-released https://rocq-prover.org/opam/released
     opam install . --deps-only
     ```
     This will allow you to step through the Rocq code, extract the OCaml code and compile it.

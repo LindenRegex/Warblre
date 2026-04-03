@@ -19,7 +19,8 @@
  (synopsis "A mechanization of the specification of ECMAScript regexes")
  (depends
   (ocaml (= 4.14.2))
-  (rocq-prover (>= 9.0.0))))
+  (rocq-stdlib (>= 9.0.0))
+  (rocq-core (>= 9.0.0))))
 
 (package
  (name warblre-engines)

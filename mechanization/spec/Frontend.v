@@ -33,8 +33,8 @@ Module RegExpFlags.
     y: bool;
   }.
 End RegExpFlags.
-Notation RegExpFlags := RegExpFlags.type.
-Notation reg_exp_flags := RegExpFlags.make.
+Abbreviation RegExpFlags := RegExpFlags.type.
+Abbreviation reg_exp_flags := RegExpFlags.make.
 
 (** >>
     22.2.8 Properties of RegExp Instances
@@ -73,8 +73,8 @@ Module RegExpInstance. Section main.
   Definition setLastIndex (r: type) (index: integer): type :=
     make (originalSource r) (originalFlags r) (regExpRecord r) (regExpMatcher r) index.
 End main. End RegExpInstance.
-Notation RegExpInstance := RegExpInstance.type.
-Notation reg_exp_instance := RegExpInstance.make.
+Abbreviation RegExpInstance := RegExpInstance.type.
+Abbreviation reg_exp_instance := RegExpInstance.make.
 
 Section Initialization.
   Context `{specParameters: Parameters}.
@@ -154,8 +154,8 @@ Module MatchRecord.
     assert! (mend >=? mstart);
     Success (mk mstart mend).
 End MatchRecord.
-Notation MatchRecord := MatchRecord.type.
-Notation match_record := MatchRecord.make.
+Abbreviation MatchRecord := MatchRecord.type.
+Abbreviation match_record := MatchRecord.make.
 
 (* + the groups that are returned inside the obejct returned by RegExpBuiltinExec +*)
 Definition groups_map {S} `{StringMarker S}: Type := list (GroupName * option S).
@@ -178,8 +178,8 @@ Module ExecArrayExotic. Section main.
       indices_groups: option (list (GroupName * option (nat * nat)));
     }.
 End main. End ExecArrayExotic.
-Notation ExecArrayExotic := ExecArrayExotic.type.
-Notation exec_array_exotic := ExecArrayExotic.make.
+Abbreviation ExecArrayExotic := ExecArrayExotic.type.
+Abbreviation exec_array_exotic := ExecArrayExotic.make.
 
 Inductive ExecResult {C S UP: Type} `{CharacterMarker C} `{StringMarker S} `{UnicodePropertyMarker UP} :=
 | Null: RegExpInstance -> ExecResult (* + also returns modifications to the RegExpInstance Object +*)
