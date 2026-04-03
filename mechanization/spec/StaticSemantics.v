@@ -40,7 +40,7 @@ Section StaticSemantics.
     let pattern := zip r ctx in
     (*>> 3. Let result be a new empty List. <<*)
     (*>> 4. For each GroupSpecifier gs that pattern contains, do <<*)
-    let result := List.flat_map ( fun r => match r with
+    let result := List.flat_map ( fun node => match node with
       | (Group (Some gs) inner, ctx) =>
         (*>> a. If the CapturingGroupName of gs is name, then <<*)
         if (gs =?= name) then
