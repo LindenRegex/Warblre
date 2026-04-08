@@ -32,7 +32,7 @@
 
         warblre = pkgs.rocqPackages_9_1.mkRocqDerivation.override { dune = dune321; } {
           pname = "warblre";
-          owner = "linden";
+          owner = "linden-regex";
 
           src = nixpkgs.lib.fileset.toSource {
             root = ./..;
@@ -61,7 +61,7 @@
 
         warblre-engines = oPkgs.buildDunePackage.override { dune_3 = dune321; } {
           pname = "warblre-engines";
-          owner = "linden";
+          owner = "linden-regex";
 
           src = nixpkgs.lib.fileset.toSource {
             root = ./..;
