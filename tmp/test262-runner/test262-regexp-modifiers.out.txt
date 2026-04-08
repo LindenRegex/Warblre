@@ -1,0 +1,17 @@
+node:internal/errors:541
+      throw error;
+      ^
+
+TypeError [ERR_INVALID_ARG_TYPE]: The "to" argument must be of type string. Received null
+    at Object.relative (node:path:1195:5)
+    at Object.<anonymous> (/Users/valentinschneeberger/.nvm/versions/node/v21.7.2/lib/node_modules/test262-harness/bin/run.js:148:21)
+    at Module._compile (node:internal/modules/cjs/loader:1368:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1426:10)
+    at Module.load (node:internal/modules/cjs/loader:1205:32)
+    at Module._load (node:internal/modules/cjs/loader:1021:12)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:142:12)
+    at node:internal/main/run_main_module:28:49 {
+  code: 'ERR_INVALID_ARG_TYPE'
+}
+
+Node.js v21.7.2

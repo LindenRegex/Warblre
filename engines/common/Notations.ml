@@ -123,5 +123,15 @@ module CharNotations (P: EngineParameters) (S: Encoding.StringLike with type t :
     in
     AsciiControlEsc (char_to_ascii_letter l)
 
+  (* RegExp Modifiers: (?i:), (?-i:), (?i-s:), etc. *)
+  let char_list_from_string (s: string): P.character list =
+    List.map (fun c -> P.Character.from_numeric_value (BigInt.of_int (Char.code c))) (List.init (String.length s) (String.get s))
+
+  let add_modifiers (mods: string) (r: (P.character, P.string, P.property) coq_Regex): (P.character, P.string, P.property) coq_Regex =
+    ModifierAdd (char_list_from_string mods, r)
+
+  let remove_modifiers (add: string) (remove: string) (r: (P.character, P.string, P.property) coq_Regex): (P.character, P.string, P.property) coq_Regex =
+    ModifierRemove (char_list_from_string add, char_list_from_string remove, r)
+
 end
 
