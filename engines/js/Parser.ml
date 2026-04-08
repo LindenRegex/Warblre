@@ -37,6 +37,10 @@ module Parser(P: Engines.EngineParameters)(S: Encoding.StringLike with type t :=
     type classSubtraction
     type expressionCharacterClass
     type group
+    type modifier = {
+      enable: Js.String.t;
+      disable: Js.String.t;
+    }
     type pattern
     type quantifier = {
       raw: Js.String.t;
@@ -50,7 +54,7 @@ module Parser(P: Engines.EngineParameters)(S: Encoding.StringLike with type t :=
 
   type regex
   
-  external parseRegExpLiteral: JsEngineParameters.JsString.t -> regex = "parseRegExpLiteral" [@@mel.module "@eslint-community/regexpp"]
+  external parseRegExpLiteral: JsEngineParameters.JsString.t -> regex = "parseRegExpLiteral" [@@mel.module "./regexpp-wrapper.mjs"]
   external map:
     regex ->
     onAlternative:((AST.alternative -> 'a Js.Array.t -> 'a)[@mel.uncurry]) ->
@@ -67,6 +71,7 @@ module Parser(P: Engines.EngineParameters)(S: Encoding.StringLike with type t :=
     onClassSubtraction:((AST.classSubtraction -> 'a -> 'a -> 'a)[@mel.uncurry]) ->
     onExpressionCharacterClass:((AST.expressionCharacterClass -> 'a -> 'a)[@mel.uncurry]) ->
     onGroup:((AST.group -> 'a Js.Array.t -> 'a)[@mel.uncurry]) ->
+    onModifier:((AST.modifier -> 'a Js.Array.t -> 'a)[@mel.uncurry]) ->
     onPattern:((AST.pattern -> 'a Js.Array.t -> 'a)[@mel.uncurry]) ->
     onQuantifier:((AST.quantifier -> 'a -> 'a)[@mel.uncurry]) ->
     onRegExpLiteral:((AST.regExpLiteral -> 'a -> 'a)[@mel.uncurry]) ->
@@ -137,6 +142,30 @@ module Parser(P: Engines.EngineParameters)(S: Encoding.StringLike with type t :=
       ~onClassSubtraction:(fun _ _ -> unsupported "Class disjunction")
       ~onExpressionCharacterClass:(fun _ _ -> unsupported "Class expression")
       ~onGroup:disjunction
+      ~onModifier:(fun m r ->
+        let r = disjunction () r in
+        (* Safely get enable/disable strings with defaults *)
+        let add = 
+          try
+            let s = m.enable in
+            if Js.Types.test s Js.Types.Undefined then "" else s
+          with _ -> ""
+        in
+        let remove =
+          try
+            let s = m.disable in
+            if Js.Types.test s Js.Types.Undefined then "" else s
+          with _ -> ""
+        in
+        let char_list_from_string (s: Js.String.t): P.character list =
+          if s = "" then []
+          else
+            let len = Js.String.length s in
+            List.init len (fun i -> P.Character.from_numeric_value (BigInt.of_int (int_of_float (Js.String.charCodeAt ~index:i s))))
+        in
+        if remove = ""
+        then ModifierAdd (char_list_from_string add, r)
+        else ModifierRemove (char_list_from_string add, char_list_from_string remove, r))
       ~onPattern:disjunction
       ~onQuantifier:(fun q r ->
         let min = BigInt.of_int q.min in

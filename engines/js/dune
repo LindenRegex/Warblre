@@ -17,7 +17,7 @@
  (name warblre_js)
  (public_name warblre-engines.js)
  (libraries melange.belt)
- (melange.runtime_deps (file ./regexpp-map.mjs))
+  (melange.runtime_deps (file ./regexpp-map.mjs) (file ./regexpp-wrapper.mjs))
  (modes melange)
  (preprocess (pps melange.ppx)))
 

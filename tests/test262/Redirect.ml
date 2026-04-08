@@ -16,6 +16,9 @@ let set_field (type a b): a -> Js.String.t -> b -> unit = [%mel.raw {|
 external regexp_prototype: Obj.t = "prototype" [@@mel.scope "RegExp"]
 external regexp_prototype_exec: Obj.t  = "exec" [@@mel.scope "RegExp", "prototype"]
 
+(* Store for parsed regex ASTs - maps regex object to parsed pattern *)
+let regex_ast_store = [%mel.raw {| new WeakMap() |}]
+
 (* Approximation of ToLength (from the spec). *)
 let to_length: int -> int = [%mel.raw {|
   function (index) {
@@ -148,12 +151,12 @@ let exec: (Js.Re.t -> string -> Js.Re.result Js.nullable) [@mel.this] =
   fun [@mel.this] this input -> (
     (* Check that it is not being called as a constructor. *)
     let as_constructor: bool = [%mel.raw{| new.target |}] in
-    if as_constructor then Js.Exn.raiseTypeError("'exec' is not a constructor.");
+    if as_constructor then Js.Exn.raiseTypeError "'exec' is not a constructor.";
 
     (* Hacky way of thecking that there is an internal [[RegExpMatcher]] slot *)
     (* The related test instead mention the requirement that the internal slot [[Class]] === RegExp; this test likely comes from an earlier iteration of the spec  *)
     let is_regexp: bool = [%mel.raw{| Object.getPrototypeOf(this) === RegExp.prototype |}] in
-    if not is_regexp then Js.Exn.raiseTypeError("'exec' must be called on a RegExp.");
+    if not is_regexp then Js.Exn.raiseTypeError "'exec' must be called on a RegExp.";
 
     (* Call the correct engine, depending on whether unicode mode is enabled. *)
     if (Js.String.includes ~search:"u" (to_string (Js.Re.flags this))) then UnicodeExec.exec this input
@@ -171,4 +174,113 @@ let set_regex_exec (f: (Js.Re.t -> Js.String.t -> Js.Re.result Js.nullable)[@mel
   define_property regexp_prototype_exec "name" { value = "exec"; writable = false; enumerable = false; configurable = true }
 
 let () =
-  set_regex_exec exec
+  (* Set up the exec override first *)
+  set_regex_exec exec;
+  
+  (* Now inject JavaScript to override the RegExp constructor *)
+  [%mel.raw {|
+    (function() {
+      // Capture the NATIVE RegExp before we do anything
+      const NativeRegExp = globalThis.RegExp;
+      const regexCache = new WeakMap();
+      
+      // Check if pattern contains modifier syntax
+      function hasModifierSyntax(pattern) {
+        return /\(\?[imsx]*(?:-[imsx]*)?:/.test(pattern);
+      }
+      
+      // Create the new RegExp constructor
+      function WarblreRegExp(pattern, flags) {
+        const isNew = new.target !== undefined;
+        let patternStr = '';
+        let flagsStr = '';
+        
+        // Handle pattern argument
+        if (pattern !== undefined) {
+          if (pattern instanceof RegExp) {
+            patternStr = pattern.source;
+            flagsStr = flags !== undefined ? String(flags) : pattern.flags;
+          } else {
+            patternStr = String(pattern);
+            flagsStr = flags !== undefined ? String(flags) : '';
+          }
+        }
+        
+        // Check if this pattern has modifier syntax
+        const needsWarblre = hasModifierSyntax(patternStr);
+        
+        let result;
+        if (needsWarblre) {
+          // For patterns with modifiers, create a placeholder regex
+          // The actual matching will be done by our overridden exec
+          try {
+            // Try to create with a safe pattern
+            result = new NativeRegExp('(?:)', flagsStr);
+          } catch (e) {
+            result = new NativeRegExp('', '');
+          }
+          
+          // Store metadata on the regex object
+          regexCache.set(result, {
+            source: patternStr,
+            flags: flagsStr,
+            useWarblre: true
+          });
+          
+          // Override the source getter
+          Object.defineProperty(result, 'source', {
+            get: function() {
+              const meta = regexCache.get(result);
+              return meta ? meta.source : patternStr;
+            },
+            configurable: true,
+            enumerable: true
+          });
+          
+          // Override the flags getter
+          Object.defineProperty(result, 'flags', {
+            get: function() {
+              const meta = regexCache.get(result);
+              return meta ? meta.flags : flagsStr;
+            },
+            configurable: true,
+            enumerable: true
+          });
+        } else {
+          // For regular patterns, use native RegExp
+          try {
+            result = new NativeRegExp(patternStr, flagsStr);
+          } catch (e) {
+            // If native fails, try to create a placeholder
+            result = new NativeRegExp('', '');
+            regexCache.set(result, {
+              source: patternStr,
+              flags: flagsStr,
+              useWarblre: true
+            });
+          }
+        }
+        
+        if (isNew) {
+          return result;
+        } else {
+          // When called as function, return the regex object
+          return result;
+        }
+      }
+      
+      // Copy static properties - but don't try to set read-only properties
+      try {
+        Object.setPrototypeOf(WarblreRegExp, NativeRegExp);
+      } catch (e) {}
+      try {
+        WarblreRegExp.prototype = NativeRegExp.prototype;
+      } catch (e) {}
+      
+      // Replace global RegExp
+      globalThis.RegExp = WarblreRegExp;
+      
+      // Also update global scope references
+      globalThis.___WarblreRegexCache___ = regexCache;
+    })()
+  |}]

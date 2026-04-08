@@ -42,6 +42,8 @@ export class RegExpMapper {
                 return this.visitExpressionCharacterClass(node);
             case "Group":
                 return this.visitGroup(node);
+            case "Modifier":
+                return this.visitModifier(node);
             case "Pattern":
                 return this.visitPattern(node);
             case "Quantifier":
@@ -145,6 +147,10 @@ export class RegExpMapper {
         let alternatives = node.alternatives.map(alternative => this.visitAlternative(alternative));
         return this._handlers.onGroup(node, alternatives);
     }
+    visitModifier(node) {
+        let alternatives = node.alternatives.map(alternative => this.visitAlternative(alternative));
+        return this._handlers.onModifier(node, alternatives);
+    }
     visitPattern(node) {
         let alternatives = node.alternatives.map(alternative => this.visitAlternative(alternative));
         return this._handlers.onPattern(node, alternatives);
@@ -172,7 +178,7 @@ export class RegExpMapper {
     }
 }
 (function (RegExpMapper) {
-    function map(r, onAlternative, onBoundaryAssertion, onLookaroundAssertion, onBackreference, onCapturingGroup, onCharacter, onCharacterClass, onCharacterClassRange, onCharacterSet, onClassIntersection, onClassStringDisjunction, onClassSubtraction, onExpressionCharacterClass, onGroup, onPattern, onQuantifier, onRegExpLiteral, onStringAlternative, onRangeCharacter, onRangeCharacterClassRange, onRangeCharacterSet) {
+    function map(r, onAlternative, onBoundaryAssertion, onLookaroundAssertion, onBackreference, onCapturingGroup, onCharacter, onCharacterClass, onCharacterClassRange, onCharacterSet, onClassIntersection, onClassStringDisjunction, onClassSubtraction, onExpressionCharacterClass, onGroup, onModifier, onPattern, onQuantifier, onRegExpLiteral, onStringAlternative, onRangeCharacter, onRangeCharacterClassRange, onRangeCharacterSet) {
         return new RegExpMapper({
             onAlternative,
             onBoundaryAssertion,
@@ -188,6 +194,7 @@ export class RegExpMapper {
             onClassSubtraction,
             onExpressionCharacterClass,
             onGroup,
+            onModifier,
             onPattern,
             onQuantifier,
             onRegExpLiteral,
