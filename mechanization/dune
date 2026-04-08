@@ -4,4 +4,7 @@
  (name Warblre)
  (package warblre)
  (generate_project_file)
+ (flags
+   ; For compatibility with Rocq 9.1 and lower
+   -w -notation-for-abbreviation)
  (theories Ltac2 Stdlib))
