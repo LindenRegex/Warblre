@@ -1,9 +1,10 @@
 {
+  "name": "warblre",
   "dependencies": {
     "@eslint-community/regexpp": "^4.10.0"
   },
   "devDependencies": {
-    "webpack": "^5.94.0",
+    "webpack": "^5.105.4",
     "webpack-cli": "^5.1.4"
   }
 }

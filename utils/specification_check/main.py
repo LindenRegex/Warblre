@@ -8,8 +8,8 @@ from spec_merger.utils import Path
 
 
 def main():
-    paths = [Path("../mechanization/spec/", True)]
-    files_to_exclude = [Path("../mechanization/spec/Node.v", False)]
+    paths = [Path("../../mechanization/spec/", True)]
+    files_to_exclude = [Path("../../mechanization/spec/Node.v", False)]
     rocq_parsed_page = ROCQParser(paths, files_to_exclude).get_parsed_page()
 
     ecma_version = sys.argv[1] if len(sys.argv) > 1 else "14.0"
