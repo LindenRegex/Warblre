@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        rocq: [ "9.0.0", "9.1.0" ]
+        rocq: [ "9.0.0", "9.1.1", "9.2.0" ]
         node: [ "24.13.0" ]
       fail-fast: false
     steps:
@@ -62,7 +62,8 @@ jobs:
               echo "::endgroup::"
 
               echo "::group::Install opam packages"
-              opam pin add -n -k version coq ${{ matrix.rocq }}
+              opam repo add rocq-released https://rocq-prover.org/opam/released
+              opam pin add -n -k version rocq-core ${{ matrix.rocq }}
               opam install --confirm-level=unsafe-yes --deps-only .
               echo "::endgroup::"
 
