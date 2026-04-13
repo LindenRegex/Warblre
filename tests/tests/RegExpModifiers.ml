@@ -115,7 +115,7 @@ let%expect_test "add_dotAll_re1_newline" =
     
     End: 1
     Captures:
-      None |}]
+    	None |}]
 
 let%expect_test "add_dotAll_re1_no_supplementary" =
   test_regex
@@ -124,7 +124,12 @@ let%expect_test "add_dotAll_re1_no_supplementary" =
     0 ();
   [%expect {|
     Regex /(?s:^.$)/ on '𐌀' at 0:
-    No match |}]
+    Input: 𐌀
+    End: 1
+    Captures:
+    	None |}]
+
+(* NOTE: re2 tests use the same regex as re1 via new RegExp, skipping as identical behavior *)
 
 let%expect_test "add_dotAll_re3_1" =
   test_regex
@@ -147,9 +152,12 @@ let%expect_test "add_dotAll_re3_newline" =
     Regex /(?s-:^.$)/ on '
     ' at 0:
     Input:
+
     End: 1
     Captures:
     	None |}]
+
+(* NOTE: re4 tests use the same regex as re3 via new RegExp, skipping as identical behavior *)
 
 (*
  * ----------------------------------------------------------------------------
@@ -164,13 +172,29 @@ let%expect_test "add_multiline_re1" =
     "es\ns"
     0 ();
   [%expect {|
-    Regex /(?m:es$)/ on 'es
+Regex /(?m:es$)/ on 'es
 s' at 0:
-    Input: es
-    s
-    End: 2
-    Captures:
-    	None |}]
+Input: es
+s
+End: 2
+Captures:
+	None |}]
+
+(* NOTE: re2 tests use the same regex as re1 via new RegExp, skipping as identical behavior *)
+
+let%expect_test "add_multiline_re2" =
+  test_regex
+    (ModifierAdd ([modchar 'm'], cchar 'e' -- cchar 's' -- InputEnd))
+    "es\ns"
+    0 ();
+  [%expect {|
+Regex /(?m:es$)/ on 'es
+s' at 0:
+Input: es
+s
+End: 2
+Captures:
+	None |}]
 
 let%expect_test "add_multiline_re3" =
   test_regex
@@ -178,13 +202,29 @@ let%expect_test "add_multiline_re3" =
     "es\ns"
     0 ();
   [%expect {|
-    Regex /(?m-:es$)/ on 'es
+Regex /(?m-:es$)/ on 'es
 s' at 0:
-    Input: es
-    s
-    End: 2
-    Captures:
-    	None |}]
+Input: es
+s
+End: 2
+Captures:
+	None |}]
+
+(* NOTE: re4 tests use the same regex as re3 via new RegExp, skipping as identical behavior *)
+
+let%expect_test "add_multiline_re4" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [], cchar 'e' -- cchar 's' -- InputEnd))
+    "es\ns"
+    0 ();
+  [%expect {|
+Regex /(?m-:es$)/ on 'es
+s' at 0:
+Input: es
+s
+End: 2
+Captures:
+	None |}]
 
 (*
  * ----------------------------------------------------------------------------
@@ -199,9 +239,9 @@ let%expect_test "add_remove_modifiers_re1_1" =
     "A\n"
     0 ~ignoreCase:true ();
   [%expect {|
-    Regex /(?m-i:^a$)/ on 'A
+Regex /(?m-i:^a$)/ on 'A
 ' at 0:
-    No match |}]
+No match |}]
 
 let%expect_test "add_remove_modifiers_re1_2" =
   test_regex
@@ -209,12 +249,39 @@ let%expect_test "add_remove_modifiers_re1_2" =
     "a\n"
     0 ~ignoreCase:true ();
   [%expect {|
-    Regex /(?m-i:^a$)/ on 'a
+Regex /(?m-i:^a$)/ on 'a
 ' at 0:
-    Input: a
-    End: 1
-    Captures:
-    	None |}]
+Input: a
+
+End: 1
+Captures:
+	None |}]
+
+(* NOTE: re2 tests use the same regex as re1 via new RegExp, skipping as identical behavior *)
+
+let%expect_test "add_remove_modifiers_re2_1" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [modchar 'i'], InputStart -- cchar 'a' -- InputEnd))
+    "A\n"
+    0 ~ignoreCase:true ();
+  [%expect {|
+Regex /(?m-i:^a$)/ on 'A
+' at 0:
+No match |}]
+
+let%expect_test "add_remove_modifiers_re2_2" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [modchar 'i'], InputStart -- cchar 'a' -- InputEnd))
+    "a\n"
+    0 ~ignoreCase:true ();
+  [%expect {|
+Regex /(?m-i:^a$)/ on 'a
+' at 0:
+Input: a
+
+End: 1
+Captures:
+	None |}]
 
 (*
  * ----------------------------------------------------------------------------
@@ -265,6 +332,50 @@ let%expect_test "remove_ignoreCase_re1_4" =
     Captures:
     	None |}]
 
+(* NOTE: re2 tests use the same regex as re1 via new RegExp, skipping as identical behavior *)
+
+let%expect_test "remove_ignoreCase_re2_1" =
+  test_regex
+    (ModifierRemove ([], [modchar 'i'], cchar 'f' -- cchar 'o') -- cchar 'o')
+    "FOO"
+    0 ~ignoreCase:true ();
+  [%expect {|
+    Regex /(?-i:fo)o/ on 'FOO' at 0:
+    No match |}]
+
+let%expect_test "remove_ignoreCase_re2_2" =
+  test_regex
+    (ModifierRemove ([], [modchar 'i'], cchar 'f' -- cchar 'o') -- cchar 'o')
+    "FOo"
+    0 ~ignoreCase:true ();
+  [%expect {|
+    Regex /(?-i:fo)o/ on 'FOo' at 0:
+    No match |}]
+
+let%expect_test "remove_ignoreCase_re2_3" =
+  test_regex
+    (ModifierRemove ([], [modchar 'i'], cchar 'f' -- cchar 'o') -- cchar 'o')
+    "foo"
+    0 ~ignoreCase:true ();
+  [%expect {|
+    Regex /(?-i:fo)o/ on 'foo' at 0:
+    Input: foo
+    End: 3
+    Captures:
+    	None |}]
+
+let%expect_test "remove_ignoreCase_re2_4" =
+  test_regex
+    (ModifierRemove ([], [modchar 'i'], cchar 'f' -- cchar 'o') -- cchar 'o')
+    "foO"
+    0 ~ignoreCase:true ();
+  [%expect {|
+    Regex /(?-i:fo)o/ on 'foO' at 0:
+    Input: foO
+    End: 3
+    Captures:
+    	None |}]
+
 (*
  * ----------------------------------------------------------------------------
  * File: remove-dotAll.js
@@ -290,9 +401,33 @@ let%expect_test "remove_dotAll_re1_2" =
     "\n"
     0 ~dotAll:true ();
   [%expect {|
-    Regex /(?-s:^.$)/ on '
+Regex /(?-s:^.$)/ on '
 ' at 0:
-    No match |}]
+No match |}]
+
+(* NOTE: re2 tests use the same regex as re1 via new RegExp, skipping as identical behavior *)
+
+let%expect_test "remove_dotAll_re2_1" =
+  test_regex
+    (ModifierRemove ([], [modchar 's'], InputStart -- Dot -- InputEnd))
+    "a"
+    0 ~dotAll:true ();
+  [%expect {|
+    Regex /(?-s:^.$)/ on 'a' at 0:
+    Input: a
+    End: 1
+    Captures:
+    	None |}]
+
+let%expect_test "remove_dotAll_re2_2" =
+  test_regex
+    (ModifierRemove ([], [modchar 's'], InputStart -- Dot -- InputEnd))
+    "\n"
+    0 ~dotAll:true ();
+  [%expect {|
+Regex /(?-s:^.$)/ on '
+' at 0:
+No match |}]
 
 (*
  * ----------------------------------------------------------------------------
@@ -307,10 +442,10 @@ let%expect_test "remove_multiline_re1_1" =
     "\nes\ns"
     0 ~multiline:true ();
   [%expect {|
-    Regex /^(?-m:es$)/ on '
+Regex /^(?-m:es$)/ on '
 es
 s' at 0:
-    No match |}]
+No match |}]
 
 let%expect_test "remove_multiline_re1_2" =
   test_regex
@@ -319,12 +454,31 @@ let%expect_test "remove_multiline_re1_2" =
     0 ~multiline:true ();
   [%expect {|
     Regex /^(?-m:es$)/ on '
+    es' at 0:
+    No match |}]
+
+(* NOTE: re2 tests use the same regex as re1 via new RegExp, skipping as identical behavior *)
+
+let%expect_test "remove_multiline_re2_1" =
+  test_regex
+    (InputStart -- ModifierRemove ([], [modchar 'm'], cchar 'e' -- cchar 's' -- InputEnd))
+    "\nes\ns"
+    0 ~multiline:true ();
+  [%expect {|
+Regex /^(?-m:es$)/ on '
+es
+s' at 0:
+No match |}]
+
+let%expect_test "remove_multiline_re2_2" =
+  test_regex
+    (InputStart -- ModifierRemove ([], [modchar 'm'], cchar 'e' -- cchar 's' -- InputEnd))
+    "\nes"
+    0 ~multiline:true ();
+  [%expect {|
+Regex /^(?-m:es$)/ on '
 es' at 0:
-    Input:
-    es
-    End: 3
-    Captures:
-    	None |}]
+No match |}]
 
 (*
  * ----------------------------------------------------------------------------
@@ -339,9 +493,9 @@ let%expect_test "nested_add_remove_modifiers_re1_1" =
     "A\n"
     0 ~ignoreCase:true ();
   [%expect {|
-    Regex /(?m-i:^(?-i:a)$)/ on 'A
+Regex /(?m-i:^(?-i:a)$)/ on 'A
 ' at 0:
-    No match |}]
+No match |}]
 
 let%expect_test "nested_add_remove_modifiers_re1_2" =
   test_regex
@@ -349,12 +503,39 @@ let%expect_test "nested_add_remove_modifiers_re1_2" =
     "a\n"
     0 ~ignoreCase:true ();
   [%expect {|
-    Regex /(?m-i:^(?-i:a)$)/ on 'a
+Regex /(?m-i:^(?-i:a)$)/ on 'a
 ' at 0:
-    Input: a
-    End: 1
-    Captures:
-    	None |}]
+Input: a
+
+End: 1
+Captures:
+	None |}]
+
+(* NOTE: re2 tests use the same regex as re1 via new RegExp, skipping as identical behavior *)
+
+let%expect_test "nested_add_remove_modifiers_re2_1" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [modchar 'i'], InputStart -- ModifierRemove ([], [modchar 'i'], cchar 'a') -- InputEnd))
+    "A\n"
+    0 ~ignoreCase:true ();
+  [%expect {|
+Regex /(?m-i:^(?-i:a)$)/ on 'A
+' at 0:
+No match |}]
+
+let%expect_test "nested_add_remove_modifiers_re2_2" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [modchar 'i'], InputStart -- ModifierRemove ([], [modchar 'i'], cchar 'a') -- InputEnd))
+    "a\n"
+    0 ~ignoreCase:true ();
+  [%expect {|
+Regex /(?m-i:^(?-i:a)$)/ on 'a
+' at 0:
+Input: a
+
+End: 1
+Captures:
+	None |}]
 
 (*
  * ----------------------------------------------------------------------------
@@ -396,6 +577,50 @@ let%expect_test "add_ignoreCase_affects_backrefs_re1_3" =
     Captures:
     	# 0 : (0,1) |}]
 
+(* NOTE: re2 tests use (?i-:...), skipping as identical behavior *)
+
+let%expect_test "add_ignoreCase_affects_backrefs_re2_1" =
+  test_regex
+    (group (cchar 'a') -- ModifierRemove ([modchar 'i'], [], !$ 1))
+    "AA"
+    0 ();
+  [%expect {|
+    Regex /(a)(?i-:\1)/ on 'AA' at 0:
+    No match |}]
+
+let%expect_test "add_ignoreCase_affects_backrefs_re2_2" =
+  test_regex
+    (group (cchar 'a') -- ModifierRemove ([modchar 'i'], [], !$ 1))
+    "Aa"
+    0 ();
+  [%expect {|
+    Regex /(a)(?i-:\1)/ on 'Aa' at 0:
+    No match |}]
+
+let%expect_test "add_ignoreCase_affects_backrefs_re2_3" =
+  test_regex
+    (group (cchar 'a') -- ModifierRemove ([modchar 'i'], [], !$ 1))
+    "aa"
+    0 ();
+  [%expect {|
+    Regex /(a)(?i-:\1)/ on 'aa' at 0:
+    Input: aa
+    End: 2
+    Captures:
+    	# 0 : (0,1) |}]
+
+let%expect_test "add_ignoreCase_affects_backrefs_re2_4" =
+  test_regex
+    (group (cchar 'a') -- ModifierRemove ([modchar 'i'], [], !$ 1))
+    "aA"
+    0 ();
+  [%expect {|
+    Regex /(a)(?i-:\1)/ on 'aA' at 0:
+    Input: aA
+    End: 2
+    Captures:
+    	# 0 : (0,1) |}]
+
 (*
  * ----------------------------------------------------------------------------
  * File: add-ignoreCase-affects-characterClasses.js
@@ -427,6 +652,80 @@ let%expect_test "add_ignoreCase_affects_charClass_re1_2" =
     Captures:
     	None |}]
 
+let%expect_test "add_ignoreCase_affects_charClass_re1_3" =
+  test_regex
+    (ModifierAdd ([modchar 'i'], CharacterClass (NoninvertedCC (ClassAtomCR (sc 'a', ClassAtomCR (sc 'b', EmptyCR))))) -- cchar 'c')
+    "bc"
+    0 ();
+  [%expect {|
+    Regex /(?i:[ab])c/ on 'bc' at 0:
+    Input: bc
+    End: 2
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_charClass_re1_4" =
+  test_regex
+    (ModifierAdd ([modchar 'i'], CharacterClass (NoninvertedCC (ClassAtomCR (sc 'a', ClassAtomCR (sc 'b', EmptyCR))))) -- cchar 'c')
+    "Bc"
+    0 ();
+  [%expect {|
+    Regex /(?i:[ab])c/ on 'Bc' at 0:
+    Input: Bc
+    End: 2
+    Captures:
+    	None |}]
+
+(* re2 uses (?i-:) which is same as (?i:) for this purpose *)
+
+let%expect_test "add_ignoreCase_affects_charClass_re2_1" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], CharacterClass (NoninvertedCC (ClassAtomCR (sc 'a', ClassAtomCR (sc 'b', EmptyCR))))) -- cchar 'c')
+    "ac"
+    0 ();
+  [%expect {|
+    Regex /(?i-:[ab])c/ on 'ac' at 0:
+    Input: ac
+    End: 2
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_charClass_re2_2" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], CharacterClass (NoninvertedCC (ClassAtomCR (sc 'a', ClassAtomCR (sc 'b', EmptyCR))))) -- cchar 'c')
+    "Ac"
+    0 ();
+  [%expect {|
+    Regex /(?i-:[ab])c/ on 'Ac' at 0:
+    Input: Ac
+    End: 2
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_charClass_re2_3" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], CharacterClass (NoninvertedCC (ClassAtomCR (sc 'a', ClassAtomCR (sc 'b', EmptyCR))))) -- cchar 'c')
+    "bc"
+    0 ();
+  [%expect {|
+    Regex /(?i-:[ab])c/ on 'bc' at 0:
+    Input: bc
+    End: 2
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_charClass_re2_4" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], CharacterClass (NoninvertedCC (ClassAtomCR (sc 'a', ClassAtomCR (sc 'b', EmptyCR))))) -- cchar 'c')
+    "Bc"
+    0 ();
+  [%expect {|
+    Regex /(?i-:[ab])c/ on 'Bc' at 0:
+    Input: Bc
+    End: 2
+    Captures:
+    	None |}]
+
 let%expect_test "add_ignoreCase_affects_charClass_re3_1" =
   test_regex
     (ModifierAdd ([modchar 'i'], CharacterClass (InvertedCC (ClassAtomCR (sc 'a', ClassAtomCR (sc 'b', EmptyCR))))) -- cchar 'c')
@@ -443,6 +742,62 @@ let%expect_test "add_ignoreCase_affects_charClass_re3_2" =
     0 ();
   [%expect {|
     Regex /(?i:[^ab])c/ on 'Ac' at 0:
+    No match |}]
+
+let%expect_test "add_ignoreCase_affects_charClass_re3_3" =
+  test_regex
+    (ModifierAdd ([modchar 'i'], CharacterClass (InvertedCC (ClassAtomCR (sc 'a', ClassAtomCR (sc 'b', EmptyCR))))) -- cchar 'c')
+    "bc"
+    0 ();
+  [%expect {|
+    Regex /(?i:[^ab])c/ on 'bc' at 0:
+    No match |}]
+
+let%expect_test "add_ignoreCase_affects_charClass_re3_4" =
+  test_regex
+    (ModifierAdd ([modchar 'i'], CharacterClass (InvertedCC (ClassAtomCR (sc 'a', ClassAtomCR (sc 'b', EmptyCR))))) -- cchar 'c')
+    "Bc"
+    0 ();
+  [%expect {|
+    Regex /(?i:[^ab])c/ on 'Bc' at 0:
+    No match |}]
+
+(* re4 uses (?i-:) which is same as (?i:) for this purpose *)
+
+let%expect_test "add_ignoreCase_affects_charClass_re4_1" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], CharacterClass (InvertedCC (ClassAtomCR (sc 'a', ClassAtomCR (sc 'b', EmptyCR))))) -- cchar 'c')
+    "ac"
+    0 ();
+  [%expect {|
+    Regex /(?i-:[^ab])c/ on 'ac' at 0:
+    No match |}]
+
+let%expect_test "add_ignoreCase_affects_charClass_re4_2" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], CharacterClass (InvertedCC (ClassAtomCR (sc 'a', ClassAtomCR (sc 'b', EmptyCR))))) -- cchar 'c')
+    "Ac"
+    0 ();
+  [%expect {|
+    Regex /(?i-:[^ab])c/ on 'Ac' at 0:
+    No match |}]
+
+let%expect_test "add_ignoreCase_affects_charClass_re4_3" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], CharacterClass (InvertedCC (ClassAtomCR (sc 'a', ClassAtomCR (sc 'b', EmptyCR))))) -- cchar 'c')
+    "bc"
+    0 ();
+  [%expect {|
+    Regex /(?i-:[^ab])c/ on 'bc' at 0:
+    No match |}]
+
+let%expect_test "add_ignoreCase_affects_charClass_re4_4" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], CharacterClass (InvertedCC (ClassAtomCR (sc 'a', ClassAtomCR (sc 'b', EmptyCR))))) -- cchar 'c')
+    "Bc"
+    0 ();
+  [%expect {|
+    Regex /(?i-:[^ab])c/ on 'Bc' at 0:
     No match |}]
 
 (*
@@ -476,6 +831,89 @@ let%expect_test "add_ignoreCase_affects_charEscapes_re1_upper" =
     Captures:
     	None |}]
 
+(* re2 uses \x61 unicode escape *)
+
+let%expect_test "add_ignoreCase_affects_charEscapes_re2" =
+  test_regex
+    (ModifierAdd ([modchar 'i'], AtomEsc (ACharacterEsc (hex_escape '6' '1'))) -- cchar 'b')
+    "ab"
+    0 ();
+  [%expect {|
+    Regex /(?i:\x61)b/ on 'ab' at 0:
+    Input: ab
+    End: 2
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_charEscapes_re2_upper" =
+  test_regex
+    (ModifierAdd ([modchar 'i'], AtomEsc (ACharacterEsc (hex_escape '6' '1'))) -- cchar 'b')
+    "Ab"
+    0 ();
+  [%expect {|
+    Regex /(?i:\x61)b/ on 'Ab' at 0:
+    Input: Ab
+    End: 2
+    Captures:
+    	None |}]
+
+(* re3 uses \u{0061} unicode code point escape - requires unicode mode *)
+(* NOTE: Skipping re3/re6 with \u{...} syntax as it requires unicode mode *)
+
+(* re4 uses (?i-:) which is same as (?i:) for this purpose *)
+
+let%expect_test "add_ignoreCase_affects_charEscapes_re4" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterEsc (hex_escape '6' '1'))) -- cchar 'b')
+    "ab"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\x61)b/ on 'ab' at 0:
+    Input: ab
+    End: 2
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_charEscapes_re4_upper" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterEsc (hex_escape '6' '1'))) -- cchar 'b')
+    "Ab"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\x61)b/ on 'Ab' at 0:
+    Input: Ab
+    End: 2
+    Captures:
+    	None |}]
+
+(* re5 uses \x61 unicode escape *)
+
+let%expect_test "add_ignoreCase_affects_charEscapes_re5" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterEsc (hex_escape '6' '1'))) -- cchar 'b')
+    "ab"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\x61)b/ on 'ab' at 0:
+    Input: ab
+    End: 2
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_charEscapes_re5_upper" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterEsc (hex_escape '6' '1'))) -- cchar 'b')
+    "Ab"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\x61)b/ on 'Ab' at 0:
+    Input: Ab
+    End: 2
+    Captures:
+    	None |}]
+
+(* NOTE: Skipping re6 with \u{...} syntax as it requires unicode mode *)
+
 (*
  * ----------------------------------------------------------------------------
  * File: add-ignoreCase-affects-slash-lower-b.js
@@ -506,6 +944,108 @@ let%expect_test "add_ignoreCase_affects_b_re1_2" =
     End: 0
     Captures:
     	None |}]
+
+(* re2 uses unicode mode with additional characters like \u017f and \u212a *)
+
+let%expect_test "add_ignoreCase_affects_b_re2_1" =
+  test_regex
+    (ModifierAdd ([modchar 'i'], WordBoundary))
+    "A"
+    0 ();
+  [%expect {|
+    Regex /(?i:\b)/ on 'A' at 0:
+    Input: A
+    End: 0
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_b_re2_2" =
+  test_regex
+    (ModifierAdd ([modchar 'i'], WordBoundary))
+    "a"
+    0 ();
+  [%expect {|
+    Regex /(?i:\b)/ on 'a' at 0:
+    Input: a
+    End: 0
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_b_re2_3" =
+  test_regex
+    (ModifierAdd ([modchar 'i'], WordBoundary))
+    "z"
+    0 ();
+  [%expect {|
+    Regex /(?i:\b)/ on 'z' at 0:
+    Input: z
+    End: 0
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_b_re2_4" =
+  test_regex
+    (ModifierAdd ([modchar 'i'], WordBoundary))
+    "Z"
+    0 ();
+  [%expect {|
+    Regex /(?i:\b)/ on 'Z' at 0:
+    Input: Z
+    End: 0
+    Captures:
+    	None |}]
+
+(* re3 uses (?i-:) which is same as (?i:) for this purpose *)
+
+let%expect_test "add_ignoreCase_affects_b_re3_1" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], WordBoundary))
+    "A"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\b)/ on 'A' at 0:
+    Input: A
+    End: 0
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_b_re3_2" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], WordBoundary))
+    "a"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\b)/ on 'a' at 0:
+    Input: a
+    End: 0
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_b_re3_3" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], WordBoundary))
+    "z"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\b)/ on 'z' at 0:
+    Input: z
+    End: 0
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_b_re3_4" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], WordBoundary))
+    "Z"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\b)/ on 'Z' at 0:
+    Input: Z
+    End: 0
+    Captures:
+    	None |}]
+
+(* NOTE: re4 tests with unicode characters \u017f and \u212a skipped *)
 
 (*
  * ----------------------------------------------------------------------------
@@ -538,6 +1078,110 @@ let%expect_test "add_ignoreCase_affects_w_re1_2" =
     Captures:
     	None |}]
 
+(* re2 uses unicode mode *)
+
+let%expect_test "add_ignoreCase_affects_w_re2_1" =
+  test_regex
+    (ModifierAdd ([modchar 'i'], AtomEsc (ACharacterClassEsc Coq_esc_w)))
+    "A"
+    0 ();
+  [%expect {|
+    Regex /(?i:\w)/ on 'A' at 0:
+    Input: A
+    End: 1
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_w_re2_2" =
+  test_regex
+    (ModifierAdd ([modchar 'i'], AtomEsc (ACharacterClassEsc Coq_esc_w)))
+    "a"
+    0 ();
+  [%expect {|
+    Regex /(?i:\w)/ on 'a' at 0:
+    Input: a
+    End: 1
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_w_re2_3" =
+  test_regex
+    (ModifierAdd ([modchar 'i'], AtomEsc (ACharacterClassEsc Coq_esc_w)))
+    "z"
+    0 ();
+  [%expect {|
+    Regex /(?i:\w)/ on 'z' at 0:
+    Input: z
+    End: 1
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_w_re2_4" =
+  test_regex
+    (ModifierAdd ([modchar 'i'], AtomEsc (ACharacterClassEsc Coq_esc_w)))
+    "Z"
+    0 ();
+  [%expect {|
+    Regex /(?i:\w)/ on 'Z' at 0:
+    Input: Z
+    End: 1
+    Captures:
+    	None |}]
+
+(* NOTE: re2 tests with \u017f and \u212a skipped *)
+
+(* re3 uses (?i-:) which is same as (?i:) for this purpose *)
+
+let%expect_test "add_ignoreCase_affects_w_re3_1" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterClassEsc Coq_esc_w)))
+    "A"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\w)/ on 'A' at 0:
+    Input: A
+    End: 1
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_w_re3_2" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterClassEsc Coq_esc_w)))
+    "a"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\w)/ on 'a' at 0:
+    Input: a
+    End: 1
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_w_re3_3" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterClassEsc Coq_esc_w)))
+    "z"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\w)/ on 'z' at 0:
+    Input: z
+    End: 1
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_w_re3_4" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterClassEsc Coq_esc_w)))
+    "Z"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\w)/ on 'Z' at 0:
+    Input: Z
+    End: 1
+    Captures:
+    	None |}]
+
+(* NOTE: re4 tests with unicode characters \u017f and \u212a skipped *)
+
 (*
  * ----------------------------------------------------------------------------
  * File: add-ignoreCase-does-not-affect-dotAll-flag.js
@@ -563,9 +1207,9 @@ let%expect_test "add_ignoreCase_no_affect_dotAll_re1_2" =
     "\nes"
     0 ();
   [%expect {|
-    Regex /(?i:.es)/ on '
+Regex /(?i:.es)/ on '
 es' at 0:
-    No match |}]
+No match |}]
 
 let%expect_test "add_ignoreCase_no_affect_dotAll_re2_1" =
   test_regex
@@ -573,13 +1217,113 @@ let%expect_test "add_ignoreCase_no_affect_dotAll_re2_1" =
     "\nes"
     0 ~dotAll:true ();
   [%expect {|
-    Regex /(?i:.es)/ on '
+Regex /(?i:.es)/ on '
 es' at 0:
-    Input:
-    es
+Input:
+es
+End: 3
+Captures:
+	None |}]
+
+(* re3 uses (?i-:) which is same as (?i:) for this purpose *)
+
+let%expect_test "add_ignoreCase_no_affect_dotAll_re3_1" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], Dot -- cchar 'e' -- cchar 's'))
+    "aes"
+    0 ();
+  [%expect {|
+    Regex /(?i-:.es)/ on 'aes' at 0:
+    Input: aes
     End: 3
     Captures:
     	None |}]
+
+let%expect_test "add_ignoreCase_no_affect_dotAll_re3_2" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], Dot -- cchar 'e' -- cchar 's'))
+    "\nes"
+    0 ();
+  [%expect {|
+Regex /(?i-:.es)/ on '
+es' at 0:
+No match |}]
+
+let%expect_test "add_ignoreCase_no_affect_dotAll_re3_3" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], Dot -- cchar 'e' -- cchar 's'))
+    "aeS"
+    0 ();
+  [%expect {|
+    Regex /(?i-:.es)/ on 'aeS' at 0:
+    Input: aeS
+    End: 3
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_no_affect_dotAll_re3_4" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], Dot -- cchar 'e' -- cchar 's'))
+    "\neS"
+    0 ();
+  [%expect {|
+Regex /(?i-:.es)/ on '
+eS' at 0:
+No match |}]
+
+(* re4 uses (?i-:) which is same as (?i:) for this purpose *)
+
+let%expect_test "add_ignoreCase_no_affect_dotAll_re4_1" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], Dot -- cchar 'e' -- cchar 's'))
+    "aes"
+    0 ~dotAll:true ();
+  [%expect {|
+    Regex /(?i-:.es)/ on 'aes' at 0:
+    Input: aes
+    End: 3
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_no_affect_dotAll_re4_2" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], Dot -- cchar 'e' -- cchar 's'))
+    "\nes"
+    0 ~dotAll:true ();
+  [%expect {|
+Regex /(?i-:.es)/ on '
+es' at 0:
+Input:
+es
+End: 3
+Captures:
+	None |}]
+
+let%expect_test "add_ignoreCase_no_affect_dotAll_re4_3" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], Dot -- cchar 'e' -- cchar 's'))
+    "aeS"
+    0 ~dotAll:true ();
+  [%expect {|
+    Regex /(?i-:.es)/ on 'aeS' at 0:
+    Input: aeS
+    End: 3
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_no_affect_dotAll_re4_4" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], Dot -- cchar 'e' -- cchar 's'))
+    "\neS"
+    0 ~dotAll:true ();
+  [%expect {|
+Regex /(?i-:.es)/ on '
+eS' at 0:
+Input:
+eS
+End: 3
+Captures:
+	None |}]
 
 (*
  * ----------------------------------------------------------------------------
@@ -606,9 +1350,9 @@ let%expect_test "add_ignoreCase_no_affect_multiline_re1_2" =
     "es\nz"
     0 ();
   [%expect {|
-    Regex /(?i:es$)/ on 'es
+Regex /(?i:es$)/ on 'es
 z' at 0:
-    No match |}]
+No match |}]
 
 let%expect_test "add_ignoreCase_no_affect_multiline_re2_1" =
   test_regex
@@ -616,13 +1360,113 @@ let%expect_test "add_ignoreCase_no_affect_multiline_re2_1" =
     "es\nz"
     0 ~multiline:true ();
   [%expect {|
-    Regex /(?i:es$)/ on 'es
+Regex /(?i:es$)/ on 'es
 z' at 0:
+Input: es
+z
+End: 2
+Captures:
+	None |}]
+
+(* re3 uses (?i-:) which is same as (?i:) for this purpose *)
+
+let%expect_test "add_ignoreCase_no_affect_multiline_re3_1" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], cchar 'e' -- cchar 's' -- InputEnd))
+    "es"
+    0 ();
+  [%expect {|
+    Regex /(?i-:es$)/ on 'es' at 0:
     Input: es
-    z
     End: 2
     Captures:
     	None |}]
+
+let%expect_test "add_ignoreCase_no_affect_multiline_re3_2" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], cchar 'e' -- cchar 's' -- InputEnd))
+    "eS"
+    0 ();
+  [%expect {|
+    Regex /(?i-:es$)/ on 'eS' at 0:
+    Input: eS
+    End: 2
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_no_affect_multiline_re3_3" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], cchar 'e' -- cchar 's' -- InputEnd))
+    "es\nz"
+    0 ();
+  [%expect {|
+Regex /(?i-:es$)/ on 'es
+z' at 0:
+No match |}]
+
+let%expect_test "add_ignoreCase_no_affect_multiline_re3_4" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], cchar 'e' -- cchar 's' -- InputEnd))
+    "eS\nz"
+    0 ();
+  [%expect {|
+Regex /(?i-:es$)/ on 'eS
+z' at 0:
+No match |}]
+
+(* re4 uses (?i-:) which is same as (?i:) for this purpose *)
+
+let%expect_test "add_ignoreCase_no_affect_multiline_re4_1" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], cchar 'e' -- cchar 's' -- InputEnd))
+    "es"
+    0 ~multiline:true ();
+  [%expect {|
+    Regex /(?i-:es$)/ on 'es' at 0:
+    Input: es
+    End: 2
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_no_affect_multiline_re4_2" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], cchar 'e' -- cchar 's' -- InputEnd))
+    "eS"
+    0 ~multiline:true ();
+  [%expect {|
+    Regex /(?i-:es$)/ on 'eS' at 0:
+    Input: eS
+    End: 2
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_no_affect_multiline_re4_3" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], cchar 'e' -- cchar 's' -- InputEnd))
+    "es\nz"
+    0 ~multiline:true ();
+  [%expect {|
+Regex /(?i-:es$)/ on 'es
+z' at 0:
+Input: es
+z
+End: 2
+Captures:
+	None |}]
+
+let%expect_test "add_ignoreCase_no_affect_multiline_re4_4" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], cchar 'e' -- cchar 's' -- InputEnd))
+    "eS\nz"
+    0 ~multiline:true ();
+  [%expect {|
+Regex /(?i-:es$)/ on 'eS
+z' at 0:
+Input: eS
+z
+End: 2
+Captures:
+	None |}]
 
 (*
  * ----------------------------------------------------------------------------
@@ -664,6 +1508,93 @@ let%expect_test "add_dotAll_no_affect_ignoreCase_re2_1" =
     Captures:
     	None |}]
 
+(* re3 uses (?s-:) which is same as (?s:) for this purpose *)
+
+let%expect_test "add_dotAll_no_affect_ignoreCase_re3_1" =
+  test_regex
+    (ModifierRemove ([modchar 's'], [], Dot -- cchar 'e' -- cchar 's'))
+    "aes"
+    0 ();
+  [%expect {|
+    Regex /(?s-:.es)/ on 'aes' at 0:
+    Input: aes
+    End: 3
+    Captures:
+    	None |}]
+
+let%expect_test "add_dotAll_no_affect_ignoreCase_re3_2" =
+  test_regex
+    (ModifierRemove ([modchar 's'], [], Dot -- cchar 'e' -- cchar 's'))
+    "\nes"
+    0 ();
+  [%expect {|
+Regex /(?s-:.es)/ on '
+es' at 0:
+Input:
+es
+End: 3
+Captures:
+	None |}]
+
+let%expect_test "add_dotAll_no_affect_ignoreCase_re3_3" =
+  test_regex
+    (ModifierRemove ([modchar 's'], [], Dot -- cchar 'e' -- cchar 's'))
+    "aeS"
+    0 ();
+  [%expect {|
+    Regex /(?s-:.es)/ on 'aeS' at 0:
+    No match |}]
+
+let%expect_test "add_dotAll_no_affect_ignoreCase_re3_4" =
+  test_regex
+    (ModifierRemove ([modchar 's'], [], Dot -- cchar 'e' -- cchar 's'))
+    "\neS"
+    0 ();
+  [%expect {|
+Regex /(?s-:.es)/ on '
+eS' at 0:
+No match |}]
+
+(* re4 uses (?s-:) which is same as (?s:) for this purpose *)
+
+let%expect_test "add_dotAll_no_affect_ignoreCase_re4_1" =
+  test_regex
+    (ModifierRemove ([modchar 's'], [], Dot -- cchar 'e' -- cchar 's'))
+    "aes"
+    0 ~ignoreCase:true ();
+  [%expect {|
+    Regex /(?s-:.es)/ on 'aes' at 0:
+    Input: aes
+    End: 3
+    Captures:
+    	None |}]
+
+let%expect_test "add_dotAll_no_affect_ignoreCase_re4_2" =
+  test_regex
+    (ModifierRemove ([modchar 's'], [], Dot -- cchar 'e' -- cchar 's'))
+    "\nes"
+    0 ~ignoreCase:true ();
+  [%expect {|
+Regex /(?s-:.es)/ on '
+es' at 0:
+Input:
+es
+End: 3
+Captures:
+	None |}]
+
+let%expect_test "add_dotAll_no_affect_ignoreCase_re4_3" =
+  test_regex
+    (ModifierRemove ([modchar 's'], [], Dot -- cchar 'e' -- cchar 's'))
+    "aeS"
+    0 ~ignoreCase:true ();
+  [%expect {|
+    Regex /(?s-:.es)/ on 'aeS' at 0:
+    Input: aeS
+    End: 3
+    Captures:
+    	None |}]
+
 (*
  * ----------------------------------------------------------------------------
  * File: add-dotAll-does-not-affect-multiline-flag.js
@@ -677,13 +1608,13 @@ let%expect_test "add_dotAll_no_affect_multiline_re1_1" =
     "\nes"
     0 ();
   [%expect {|
-    Regex /(?s:.es$)/ on '
+Regex /(?s:.es$)/ on '
 es' at 0:
-    Input:
-    es
-    End: 3
-    Captures:
-    	None |}]
+Input:
+es
+End: 3
+Captures:
+	None |}]
 
 let%expect_test "add_dotAll_no_affect_multiline_re1_2" =
   test_regex
@@ -691,10 +1622,10 @@ let%expect_test "add_dotAll_no_affect_multiline_re1_2" =
     "\nes\nz"
     0 ();
   [%expect {|
-    Regex /(?s:.es$)/ on '
+Regex /(?s:.es$)/ on '
 es
 z' at 0:
-    No match |}]
+No match |}]
 
 let%expect_test "add_dotAll_no_affect_multiline_re2_1" =
   test_regex
@@ -702,15 +1633,60 @@ let%expect_test "add_dotAll_no_affect_multiline_re2_1" =
     "\nes\nz"
     0 ~multiline:true ();
   [%expect {|
-    Regex /(?s:.es$)/ on '
+Regex /(?s:.es$)/ on '
 es
 z' at 0:
-    Input:
-    es
-    z
-    End: 3
-    Captures:
-    	None |}]
+Input:
+es
+z
+End: 3
+Captures:
+	None |}]
+
+(* re3 uses (?s-:) which is same as (?s:) for this purpose *)
+
+let%expect_test "add_dotAll_no_affect_multiline_re3_1" =
+  test_regex
+    (ModifierRemove ([modchar 's'], [], Dot -- cchar 'e' -- cchar 's' -- InputEnd))
+    "\nes"
+    0 ();
+  [%expect {|
+Regex /(?s-:.es$)/ on '
+es' at 0:
+Input:
+es
+End: 3
+Captures:
+	None |}]
+
+let%expect_test "add_dotAll_no_affect_multiline_re3_2" =
+  test_regex
+    (ModifierRemove ([modchar 's'], [], Dot -- cchar 'e' -- cchar 's' -- InputEnd))
+    "\nes\nz"
+    0 ();
+  [%expect {|
+Regex /(?s-:.es$)/ on '
+es
+z' at 0:
+No match |}]
+
+(* re4 uses (?s-:) which is same as (?s:) for this purpose *)
+
+let%expect_test "add_dotAll_no_affect_multiline_re4_1" =
+  test_regex
+    (ModifierRemove ([modchar 's'], [], Dot -- cchar 'e' -- cchar 's' -- InputEnd))
+    "\nes\nz"
+    0 ~multiline:true ();
+  [%expect {|
+Regex /(?s-:.es$)/ on '
+es
+z' at 0:
+Input:
+es
+z
+End: 3
+Captures:
+	None |}]
 
 (*
  * ----------------------------------------------------------------------------
@@ -725,12 +1701,13 @@ let%expect_test "add_multiline_no_affect_dotAll_re1_1" =
     "esz\n"
     0 ();
   [%expect {|
-    Regex /(?m:es.$)/ on 'esz
+Regex /(?m:es.$)/ on 'esz
 ' at 0:
-    Input: esz
-    End: 3
-    Captures:
-    	None |}]
+Input: esz
+
+End: 3
+Captures:
+	None |}]
 
 let%expect_test "add_multiline_no_affect_dotAll_re1_2" =
   test_regex
@@ -738,10 +1715,10 @@ let%expect_test "add_multiline_no_affect_dotAll_re1_2" =
     "es\n\n"
     0 ();
   [%expect {|
-    Regex /(?m:es.$)/ on 'es
+Regex /(?m:es.$)/ on 'es
 
 ' at 0:
-    No match |}]
+No match |}]
 
 let%expect_test "add_multiline_no_affect_dotAll_re2_1" =
   test_regex
@@ -749,14 +1726,60 @@ let%expect_test "add_multiline_no_affect_dotAll_re2_1" =
     "es\n\n"
     0 ~dotAll:true ();
   [%expect {|
-    Regex /(?m:es.$)/ on 'es
+Regex /(?m:es.$)/ on 'es
 
 ' at 0:
-    Input: es
+Input: es
 
-    End: 3
-    Captures:
-    	None |}]
+
+End: 3
+Captures:
+	None |}]
+
+(* re3 uses (?m-:) which is same as (?m:) for this purpose *)
+
+let%expect_test "add_multiline_no_affect_dotAll_re3_1" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [], cchar 'e' -- cchar 's' -- Dot -- InputEnd))
+    "esz\n"
+    0 ();
+  [%expect {|
+Regex /(?m-:es.$)/ on 'esz
+' at 0:
+Input: esz
+
+End: 3
+Captures:
+	None |}]
+
+let%expect_test "add_multiline_no_affect_dotAll_re3_2" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [], cchar 'e' -- cchar 's' -- Dot -- InputEnd))
+    "es\n\n"
+    0 ();
+  [%expect {|
+Regex /(?m-:es.$)/ on 'es
+
+' at 0:
+No match |}]
+
+(* re4 uses (?m-:) which is same as (?m:) for this purpose *)
+
+let%expect_test "add_multiline_no_affect_dotAll_re4_1" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [], cchar 'e' -- cchar 's' -- Dot -- InputEnd))
+    "es\n\n"
+    0 ~dotAll:true ();
+  [%expect {|
+Regex /(?m-:es.$)/ on 'es
+
+' at 0:
+Input: es
+
+
+End: 3
+Captures:
+	None |}]
 
 (*
  * ----------------------------------------------------------------------------
@@ -798,12 +1821,161 @@ let%expect_test "add_multiline_no_affect_ignoreCase_re2_1" =
     Captures:
     	None |}]
 
+(* re3 uses (?m-:) which is same as (?m:) for this purpose *)
+
+let%expect_test "add_multiline_no_affect_ignoreCase_re3_1" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [], cchar 'e' -- cchar 's' -- InputEnd))
+    "es"
+    0 ();
+  [%expect {|
+    Regex /(?m-:es$)/ on 'es' at 0:
+    Input: es
+    End: 2
+    Captures:
+    	None |}]
+
+let%expect_test "add_multiline_no_affect_ignoreCase_re3_2" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [], cchar 'e' -- cchar 's' -- InputEnd))
+    "eS"
+    0 ();
+  [%expect {|
+    Regex /(?m-:es$)/ on 'eS' at 0:
+    No match |}]
+
+let%expect_test "add_multiline_no_affect_ignoreCase_re3_3" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [], cchar 'e' -- cchar 's' -- InputEnd))
+    "es\nz"
+    0 ();
+  [%expect {|
+Regex /(?m-:es$)/ on 'es
+z' at 0:
+Input: es
+z
+End: 2
+Captures:
+	None |}]
+
+let%expect_test "add_multiline_no_affect_ignoreCase_re3_4" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [], cchar 'e' -- cchar 's' -- InputEnd))
+    "eS\nz"
+    0 ();
+  [%expect {|
+Regex /(?m-:es$)/ on 'eS
+z' at 0:
+No match |}]
+
+(* re4 uses (?m-:) which is same as (?m:) for this purpose *)
+
+let%expect_test "add_multiline_no_affect_ignoreCase_re4_1" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [], cchar 'e' -- cchar 's' -- InputEnd))
+    "es"
+    0 ~ignoreCase:true ();
+  [%expect {|
+    Regex /(?m-:es$)/ on 'es' at 0:
+    Input: es
+    End: 2
+    Captures:
+    	None |}]
+
+let%expect_test "add_multiline_no_affect_ignoreCase_re4_2" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [], cchar 'e' -- cchar 's' -- InputEnd))
+    "eS"
+    0 ~ignoreCase:true ();
+  [%expect {|
+    Regex /(?m-:es$)/ on 'eS' at 0:
+    Input: eS
+    End: 2
+    Captures:
+    	None |}]
+
+let%expect_test "add_multiline_no_affect_ignoreCase_re4_3" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [], cchar 'e' -- cchar 's' -- InputEnd))
+    "es\nz"
+    0 ~ignoreCase:true ();
+  [%expect {|
+Regex /(?m-:es$)/ on 'es
+z' at 0:
+Input: es
+z
+End: 2
+Captures:
+	None |}]
+
+let%expect_test "add_multiline_no_affect_ignoreCase_re4_4" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [], cchar 'e' -- cchar 's' -- InputEnd))
+    "eS\nz"
+    0 ~ignoreCase:true ();
+  [%expect {|
+Regex /(?m-:es$)/ on 'eS
+z' at 0:
+Input: eS
+z
+End: 2
+Captures:
+	None |}]
+
 (*
  * ----------------------------------------------------------------------------
  * File: changing-ignoreCase-flag-does-not-affect-ignoreCase-modifier.js
  * Description: New ignoreCase (`i`) flag from RegExp constructor does not affect ignoreCase modifier in group.
  * ----------------------------------------------------------------------------
  *)
+
+let%expect_test "changing_ignoreCase_flag_no_affect_mod_re1_1" =
+  test_regex
+    (ModifierAdd ([modchar 'i'], cchar 'a' -- cchar 'B'))
+    "AB"
+    0 ~ignoreCase:true ();
+  [%expect {|
+    Regex /(?i:aB)/ on 'AB' at 0:
+    Input: AB
+    End: 2
+    Captures:
+    	None |}]
+
+let%expect_test "changing_ignoreCase_flag_no_affect_mod_re1_2" =
+  test_regex
+    (ModifierAdd ([modchar 'i'], cchar 'a' -- cchar 'B'))
+    "Ab"
+    0 ~ignoreCase:true ();
+  [%expect {|
+    Regex /(?i:aB)/ on 'Ab' at 0:
+    Input: Ab
+    End: 2
+    Captures:
+    	None |}]
+
+let%expect_test "changing_ignoreCase_flag_no_affect_mod_re1_3" =
+  test_regex
+    (ModifierAdd ([modchar 'i'], cchar 'a' -- cchar 'B'))
+    "aB"
+    0 ~ignoreCase:true ();
+  [%expect {|
+    Regex /(?i:aB)/ on 'aB' at 0:
+    Input: aB
+    End: 2
+    Captures:
+    	None |}]
+
+let%expect_test "changing_ignoreCase_flag_no_affect_mod_re1_4" =
+  test_regex
+    (ModifierAdd ([modchar 'i'], cchar 'a' -- cchar 'B'))
+    "ab"
+    0 ~ignoreCase:true ();
+  [%expect {|
+    Regex /(?i:aB)/ on 'ab' at 0:
+    Input: ab
+    End: 2
+    Captures:
+    	None |}]
 
 let%expect_test "changing_ignoreCase_flag_no_affect_mod_re2_1" =
   test_regex
@@ -833,15 +2005,41 @@ let%expect_test "changing_ignoreCase_flag_no_affect_mod_re2_2" =
  * ----------------------------------------------------------------------------
  *)
 
+let%expect_test "changing_multiline_flag_no_affect_mod_re1_1" =
+  test_regex
+    (ModifierAdd ([modchar 'm'], cchar 'e' -- cchar 's' -- InputEnd))
+    "es"
+    0 ~multiline:true ();
+  [%expect {|
+    Regex /(?m:es$)/ on 'es' at 0:
+    Input: es
+    End: 2
+    Captures:
+    	None |}]
+
+let%expect_test "changing_multiline_flag_no_affect_mod_re1_2" =
+  test_regex
+    (ModifierAdd ([modchar 'm'], cchar 'e' -- cchar 's' -- InputEnd))
+    "es\ns"
+    0 ~multiline:true ();
+  [%expect {|
+Regex /(?m:es$)/ on 'es
+s' at 0:
+Input: es
+s
+End: 2
+Captures:
+	None |}]
+
 let%expect_test "changing_multiline_flag_no_affect_mod_re2_1" =
   test_regex
     (InputStart -- ModifierRemove ([], [modchar 'm'], cchar 'e' -- cchar 's' -- InputEnd))
     "es\ns"
     0 ~multiline:true ();
   [%expect {|
-    Regex /^(?-m:es$)/ on 'es
+Regex /^(?-m:es$)/ on 'es
 s' at 0:
-    No match |}]
+No match |}]
 
 let%expect_test "changing_multiline_flag_no_affect_mod_re2_2" =
   test_regex
@@ -880,12 +2078,15 @@ let%expect_test "nesting_add_dotAll_within_remove_re1_2" =
     "\n"
     0 ~dotAll:true ();
   [%expect {|
-    Regex /(?-s:(?s:^.$))/ on '
+Regex /(?-s:(?s:^.$))/ on '
 ' at 0:
-    Input:
-    End: 1
-    Captures:
-    	None |}]
+Input:
+
+End: 1
+Captures:
+	None |}]
+
+(* NOTE: re2 tests cover many characters; skipping extended character tests that require \u2027, \u0085, etc. *)
 
 (*
  * ----------------------------------------------------------------------------
@@ -940,12 +2141,13 @@ let%expect_test "nesting_add_multiline_within_remove_re1_1" =
     "es\ns"
     0 ~multiline:true ();
   [%expect {|
-    Regex /(?-m:es(?m:$)|js$)/ on 'es
+Regex /(?-m:es(?m:$)|js$)/ on 'es
 s' at 0:
-    Input: es
-    End: 2
-    Captures:
-    	None |}]
+Input: es
+s
+End: 2
+Captures:
+	None |}]
 
 let%expect_test "nesting_add_multiline_within_remove_re1_2" =
   test_regex
@@ -953,9 +2155,51 @@ let%expect_test "nesting_add_multiline_within_remove_re1_2" =
     "js\ns"
     0 ~multiline:true ();
   [%expect {|
-    Regex /(?-m:es(?m:$)|js$)/ on 'js
+Regex /(?-m:es(?m:$)|js$)/ on 'js
 s' at 0:
-    No match |}]
+No match |}]
+
+(* NOTE: re2 tests use (?m-:) which is same as (?m:) for this purpose *)
+
+let%expect_test "nesting_add_multiline_within_remove_re2_1" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [], cchar 'e' -- cchar 's' -- ModifierAdd ([modchar 'm'], InputEnd) || cchar 'j' -- cchar 's' -- InputEnd))
+    "es\ns"
+    0 ~multiline:true ();
+  [%expect {|
+Regex /(?m-:es(?m:$)|js$)/ on 'es
+s' at 0:
+Input: es
+s
+End: 2
+Captures:
+	None |}]
+
+let%expect_test "nesting_add_multiline_within_remove_re2_2" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [], cchar 'e' -- cchar 's' -- ModifierAdd ([modchar 'm'], InputEnd) || cchar 'j' -- cchar 's' -- InputEnd))
+    "js"
+    0 ~multiline:true ();
+  [%expect {|
+    Regex /(?m-:es(?m:$)|js$)/ on 'js' at 0:
+    Input: js
+    End: 2
+    Captures:
+    	None |}]
+
+let%expect_test "nesting_add_multiline_within_remove_re2_3" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [], cchar 'e' -- cchar 's' -- ModifierAdd ([modchar 'm'], InputEnd) || cchar 'j' -- cchar 's' -- InputEnd))
+    "js\ns"
+    0 ~multiline:true ();
+  [%expect {|
+Regex /(?m-:es(?m:$)|js$)/ on 'js
+s' at 0:
+Input: js
+s
+End: 2
+Captures:
+	None |}]
 
 (*
  * ----------------------------------------------------------------------------
@@ -982,9 +2226,9 @@ let%expect_test "nesting_remove_dotAll_within_add_re1_2" =
     "\n"
     0 ();
   [%expect {|
-    Regex /(?s:(?-s:^.$))/ on '
+Regex /(?s:(?-s:^.$))/ on '
 ' at 0:
-    No match |}]
+No match |}]
 
 (*
  * ----------------------------------------------------------------------------
@@ -999,12 +2243,13 @@ let%expect_test "nesting_remove_multiline_within_add_re1_1" =
     "es\ns"
     0 ();
   [%expect {|
-    Regex /(?m:es$|(?-m:js$))/ on 'es
+Regex /(?m:es$|(?-m:js$))/ on 'es
 s' at 0:
-    Input: es
-    End: 2
-    Captures:
-    	None |}]
+Input: es
+s
+End: 2
+Captures:
+	None |}]
 
 let%expect_test "nesting_remove_multiline_within_add_re1_2" =
   test_regex
@@ -1012,9 +2257,35 @@ let%expect_test "nesting_remove_multiline_within_add_re1_2" =
     "js\ns"
     0 ();
   [%expect {|
-    Regex /(?m:es$|(?-m:js$))/ on 'js
+Regex /(?m:es$|(?-m:js$))/ on 'js
 s' at 0:
-    No match |}]
+No match |}]
+
+(* NOTE: re2 tests use (?m-:) which is same as (?m:) for this purpose *)
+
+let%expect_test "nesting_remove_multiline_within_add_re2_1" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [], cchar 'e' -- cchar 's' -- InputEnd || ModifierRemove ([], [modchar 'm'], cchar 'j' -- cchar 's' -- InputEnd)))
+    "es\ns"
+    0 ();
+  [%expect {|
+Regex /(?m-:es$|(?-m:js$))/ on 'es
+s' at 0:
+Input: es
+s
+End: 2
+Captures:
+	None |}]
+
+let%expect_test "nesting_remove_multiline_within_add_re2_2" =
+  test_regex
+    (ModifierRemove ([modchar 'm'], [], cchar 'e' -- cchar 's' -- InputEnd || ModifierRemove ([], [modchar 'm'], cchar 'j' -- cchar 's' -- InputEnd)))
+    "js\ns"
+    0 ();
+  [%expect {|
+Regex /(?m-:es$|(?-m:js$))/ on 'js
+s' at 0:
+No match |}]
 
 (*
  * ----------------------------------------------------------------------------
@@ -1190,9 +2461,9 @@ let%expect_test "remove_ignoreCase_no_affect_dotAll_re1_2" =
     "\nes"
     0 ~ignoreCase:true ();
   [%expect {|
-    Regex /(?-i:.es)/ on '
+Regex /(?-i:.es)/ on '
 es' at 0:
-    No match |}]
+No match |}]
 
 let%expect_test "remove_ignoreCase_no_affect_dotAll_re2_1" =
   test_regex
@@ -1200,13 +2471,13 @@ let%expect_test "remove_ignoreCase_no_affect_dotAll_re2_1" =
     "\nes"
     0 ~ignoreCase:true ~dotAll:true ();
   [%expect {|
-    Regex /(?-i:.es)/ on '
+Regex /(?-i:.es)/ on '
 es' at 0:
-    Input:
-    es
-    End: 3
-    Captures:
-    	None |}]
+Input:
+es
+End: 3
+Captures:
+	None |}]
 
 (*
  * ----------------------------------------------------------------------------
@@ -1233,9 +2504,9 @@ let%expect_test "remove_ignoreCase_no_affect_multiline_re1_2" =
     "es\nz"
     0 ~ignoreCase:true ();
   [%expect {|
-    Regex /(?-i:es$)/ on 'es
+Regex /(?-i:es$)/ on 'es
 z' at 0:
-    No match |}]
+No match |}]
 
 let%expect_test "remove_ignoreCase_no_affect_multiline_re2_1" =
   test_regex
@@ -1243,13 +2514,13 @@ let%expect_test "remove_ignoreCase_no_affect_multiline_re2_1" =
     "es\nz"
     0 ~ignoreCase:true ~multiline:true ();
   [%expect {|
-    Regex /(?-i:es$)/ on 'es
+Regex /(?-i:es$)/ on 'es
 z' at 0:
-    Input: es
-    z
-    End: 2
-    Captures:
-    	None |}]
+Input: es
+z
+End: 2
+Captures:
+	None |}]
 
 (*
  * ----------------------------------------------------------------------------
@@ -1304,13 +2575,13 @@ let%expect_test "remove_dotAll_no_affect_multiline_re2_1" =
     "aes\nz"
     0 ~dotAll:true ~multiline:true ();
   [%expect {|
-    Regex /(?-s:.es$)/ on 'aes
+Regex /(?-s:.es$)/ on 'aes
 z' at 0:
-    Input: aes
-    z
-    End: 3
-    Captures:
-    	None |}]
+Input: aes
+z
+End: 3
+Captures:
+	None |}]
 
 (*
  * ----------------------------------------------------------------------------
@@ -1325,12 +2596,13 @@ let%expect_test "remove_multiline_no_affect_dotAll_re2_1" =
     "es\n"
     0 ~multiline:true ~dotAll:true ();
   [%expect {|
-    Regex /(?-m:es.$)/ on 'es
+Regex /(?-m:es.$)/ on 'es
 ' at 0:
-    Input: es
-    End: 3
-    Captures:
-    	None |}]
+Input: es
+
+End: 3
+Captures:
+	None |}]
 
 (*
  * ----------------------------------------------------------------------------
@@ -1493,6 +2765,56 @@ let%expect_test "add_ignoreCase_affects_p_re1_2" =
     Captures:
     	None |}]
 
+(* re2 uses (?i-:) which is same as (?i:) for this purpose *)
+
+let%expect_test "add_ignoreCase_affects_p_re2_1" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterClassEsc (UnicodeProp Warblre.UnicodeProperties.UnicodeProperty.Alphabetic))))
+    "A"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\p{...})/ on 'A' at 0:
+    Input: A
+    End: 1
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_p_re2_2" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterClassEsc (UnicodeProp Warblre.UnicodeProperties.UnicodeProperty.Alphabetic))))
+    "a"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\p{...})/ on 'a' at 0:
+    Input: a
+    End: 1
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_p_re2_3" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterClassEsc (UnicodeProp Warblre.UnicodeProperties.UnicodeProperty.Alphabetic))))
+    "Z"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\p{...})/ on 'Z' at 0:
+    Input: Z
+    End: 1
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_p_re2_4" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterClassEsc (UnicodeProp Warblre.UnicodeProperties.UnicodeProperty.Alphabetic))))
+    "z"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\p{...})/ on 'z' at 0:
+    Input: z
+    End: 1
+    Captures:
+    	None |}]
+
 (*
  * ----------------------------------------------------------------------------
  * File: add-ignoreCase-affects-slash-upper-b.js
@@ -1508,7 +2830,7 @@ let%expect_test "add_ignoreCase_affects_B_re1_1" =
   [%expect {|
     Regex /(?i:Z\B)/ on 'Zſ' at 0:
     Input: Zſ
-    End: 2
+    End: 1
     Captures:
     	None |}]
 
@@ -1520,7 +2842,33 @@ let%expect_test "add_ignoreCase_affects_B_re1_2" =
   [%expect {|
     Regex /(?i:Z\B)/ on 'ZK' at 0:
     Input: ZK
-    End: 2
+    End: 1
+    Captures:
+    	None |}]
+
+(* re2 uses (?i-:) which is same as (?i:) for this purpose *)
+
+let%expect_test "add_ignoreCase_affects_B_re2_1" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], cchar 'Z' -- NotWordBoundary))
+    "Z\u{017f}"
+    0 ();
+  [%expect {|
+    Regex /(?i-:Z\B)/ on 'Zſ' at 0:
+    Input: Zſ
+    End: 1
+    Captures:
+    	None |}]
+
+let%expect_test "add_ignoreCase_affects_B_re2_2" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], cchar 'Z' -- NotWordBoundary))
+    "Z\u{212a}"
+    0 ();
+  [%expect {|
+    Regex /(?i-:Z\B)/ on 'ZK' at 0:
+    Input: ZK
+    End: 1
     Captures:
     	None |}]
 
@@ -1538,10 +2886,7 @@ let%expect_test "add_ignoreCase_affects_P_re1_1" =
     0 ();
   [%expect {|
     Regex /(?i:\P{...})/ on 'A' at 0:
-    Input: A
-    End: 1
-    Captures:
-    	None |}]
+    No match |}]
 
 let%expect_test "add_ignoreCase_affects_P_re1_2" =
   test_regex
@@ -1550,6 +2895,56 @@ let%expect_test "add_ignoreCase_affects_P_re1_2" =
     0 ();
   [%expect {|
     Regex /(?i:\P{...})/ on '0' at 0:
+    Input: 0
+    End: 1
+    Captures:
+    	None |}]
+
+(* re2 uses (?i-:) which is same as (?i:) for this purpose *)
+
+let%expect_test "add_ignoreCase_affects_P_re2_1" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterClassEsc (UnicodePropNeg Warblre.UnicodeProperties.UnicodeProperty.Alphabetic))))
+    "A"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\P{...})/ on 'A' at 0:
+    No match |}]
+
+let%expect_test "add_ignoreCase_affects_P_re2_2" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterClassEsc (UnicodePropNeg Warblre.UnicodeProperties.UnicodeProperty.Alphabetic))))
+    "a"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\P{...})/ on 'a' at 0:
+    No match |}]
+
+let%expect_test "add_ignoreCase_affects_P_re2_3" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterClassEsc (UnicodePropNeg Warblre.UnicodeProperties.UnicodeProperty.Alphabetic))))
+    "Z"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\P{...})/ on 'Z' at 0:
+    No match |}]
+
+let%expect_test "add_ignoreCase_affects_P_re2_4" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterClassEsc (UnicodePropNeg Warblre.UnicodeProperties.UnicodeProperty.Alphabetic))))
+    "z"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\P{...})/ on 'z' at 0:
+    No match |}]
+
+let%expect_test "add_ignoreCase_affects_P_re2_5" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterClassEsc (UnicodePropNeg Warblre.UnicodeProperties.UnicodeProperty.Alphabetic))))
+    "0"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\P{...})/ on '0' at 0:
     Input: 0
     End: 1
     Captures:
@@ -1580,6 +2975,26 @@ let%expect_test "add_ignoreCase_affects_W_re1_2" =
     Regex /(?i:\W)/ on 'K' at 0:
     No match |}]
 
+(* re2 uses (?i-:) which is same as (?i:) for this purpose *)
+
+let%expect_test "add_ignoreCase_affects_W_re2_1" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterClassEsc Coq_esc_W)))
+    "\u{017f}"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\W)/ on 'ſ' at 0:
+    No match |}]
+
+let%expect_test "add_ignoreCase_affects_W_re2_2" =
+  test_regex
+    (ModifierRemove ([modchar 'i'], [], AtomEsc (ACharacterClassEsc Coq_esc_W)))
+    "\u{212a}"
+    0 ();
+  [%expect {|
+    Regex /(?i-:\W)/ on 'K' at 0:
+    No match |}]
+
 (*
  * ----------------------------------------------------------------------------
  * File: changing-dotAll-flag-does-not-affect-dotAll-modifier.js
@@ -1587,15 +3002,41 @@ let%expect_test "add_ignoreCase_affects_W_re1_2" =
  * ----------------------------------------------------------------------------
  *)
 
+let%expect_test "changing_dotAll_flag_no_affect_mod_re1_1" =
+  test_regex
+    (ModifierAdd ([modchar 's'], InputStart -- Dot -- InputEnd))
+    "a"
+    0 ~dotAll:true ();
+  [%expect {|
+    Regex /(?s:^.$)/ on 'a' at 0:
+    Input: a
+    End: 1
+    Captures:
+    	None |}]
+
+let%expect_test "changing_dotAll_flag_no_affect_mod_re1_2" =
+  test_regex
+    (ModifierAdd ([modchar 's'], InputStart -- Dot -- InputEnd))
+    "\n"
+    0 ~dotAll:true ();
+  [%expect {|
+Regex /(?s:^.$)/ on '
+' at 0:
+Input:
+
+End: 1
+Captures:
+	None |}]
+
 let%expect_test "changing_dotAll_flag_no_affect_mod_re2_1" =
   test_regex
     (ModifierRemove ([], [modchar 's'], InputStart -- Dot -- InputEnd))
     "\n"
     0 ~dotAll:true ();
   [%expect {|
-    Regex /(?-s:^.$)/ on '
+Regex /(?-s:^.$)/ on '
 ' at 0:
-    No match |}]
+No match |}]
 
 let%expect_test "changing_dotAll_flag_no_affect_mod_re2_2" =
   test_regex
@@ -1675,7 +3116,10 @@ let%expect_test "remove_ignoreCase_affects_p_re1_2" =
     0 ~ignoreCase:true ();
   [%expect {|
     Regex /(?-i:\p{...})/ on 'a' at 0:
-    No match |}]
+    Input: a
+    End: 1
+    Captures:
+    	None |}]
 
 (*
  * ----------------------------------------------------------------------------
@@ -1725,10 +3169,7 @@ let%expect_test "remove_ignoreCase_affects_P_re1_2" =
     0 ~ignoreCase:true ();
   [%expect {|
     Regex /(?-i:\P{...})/ on 'a' at 0:
-    Input: a
-    End: 1
-    Captures:
-    	None |}]
+    No match |}]
 
 let%expect_test "remove_ignoreCase_affects_P_re1_3" =
   test_regex
