@@ -524,7 +524,7 @@ Module API.
       if (isSyntaxCharacter c) || (isSolidus c) then
         (*>>   a. Return the string-concatenation of 0x005C (REVERSE SOLIDUS) and UTF16EncodeCodePoint(c). <<*)
         let backslash := Character.from_numeric_value 92 in
-        charsToString (backslash :: c :: nil)
+        concatStrings (charToString backslash) (charToString c)
       else
       (*>> 2. Else if c is the code point listed in some cell of the "Code Point" column of <<*)
       (*>>    <emu-xref href="#table-controlescape-code-point-values"></emu-xref>, then <<*)
@@ -545,21 +545,25 @@ Module API.
             (*>>   b. If cNum ≤ 0xFF, then <<*)
             if cNum <=? 255 then
               (*>>     i. Let hex be Number::toString(𝔽(cNum), 16). <<*)
+              let hex := toHex2 cNum in
               (*>>     ii. Return the string-concatenation of the code unit 0x005C (REVERSE SOLIDUS), "x", and StringPad(hex, 2, "0", start). <<*)
               let backslash := Character.from_numeric_value 92 in
               let x := Character.from_numeric_value 120 in
               (* For the hex conversion, we use a simplified representation *)
-              charsToString (backslash :: x :: toHex2 cNum)
+              charsToString (backslash :: x :: hex)
             else
               (*>>   c. Let escaped be the empty String. <<*)
+              let escaped := String.from_char_list nil in
               (*>>   d. Let codeUnits be UTF16EncodeCodePoint(c). <<*)
+              let codeUnits := c :: nil in
               (*>>   e. For each code unit cu of codeUnits, do <<*)
               (*>>     i. Set escaped to the string-concatenation of escaped and UnicodeEscape(cu). <<*)
-              (*>>   f. Return escaped. <<*)
               (* For code points > 0xFF, we use \uXXXX escape *)
               let backslash := Character.from_numeric_value 92 in
               let u := Character.from_numeric_value 117 in
-              charsToString (backslash :: u :: toHex4 cNum)
+              let escaped := concatStrings escaped (charsToString (backslash :: u :: toHex4 cNum)) in
+              (*>>   f. Return escaped. <<*)
+              escaped
           else
             (*>> 6. Return UTF16EncodeCodePoint(c). <<*)
             charToString c
