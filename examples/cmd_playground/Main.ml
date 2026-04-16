@@ -19,7 +19,8 @@ let run (regex: (string, string, Engine.property) Warblre_js.Patterns.coq_Regex)
       RegExpFlags.u = ();
       RegExpFlags.y = false;
     }) in
-    let r =  Engine.initialize regex flags in
+    let dummy_obj = Obj.magic () in
+    let r =  Engine.initialize dummy_obj regex flags in
     let result = 
       let result = Engine.exec (Engine.setLastIndex r (Warblre_js.BigInt.of_int at)) (Warblre_js.JsEngineParameters.JsStringLike.of_string input) in
       Printer.exec_result_to_string result

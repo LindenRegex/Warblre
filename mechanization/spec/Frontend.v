@@ -86,7 +86,7 @@ Section Initialization.
       and flags (an ECMAScript language value) and returns either a normal completion containing an Object or a throw
       completion. It performs the following steps when called:
   <<*)
-  Definition regExpInitialize (pattern: Regex) (flags: RegExpFlags) : Result RegExpInstance CompileError :=
+  Definition regExpInitialize (obj: RegExpInstance) (pattern: Regex) (flags: RegExpFlags) : Result RegExpInstance CompileError :=
     (*>> 1. If pattern is undefined, let P be the empty String. <<*)
     (*>> 2. Else, let P be ? ToString(pattern). <<*)
     let P := pattern in

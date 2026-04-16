@@ -106,7 +106,8 @@ module Exec (
           RegExpFlags.u = ();
           RegExpFlags.y = Js.String.includes ~search:"y" flags0;
         }) in
-        let inst = Engine.initialize re flags1 in
+        let dummy_obj = Obj.magic () in
+        let inst = Engine.initialize dummy_obj re flags1 in
         Belt.MutableMap.String.update regex_cache this_str (fun _ -> Some inst));
 
       let inst0 = Belt.MutableMap.String.getExn regex_cache this_str in

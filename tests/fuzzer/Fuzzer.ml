@@ -126,22 +126,26 @@ module Fuzzer (P: EngineParameters) (S: Warblre_js.Encoding.StringLike with type
       | NonGlobalResult r -> Either.right (make_exec_output_stateless r)
 
     let exec (regex: (P.character, P.string, P.property) coq_Regex) (flags: Extracted.RegExpFlags.coq_type) (at: int) (str: P.string): string =
-      let r0 = Engine.initialize regex flags in
+      let dummy_obj = Obj.magic () in
+      let r0 = Engine.initialize dummy_obj regex flags in
       let r1 = Engine.setLastIndex r0 (BigInt.of_int at) in
       result_to_string (make_exec_output_stateless (Engine.exec r1 str))
 
     let search (regex: (P.character, P.string, P.property) coq_Regex) (flags: Extracted.RegExpFlags.coq_type) (at: int) (str: P.string): string =
-      let r0 = Engine.initialize regex flags in
+      let dummy_obj = Obj.magic () in
+      let r0 = Engine.initialize dummy_obj regex flags in
       let r1 = Engine.setLastIndex r0 (BigInt.of_int at) in
       BigInt.to_string (fst (Engine.search r1 str))
 
     let test (regex: (P.character, P.string, P.property) coq_Regex) (flags: Extracted.RegExpFlags.coq_type) (at: int) (str: P.string): string =
-      let r0 = Engine.initialize regex flags in
+      let dummy_obj = Obj.magic () in
+      let r0 = Engine.initialize dummy_obj regex flags in
       let r1 = Engine.setLastIndex r0 (BigInt.of_int at) in
       string_of_bool (fst (Engine.test r1 str))
 
     let rmatch (regex: (P.character, P.string, P.property) coq_Regex) (flags: Extracted.RegExpFlags.coq_type) (at: int) (str: P.string): string =
-      let r0 = Engine.initialize regex flags in
+      let dummy_obj = Obj.magic () in
+      let r0 = Engine.initialize dummy_obj regex flags in
       let r1 = Engine.setLastIndex r0 (BigInt.of_int at) in
       match make_match_output_stateless (Engine.rmatch r1 str) with
       | Left (Some r) -> String.concat "\n" (List.map S.to_string r)
@@ -149,7 +153,8 @@ module Fuzzer (P: EngineParameters) (S: Warblre_js.Encoding.StringLike with type
       | Right r -> result_to_string r
 
     let matchAll (regex: (P.character, P.string, P.property) coq_Regex) (flags: Extracted.RegExpFlags.coq_type) (at: int) (str: P.string): string =
-      let r0 = Engine.initialize regex flags in
+      let dummy_obj = Obj.magic () in
+      let r0 = Engine.initialize dummy_obj regex flags in
       let r1 = Engine.setLastIndex r0 (BigInt.of_int at) in
       String.concat "\n---\n" (List.map (fun e -> result_to_string (Option.some e)) (fst (Engine.stringMatchAll r1 str)))
 

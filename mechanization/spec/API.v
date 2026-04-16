@@ -200,7 +200,7 @@ Module API.
         Result (list character -> non_neg_integer -> MatchResult) _
       := @Semantics.compilePattern parameters.
 
-    Definition initialize: Regex -> RegExpFlags.type -> (Result RegExpInstance _) :=
+    Definition initialize: RegExpInstance -> Regex -> RegExpFlags.type -> (Result RegExpInstance _) :=
       @Frontend.regExpInitialize parameters.
     Definition setLastIndex :=
       @Frontend.RegExpInstance.setLastIndex character string property _ _ _.

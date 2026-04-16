@@ -36,7 +36,8 @@ let run (regex: (string, string, Engine.property) Warblre_js.Patterns.coq_Regex)
       RegExpFlags.u = ();
       RegExpFlags.y = false;
     }) in
-    let r =  Engine.initialize regex flags in
+    let dummy_obj = Obj.magic () in
+    let r =  Engine.initialize dummy_obj regex flags in
     let result = 
       match Engine.exec (Engine.setLastIndex r (Warblre_js.BigInt.of_int at)) (Warblre_js.JsEngineParameters.JsStringLike.of_string input) with
       | Null _ -> "No match found."

@@ -38,7 +38,8 @@ let input =
 let () =
 	Printf.printf "Regex: %s\n" (Printer.regex_to_string regex);
 	Printf.printf "Input: '%s'\n" input;
-	let instance = Engine.initialize regex flags in
+	let dummy_obj = Obj.magic () in
+	let instance = Engine.initialize dummy_obj regex flags in
         match Engine.exec instance (StringLike.of_string input) with
 	| Null _ -> Printf.printf "No match.\n"
 	| Exotic (result, _) -> Printf.printf "%s\n" (Printer.array_exotic_to_string result)

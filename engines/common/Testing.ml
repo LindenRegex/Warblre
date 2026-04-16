@@ -31,7 +31,8 @@ module Tester (P: EngineParameters) (S: Encoding.StringLike with type t := P.str
     test_regex_using_record regex input at rer
 
   let test_exec_using_flags regex flags at input =
-    let r = initialize regex flags in
+    let dummy_obj = Obj.magic () in
+    let r = initialize dummy_obj regex flags in
     let res = exec (setLastIndex r (BigInt.of_int at)) (S.of_string input) in
     Printf.printf "Regex %s on '%s' at %d (using exec):\n%s\n" (regex_to_string regex) input at (exec_result_to_string res)
 
