@@ -9,3 +9,19 @@
 
 @fix_audit_batch use the latest filter result created and the other subagent on your prompt to solve all of those problems 
 
+
+
+I want you to read the latest commit, and add a test file that's the same format as the other (.ml on the test folder) that implement EVERY test on the latest commit, add comment so I know from which file every test are, don't miss any, don't add more, don't test something different
+
+
+
+Step 1 : comment writing 
+@annotate_rocq, implement the comments for the following proposal : proposals/unicode_property_escape
+
+Step 2 : Code writing 
+@implement_from_comments, add the code for the following proposal : proposals/unicode_property_escape
+
+
+
+
+
