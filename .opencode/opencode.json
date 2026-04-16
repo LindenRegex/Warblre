@@ -5,6 +5,10 @@
             "description": "{file:./agents/annotate_rocq/description.md}",
             "prompt": "{file:./agents/annotate_rocq/prompt.md}"
         },
+        "implement_from_comments": {
+            "description": "{file:./agents/implement_from_comments/description.md}",
+            "prompt": "{file:./agents/implement_from_comments/prompt.md}"
+        },
         "fix_audit_entry": {
             "description": "{file:./agents/fix_audit_entry/description.md}",
             "prompt": "{file:./agents/fix_audit_entry/prompt.md}"
