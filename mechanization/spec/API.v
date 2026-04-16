@@ -480,13 +480,10 @@ Module API.
     (*>> 3. Let cpList be StringToCodePoints(S). <<*)
     (*>> 4. For each code point c of cpList, do <<*)
     (*>>   a. If escaped is the empty String and c is matched by either |DecimalDigit| or |AsciiLetter|, then <<*)
-    (*>>     i. NOTE: Escaping a leading digit ensures that output corresponds with pattern text which may be used after a backslash 0 <<*)
-    (*>>        character escape or a |DecimalEscape| such as backslash 1 and still match S rather than be interpreted as an extension <<*)
-    (*>>        of the preceding escape sequence. Escaping a leading ASCII letter does the same for the context after backslash c. <<*)
-    (*>>     ii. Let numericValue be the numeric value of c. <<*)
-    (*>>     iii. Let hex be Number::toString(𝔽(numericValue), 16). <<*)
-    (*>>     iv. Assert: The length of hex is 2. <<*)
-    (*>>     v. Set escaped to the string-concatenation of the code unit 0x005C (REVERSE SOLIDUS), "x", and hex. <<*)
+    (*>>     i. Let numericValue be the numeric value of c. <<*)
+    (*>>     ii. Let hex be Number::toString(𝔽(numericValue), 16). <<*)
+    (*>>     iii. Assert: The length of hex is 2. <<*)
+    (*>>     iv. Set escaped to the string-concatenation of the code unit 0x005C (REVERSE SOLIDUS), "x", and hex. <<*)
     (*>>   b. Else, <<*)
     (*>>     i. Set escaped to the string-concatenation of escaped and EncodeForRegExpEscape(c). <<*)
     (*>> 5. Return escaped. <<*)
@@ -575,13 +572,12 @@ Module API.
       | c :: rest =>
           (*>>   a. If escaped is the empty String and c is matched by either |DecimalDigit| or |AsciiLetter|, then <<*)
           if (isEmptyString escaped) && ((isDecimalDigit c) || (isAsciiLetter c)) then
-            (*>>     i. NOTE: Escaping a leading digit ensures that output corresponds with pattern text which may be used after a backslash 0 character escape or a |DecimalEscape| such as backslash 1 and still match S rather than be interpreted as an extension of the preceding escape sequence. Escaping a leading ASCII letter does the same for the context after backslash c. <<*)
-            (*>>     ii. Let numericValue be the numeric value of c. <<*)
+            (*>>     i. Let numericValue be the numeric value of c. <<*)
             let numericValue := Character.numeric_value c in
-            (*>>     iii. Let hex be Number::toString(𝔽(numericValue), 16). <<*)
+            (*>>     ii. Let hex be Number::toString(𝔽(numericValue), 16). <<*)
             let hex := toHex2 numericValue in
-            (*>>     iv. Assert: The length of hex is 2. <<*)
-            (*>>     v. Set escaped to the string-concatenation of the code unit 0x005C (REVERSE SOLIDUS), "x", and hex. <<*)
+            (*>>     iii. Assert: The length of hex is 2. <<*)
+            (*>>     iv. Set escaped to the string-concatenation of the code unit 0x005C (REVERSE SOLIDUS), "x", and hex. <<*)
             let backslash := Character.from_numeric_value 92 in
             let x := Character.from_numeric_value 120 in
             let newEscaped := charsToString (backslash :: x :: hex) in
