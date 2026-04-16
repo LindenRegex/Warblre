@@ -1,0 +1,101 @@
+lib: [
+  "_build/install/default/lib/warblre/META"
+  "_build/install/default/lib/warblre/dune-package"
+  "_build/install/default/lib/warblre/opam"
+]
+lib_root: [
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/Compile.glob" {"coq/user-contrib/Warblre/props/Compile.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/Compile.v" {"coq/user-contrib/Warblre/props/Compile.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/Compile.vo" {"coq/user-contrib/Warblre/props/Compile.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/Definitions.glob" {"coq/user-contrib/Warblre/props/Definitions.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/Definitions.v" {"coq/user-contrib/Warblre/props/Definitions.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/Definitions.vo" {"coq/user-contrib/Warblre/props/Definitions.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/EarlyErrors.glob" {"coq/user-contrib/Warblre/props/EarlyErrors.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/EarlyErrors.v" {"coq/user-contrib/Warblre/props/EarlyErrors.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/EarlyErrors.vo" {"coq/user-contrib/Warblre/props/EarlyErrors.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/EndToEnd.glob" {"coq/user-contrib/Warblre/props/EndToEnd.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/EndToEnd.v" {"coq/user-contrib/Warblre/props/EndToEnd.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/EndToEnd.vo" {"coq/user-contrib/Warblre/props/EndToEnd.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/Match.glob" {"coq/user-contrib/Warblre/props/Match.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/Match.v" {"coq/user-contrib/Warblre/props/Match.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/Match.vo" {"coq/user-contrib/Warblre/props/Match.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/NodeProps.glob" {"coq/user-contrib/Warblre/props/NodeProps.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/NodeProps.v" {"coq/user-contrib/Warblre/props/NodeProps.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/NodeProps.vo" {"coq/user-contrib/Warblre/props/NodeProps.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/StrictlyNullable.glob" {"coq/user-contrib/Warblre/props/StrictlyNullable.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/StrictlyNullable.v" {"coq/user-contrib/Warblre/props/StrictlyNullable.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/props/StrictlyNullable.vo" {"coq/user-contrib/Warblre/props/StrictlyNullable.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/API.glob" {"coq/user-contrib/Warblre/spec/API.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/API.v" {"coq/user-contrib/Warblre/spec/API.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/API.vo" {"coq/user-contrib/Warblre/spec/API.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Errors.glob" {"coq/user-contrib/Warblre/spec/Errors.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Errors.v" {"coq/user-contrib/Warblre/spec/Errors.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Errors.vo" {"coq/user-contrib/Warblre/spec/Errors.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Frontend.glob" {"coq/user-contrib/Warblre/spec/Frontend.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Frontend.v" {"coq/user-contrib/Warblre/spec/Frontend.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Frontend.vo" {"coq/user-contrib/Warblre/spec/Frontend.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Inst.glob" {"coq/user-contrib/Warblre/spec/Inst.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Inst.v" {"coq/user-contrib/Warblre/spec/Inst.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Inst.vo" {"coq/user-contrib/Warblre/spec/Inst.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Node.glob" {"coq/user-contrib/Warblre/spec/Node.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Node.v" {"coq/user-contrib/Warblre/spec/Node.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Node.vo" {"coq/user-contrib/Warblre/spec/Node.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Notation.glob" {"coq/user-contrib/Warblre/spec/Notation.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Notation.v" {"coq/user-contrib/Warblre/spec/Notation.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Notation.vo" {"coq/user-contrib/Warblre/spec/Notation.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Parameters.glob" {"coq/user-contrib/Warblre/spec/Parameters.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Parameters.v" {"coq/user-contrib/Warblre/spec/Parameters.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Parameters.vo" {"coq/user-contrib/Warblre/spec/Parameters.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Patterns.glob" {"coq/user-contrib/Warblre/spec/Patterns.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Patterns.v" {"coq/user-contrib/Warblre/spec/Patterns.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Patterns.vo" {"coq/user-contrib/Warblre/spec/Patterns.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/RegExpRecord.glob" {"coq/user-contrib/Warblre/spec/RegExpRecord.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/RegExpRecord.v" {"coq/user-contrib/Warblre/spec/RegExpRecord.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/RegExpRecord.vo" {"coq/user-contrib/Warblre/spec/RegExpRecord.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Semantics.glob" {"coq/user-contrib/Warblre/spec/Semantics.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Semantics.v" {"coq/user-contrib/Warblre/spec/Semantics.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/Semantics.vo" {"coq/user-contrib/Warblre/spec/Semantics.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/StaticSemantics.glob" {"coq/user-contrib/Warblre/spec/StaticSemantics.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/StaticSemantics.v" {"coq/user-contrib/Warblre/spec/StaticSemantics.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/StaticSemantics.vo" {"coq/user-contrib/Warblre/spec/StaticSemantics.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/base/Base.glob" {"coq/user-contrib/Warblre/spec/base/Base.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/base/Base.v" {"coq/user-contrib/Warblre/spec/base/Base.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/base/Base.vo" {"coq/user-contrib/Warblre/spec/base/Base.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/base/Characters.glob" {"coq/user-contrib/Warblre/spec/base/Characters.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/base/Characters.v" {"coq/user-contrib/Warblre/spec/base/Characters.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/base/Characters.vo" {"coq/user-contrib/Warblre/spec/base/Characters.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/base/Coercions.glob" {"coq/user-contrib/Warblre/spec/base/Coercions.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/base/Coercions.v" {"coq/user-contrib/Warblre/spec/base/Coercions.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/base/Coercions.vo" {"coq/user-contrib/Warblre/spec/base/Coercions.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/base/Numeric.glob" {"coq/user-contrib/Warblre/spec/base/Numeric.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/base/Numeric.v" {"coq/user-contrib/Warblre/spec/base/Numeric.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/spec/base/Numeric.vo" {"coq/user-contrib/Warblre/spec/base/Numeric.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/tactics/Focus.glob" {"coq/user-contrib/Warblre/tactics/Focus.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/tactics/Focus.v" {"coq/user-contrib/Warblre/tactics/Focus.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/tactics/Focus.vo" {"coq/user-contrib/Warblre/tactics/Focus.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/tactics/Retrieve.glob" {"coq/user-contrib/Warblre/tactics/Retrieve.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/tactics/Retrieve.v" {"coq/user-contrib/Warblre/tactics/Retrieve.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/tactics/Retrieve.vo" {"coq/user-contrib/Warblre/tactics/Retrieve.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/tactics/Specialize.glob" {"coq/user-contrib/Warblre/tactics/Specialize.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/tactics/Specialize.v" {"coq/user-contrib/Warblre/tactics/Specialize.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/tactics/Specialize.vo" {"coq/user-contrib/Warblre/tactics/Specialize.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/tactics/Tactics.glob" {"coq/user-contrib/Warblre/tactics/Tactics.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/tactics/Tactics.v" {"coq/user-contrib/Warblre/tactics/Tactics.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/tactics/Tactics.vo" {"coq/user-contrib/Warblre/tactics/Tactics.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/utils/List.glob" {"coq/user-contrib/Warblre/utils/List.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/utils/List.v" {"coq/user-contrib/Warblre/utils/List.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/utils/List.vo" {"coq/user-contrib/Warblre/utils/List.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/utils/Result.glob" {"coq/user-contrib/Warblre/utils/Result.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/utils/Result.v" {"coq/user-contrib/Warblre/utils/Result.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/utils/Result.vo" {"coq/user-contrib/Warblre/utils/Result.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/utils/Return.glob" {"coq/user-contrib/Warblre/utils/Return.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/utils/Return.v" {"coq/user-contrib/Warblre/utils/Return.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/utils/Return.vo" {"coq/user-contrib/Warblre/utils/Return.vo"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/utils/Typeclasses.glob" {"coq/user-contrib/Warblre/utils/Typeclasses.glob"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/utils/Typeclasses.v" {"coq/user-contrib/Warblre/utils/Typeclasses.v"}
+  "_build/install/default/lib/coq/user-contrib/Warblre/utils/Typeclasses.vo" {"coq/user-contrib/Warblre/utils/Typeclasses.vo"}
+]
+doc: [
+  "_build/install/default/doc/warblre/LICENSE"
+  "_build/install/default/doc/warblre/README.md"
+]

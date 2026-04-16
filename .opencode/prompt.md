@@ -16,11 +16,15 @@ I want you to read the latest commit, and add a test file that's the same format
 
 
 Step 1 : comment writing 
-@annotate_rocq, implement the comments for the following proposal : proposals/unicode_property_escape
+@annotate_rocq implement the comments for the following proposal : proposals/escaping
 
 Step 2 : Code writing 
-@implement_from_comments, add the code for the following proposal : proposals/unicode_property_escape
+@implement_from_comments add the code for the following proposal : proposals/escaping
 
+Step 3, generate the audit
+
+Step 4, filter the audit
+@filter_audit Check the latest audit created and keep the relevant part 
 
 
 

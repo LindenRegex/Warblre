@@ -235,9 +235,9 @@ Module Semantics. Section main.
     (*>> 1. Assert: A and B each contain exactly one character. <<*)
     assert! (CharSet.size a =? 1)%nat && (CharSet.size b =? 1)%nat ;
     (*>> 2. Let a be the one character in CharSet A. <<*)
-    let! a =<< CharSet.unique a in
+    let! a =<< CharSet.unique_succ a in
     (*>> 3. Let b be the one character in CharSet B. <<*)
-    let! b =<< CharSet.unique b in
+    let! b =<< CharSet.unique_succ b in
     (*>> 4. Let i be the character value of character a. <<*)
     let i := Character.numeric_value a in
     (*>> 5. Let j be the character value of character b. <<*)

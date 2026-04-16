@@ -41,7 +41,7 @@ Module API.
       Parameter contains: char_set -> character -> bool.
       Parameter range: character -> character -> char_set.
 
-      Parameter unique: forall (F: Type) (_: Result.AssertionError F), char_set -> Result character F.
+      Parameter unique_succ: forall (F: Type) (_: Result.AssertionError F), char_set -> Result character F.
       Parameter filter: char_set -> (character -> bool) -> char_set.
       Parameter exist: char_set -> (character -> bool) -> bool.
       Parameter exist_canonicalized: RegExpRecord -> char_set -> character -> bool.
@@ -71,9 +71,9 @@ Module API.
       Axiom contains_spec: forall c s, contains s c = true <-> In c s.
       Axiom range_spec: forall c l h, In c (range l h) <-> Character.numeric_value l <= Character.numeric_value c /\ Character.numeric_value c <= Character.numeric_value h. (* custom *)
       Axiom unique_succ_spec: forall (F: Type) (H: Result.AssertionError F) (c: character) (s: char_set),
-        unique F H s = Success c <-> Equal s (singleton c). (* custom *)
+        unique_succ F H s = Success c <-> Equal s (singleton c). (* custom *)
       Axiom unique_succ_error: forall (F: Type) (H: Result.AssertionError F) (s: char_set),
-        (exists c, unique F H s = Success c) \/ unique F H s = Error (@Result.f F H). (* custom *)
+        (exists c, unique_succ F H s = Success c) \/ unique_succ F H s = Error (@Result.f F H). (* custom *)
       Axiom filter_spec: forall f c s,
         In c (filter s f) <-> In c s /\ f c = true.
       Axiom exist_spec: forall f s,
@@ -139,7 +139,7 @@ Module API.
           P.CharSet.elements
           P.CharSet.contains
           P.CharSet.range
-          P.CharSet.unique
+          P.CharSet.unique_succ
           P.CharSet.filter
           P.CharSet.exist
           P.CharSet.exist_canonicalized

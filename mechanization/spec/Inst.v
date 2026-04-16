@@ -111,7 +111,7 @@ Module NaiveEngineParameters <: API.EngineParameters.
     Definition contains (cs: char_set) (c: character) : bool := ListSet.set_mem Character.equal c cs.
     Definition range (first: character) (last: character) : char_set :=
       List.Range.Nat.Bounds.range first (last + 1).
-    Definition unique (F: Type) (_: Result.AssertionError F) (cs: char_set) : Result character F :=
+    Definition unique_succ (F: Type) (_: Result.AssertionError F) (cs: char_set) : Result character F :=
       match List.nodup Character.equal cs with
       | [x] => Result.Success x (* Assumes deduplicated ListSet *)
       | _ => Result.assertion_failed
@@ -257,19 +257,19 @@ Module NaiveEngineParameters <: API.EngineParameters.
 
 
     Theorem unique_succ_spec: forall (F: Type) (H: Result.AssertionError F) (c: character) (s: char_set),
-      unique F H s = Success c <-> Equal s (singleton c).
+      unique_succ F H s = Success c <-> Equal s (singleton c).
     Proof.
       intros F H c s. split.
-      - unfold unique, Result.assertion_failed. destruct H.
+      - unfold unique_succ, Result.assertion_failed. destruct H.
         destruct List.nodup eqn:?; try discriminate.
         destruct l; try discriminate.
         intro H. injection H as ->. apply Equal_singleton_nodup. auto.
-      - intro H0. unfold unique. apply Equal_singleton_nodup in H0. rewrite H0. reflexivity.
+      - intro H0. unfold unique_succ. apply Equal_singleton_nodup in H0. rewrite H0. reflexivity.
     Qed.
     Theorem unique_succ_error: forall (F: Type) (H: Result.AssertionError F) (s: char_set),
-      (exists c, unique F H s = Success c) \/ unique F H s = Error (@Result.f F H).
+      (exists c, unique_succ F H s = Success c) \/ unique_succ F H s = Error (@Result.f F H).
     Proof.
-      intros F H s. unfold unique.
+      intros F H s. unfold unique_succ.
       destruct List.nodup.
       - right. unfold Result.assertion_failed, Result.f. destruct H. reflexivity.
       - destruct l. + left. eexists. reflexivity. +  right. unfold Result.assertion_failed, Result.f. destruct H. reflexivity.
@@ -426,7 +426,7 @@ Module FastEngineParameters <: API.EngineParameters.
       N.peano_rect
         (fun _ => CS.t) CS.empty (fun d cs => CS.add (first + d) cs)
         (N.succ last - first).
-    Definition unique (F: Type) (_: Result.AssertionError F) (cs: char_set) : Result character F :=
+    Definition unique_succ (F: Type) (_: Result.AssertionError F) (cs: char_set) : Result character F :=
       match cs with
       | CS.Leaf => Result.assertion_failed
       | CS.Node _ _ c _ => Result.Success c

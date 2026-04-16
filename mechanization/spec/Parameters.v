@@ -70,7 +70,7 @@ Module CharSet.
 
     range: Character -> Character -> type;
 
-    unique: forall {F: Type} {_: Result.AssertionError F}, type -> Result Character F;
+    unique_succ: forall {F: Type} {_: Result.AssertionError F}, type -> Result Character F;
     filter: type -> (Character -> bool) -> type;
     exist: type -> (Character -> bool) -> bool;
     exist_canonicalized: RegExpRecord -> type -> Character -> bool;
@@ -100,9 +100,9 @@ Module CharSet.
     contains_spec: forall c s, contains s c = true <-> In c s;
     range_spec: forall c l h, In c (range l h) <-> Character.numeric_value l <= Character.numeric_value c /\ Character.numeric_value c <= Character.numeric_value h; (* custom *)
     unique_succ_spec: forall {F: Type} `{_: Result.AssertionError F} (c: Character) (s: type),
-      unique s = Success c <-> Equal s (singleton c); (* custom *)
+      unique_succ s = Success c <-> Equal s (singleton c); (* custom *)
     unique_succ_error: forall {F: Type} {H: Result.AssertionError F} (s: type),
-      (exists c, unique s = Success c) \/ unique s = Error (@Result.f F H); (* custom *)
+      (exists c, unique_succ s = Success c) \/ unique_succ s = Error (@Result.f F H); (* custom *)
     filter_spec: forall f c s,
       In c (filter s f) <-> In c s /\ f c = true;
     exist_spec: forall f s,
@@ -301,7 +301,7 @@ Module CharSet.
       - intro Hp. exists c. split. + now apply singleton_spec. + apply Hp.
     Qed.
 
-    Lemma singleton_unique: forall {F: Type} {af: Result.AssertionError F} c, @unique _ _ F af (singleton c) = Success c.
+    Lemma singleton_unique: forall {F: Type} {af: Result.AssertionError F} c, @unique_succ _ _ F af (singleton c) = Success c.
     Proof.
       intros F af c. apply unique_succ_spec. unfold Equal. reflexivity.
     Qed.

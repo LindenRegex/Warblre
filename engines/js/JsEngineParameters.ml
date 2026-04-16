@@ -132,7 +132,7 @@ module CachedCharSet (C: Engines.Character) = struct
   let contains (s: t) (c: C.t) = S.has s.set (from_char c)
   let range (l: C.t) (h: C.t): t = mk (S.fromSortedArrayUnsafe (Belt.Array.range (from_char l) (from_char h)))
   let size (s: t): BigInt.t = BigInt.of_int (S.size s.set)
-  let unique err (s: t): C.t = if S.size s.set = 1 then to_char (Option.get (S.minimum s.set)) else Interop.error err
+  let unique_succ err (s: t): C.t = if S.size s.set = 1 then to_char (Option.get (S.minimum s.set)) else Interop.error err
   let filter (s: t) (p: C.t -> bool): t = mk (S.keep s.set (fun c -> p (to_char c)))
   let exist (s: t) (p: C.t -> bool): bool = S.some s.set (fun i -> p (to_char i))
   let exist_canonicalized (rer) (s: t) c: bool =
