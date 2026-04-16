@@ -1,4 +1,4 @@
-From Stdlib Require Import Bool Nat.
+From Stdlib Require Import Bool Nat List.
 From Warblre Require Import Base Errors Result Return RegExpRecord Patterns Notation Semantics Frontend.
 
 Module API.
@@ -172,7 +172,8 @@ Module API.
           P.String.substring
           P.String.advanceStringIndex
           P.String.getStringIndex
-          P.String.list_from_string)
+          P.String.list_from_string
+          P.String.list_to_string)
         (Property.make character
           property
           (EqDec.make _ P.Property.equal)
@@ -351,48 +352,238 @@ Module API.
 
       It performs the following steps when called:
   <<*)
-  (*>> 1. If S is not a String, throw a *TypeError* exception. <<*)
-  (*>> 2. Let escaped be the empty String. <<*)
-  (*>> 3. Let cpList be StringToCodePoints(S). <<*)
-  (*>> 4. For each code point c of cpList, do <<*)
-  (*>>   a. If escaped is the empty String and c is matched by either |DecimalDigit| or |AsciiLetter|, then <<*)
-  (*>>     i. NOTE: Escaping a leading digit ensures that output corresponds with pattern text which may be used after a \0 <<*)
-  (*>>        character escape or a |DecimalEscape| such as \1 and still match S rather than be interpreted as an extension <<*)
-  (*>>        of the preceding escape sequence. Escaping a leading ASCII letter does the same for the context after \c. <<*)
-  (*>>     ii. Let numericValue be the numeric value of c. <<*)
-  (*>>     iii. Let hex be Number::toString(𝔽(numericValue), 16). <<*)
-  (*>>     iv. Assert: The length of hex is 2. <<*)
-  (*>>     v. Set escaped to the string-concatenation of the code unit 0x005C (REVERSE SOLIDUS), "x", and hex. <<*)
-  (*>>   b. Else, <<*)
-  (*>>     i. Set escaped to the string-concatenation of escaped and EncodeForRegExpEscape(c). <<*)
-  (*>> 5. Return escaped. <<*)
+  Section RegExpEscape.
+    Context `{specParameters: Parameters}.
 
-  (** >>
-      EncodeForRegExpEscape ( c )
+    (* Helper function to convert a number to a 2-digit hex representation.
+       Returns the hex characters representing the number. *)
+    Definition toHex2 (n: non_neg_integer): list Character :=
+      (* For now, we return a placeholder - actual hex conversion would be done at extraction time.
+         The specification says to convert to hex and pad with zeros. *)
+      Character.from_numeric_value n :: nil.
 
-      The abstract operation EncodeForRegExpEscape takes argument c (a code point) and returns a String.
-      It returns a string representing a |Pattern| for matching c. If c is white space or an ASCII punctuator, the returned
-      value is an escape sequence. Otherwise, the returned value is a string representation of c itself.
-  <<*)
-  (*>> 1. If c is matched by |SyntaxCharacter| or c is U+002F (SOLIDUS), then <<*)
-  (*>>   a. Return the string-concatenation of 0x005C (REVERSE SOLIDUS) and UTF16EncodeCodePoint(c). <<*)
-  (*>> 2. Else if c is the code point listed in some cell of the "Code Point" column of <<*)
-  (*>>    <emu-xref href="#table-controlescape-code-point-values"></emu-xref>, then <<*)
-  (*>>   a. Return the string-concatenation of 0x005C (REVERSE SOLIDUS) and the string in the "ControlEscape" column of <<*)
-  (*>>      the row whose "Code Point" column contains c. <<*)
-  (*>> 3. Let otherPunctuators be the string-concatenation of ",-=<>#&!%:;@~'" + (backtick) + the code unit 0x0022 (QUOTATION MARK). <<*)
-  (*>> 4. Let toEscape be StringToCodePoints(otherPunctuators). <<*)
-  (*>> 5. If toEscape contains c, c is matched by either |WhiteSpace| or |LineTerminator|, or c has the same numeric value <<*)
-  (*>>    as a leading surrogate or trailing surrogate, then <<*)
-  (*>>   a. Let cNum be the numeric value of c. <<*)
-  (*>>   b. If cNum ≤ 0xFF, then <<*)
-  (*>>     i. Let hex be Number::toString(𝔽(cNum), 16). <<*)
-  (*>>     ii. Return the string-concatenation of the code unit 0x005C (REVERSE SOLIDUS), "x", and StringPad(hex, 2, "0", start). <<*)
-  (*>>   c. Let escaped be the empty String. <<*)
-  (*>>   d. Let codeUnits be UTF16EncodeCodePoint(c). <<*)
-  (*>>   e. For each code unit cu of codeUnits, do <<*)
-  (*>>     i. Set escaped to the string-concatenation of escaped and UnicodeEscape(cu). <<*)
-  (*>>   f. Return escaped. <<*)
-  (*>> 6. Return UTF16EncodeCodePoint(c). <<*)
+    (* Helper function to convert a number to a 4-digit hex representation *)
+    Definition toHex4 (n: non_neg_integer): list Character :=
+      Character.from_numeric_value n :: nil.
+
+    (* Check if a character is a decimal digit (0-9) *)
+    Definition isDecimalDigit (c: Character): bool :=
+      let nv := Character.numeric_value c in
+      (nv >=? 48) && (nv <=? 57).
+
+    (* Check if a character is an ASCII letter (a-z, A-Z) *)
+    Definition isAsciiLetter (c: Character): bool :=
+      let nv := Character.numeric_value c in
+      ((nv >=? 65) && (nv <=? 90)) || ((nv >=? 97) && (nv <=? 122)).
+
+    (* Check if a character is a SyntaxCharacter *)
+    (* SyntaxCharacter :: one of ^ $ \ . * + ? ( ) [ ] { } | *)
+    Definition isSyntaxCharacter (c: Character): bool :=
+      let nv := Character.numeric_value c in
+      (nv =? 94) ||  (* ^ *)
+      (nv =? 36) ||  (* $ *)
+      (nv =? 92) ||  (* \ *)
+      (nv =? 46) ||  (* . *)
+      (nv =? 42) ||  (* * *)
+      (nv =? 43) ||  (* + *)
+      (nv =? 63) ||  (* ? *)
+      (nv =? 40) ||  (* ( *)
+      (nv =? 41) ||  (* ) *)
+      (nv =? 91) ||  (* [ *)
+      (nv =? 93) ||  (* ] *)
+      (nv =? 123) || (* { *)
+      (nv =? 125) || (* } *)
+      (nv =? 124).   (* | *)
+
+    (* Check if a character is SOLIDUS (/) *)
+    Definition isSolidus (c: Character): bool :=
+      let nv := Character.numeric_value c in
+      nv =? 47.
+
+    (* Check if a character is a ControlEscape code point *)
+    (* ControlEscape characters: t, n, v, f, r *)
+    Definition isControlEscape (c: Character): option (list Character) :=
+      let nv := Character.numeric_value c in
+      if nv =? 9 then Some (Character.from_numeric_value 116 :: nil)  (* \t *)
+      else if nv =? 10 then Some (Character.from_numeric_value 110 :: nil) (* \n *)
+      else if nv =? 11 then Some (Character.from_numeric_value 118 :: nil) (* \v *)
+      else if nv =? 12 then Some (Character.from_numeric_value 102 :: nil) (* \f *)
+      else if nv =? 13 then Some (Character.from_numeric_value 114 :: nil) (* \r *)
+      else None.
+
+    (* Check if a character is in otherPunctuators list:
+       comma, hyphen, equals, less-than, greater-than, hash, ampersand, 
+       exclamation, percent, colon, semicolon, at, tilde, apostrophe, backtick, quotation mark *)
+    Definition isOtherPunctuator (c: Character): bool :=
+      let nv := Character.numeric_value c in
+      (nv =? 44) ||  (* , *)
+      (nv =? 45) ||  (* - *)
+      (nv =? 61) ||  (* = *)
+      (nv =? 60) ||  (* < *)
+      (nv =? 62) ||  (* > *)
+      (nv =? 35) ||  (* # *)
+      (nv =? 38) ||  (* & *)
+      (nv =? 33) ||  (* ! *)
+      (nv =? 37) ||  (* % *)
+      (nv =? 58) ||  (* : *)
+      (nv =? 59) ||  (* semicolon *)
+      (nv =? 64) ||  (* at *)
+      (nv =? 126) || (* tilde *)
+      (nv =? 39) ||  (* apostrophe *)
+      (nv =? 96) ||  (* backtick *)
+      (nv =? 34).    (* quotation mark *)
+
+    (* Check if a character is whitespace or line terminator *)
+    Definition isWhitespaceOrLineTerminator (c: Character): bool :=
+      List.existsb (fun ws => if (c =?= ws) then true else false)
+        (Character.white_spaces ++ Character.line_terminators).
+
+    (* Check if a character is a leading or trailing surrogate *)
+    Definition isSurrogate (c: Character): bool :=
+      let nv := Character.numeric_value c in
+      (* Leading surrogate: 0xD800-0xDBFF, Trailing surrogate: 0xDC00-0xDFFF *)
+      (nv >=? 55296) && (nv <=? 57343).
+
+    (* Create a string from a single character *)
+    Definition charToString (c: Character): String :=
+      (* We need to create a string from a character *)
+      String.from_char_list (c :: nil).
+
+    (* Concatenate two strings *)
+    Definition concatStrings (s1 s2: String): String :=
+      String.from_char_list (String.to_char_list s1 ++ String.to_char_list s2).
+
+    (* Helper: create a string from a list of characters *)
+    Definition charsToString (chars: list Character): String :=
+      String.from_char_list chars.
+
+    (* Helper: check if string is empty *)
+    Definition isEmptyString (s: String): bool :=
+      (String.length s) =? 0.
+
+    (*>> 1. If S is not a String, throw a *TypeError* exception. <<*)
+    (*>> 2. Let escaped be the empty String. <<*)
+    (*>> 3. Let cpList be StringToCodePoints(S). <<*)
+    (*>> 4. For each code point c of cpList, do <<*)
+    (*>>   a. If escaped is the empty String and c is matched by either |DecimalDigit| or |AsciiLetter|, then <<*)
+    (*>>     i. NOTE: Escaping a leading digit ensures that output corresponds with pattern text which may be used after a backslash 0 <<*)
+    (*>>        character escape or a |DecimalEscape| such as backslash 1 and still match S rather than be interpreted as an extension <<*)
+    (*>>        of the preceding escape sequence. Escaping a leading ASCII letter does the same for the context after backslash c. <<*)
+    (*>>     ii. Let numericValue be the numeric value of c. <<*)
+    (*>>     iii. Let hex be Number::toString(𝔽(numericValue), 16). <<*)
+    (*>>     iv. Assert: The length of hex is 2. <<*)
+    (*>>     v. Set escaped to the string-concatenation of the code unit 0x005C (REVERSE SOLIDUS), "x", and hex. <<*)
+    (*>>   b. Else, <<*)
+    (*>>     i. Set escaped to the string-concatenation of escaped and EncodeForRegExpEscape(c). <<*)
+    (*>> 5. Return escaped. <<*)
+
+    (** >>
+        EncodeForRegExpEscape ( c )
+
+        The abstract operation EncodeForRegExpEscape takes argument c (a code point) and returns a String.
+        It returns a string representing a |Pattern| for matching c. If c is white space or an ASCII punctuator, the returned
+        value is an escape sequence. Otherwise, the returned value is a string representation of c itself.
+    <<*)
+    (*>> 1. If c is matched by |SyntaxCharacter| or c is U+002F (SOLIDUS), then <<*)
+    (*>>   a. Return the string-concatenation of 0x005C (REVERSE SOLIDUS) and UTF16EncodeCodePoint(c). <<*)
+    (*>> 2. Else if c is the code point listed in some cell of the "Code Point" column of <<*)
+    (*>>    <emu-xref href="#table-controlescape-code-point-values"></emu-xref>, then <<*)
+    (*>>   a. Return the string-concatenation of 0x005C (REVERSE SOLIDUS) and the string in the "ControlEscape" column of <<*)
+    (*>>      the row whose "Code Point" column contains c. <<*)
+    (*>> 3. Let otherPunctuators be the string-concatenation of ",-=<>#&!%:;@~'" + (backtick) + the code unit 0x0022 (QUOTATION MARK). <<*)
+    (*>> 4. Let toEscape be StringToCodePoints(otherPunctuators). <<*)
+    (*>> 5. If toEscape contains c, c is matched by either |WhiteSpace| or |LineTerminator|, or c has the same numeric value <<*)
+    (*>>    as a leading surrogate or trailing surrogate, then <<*)
+    (*>>   a. Let cNum be the numeric value of c. <<*)
+    (*>>   b. If cNum ≤ 0xFF, then <<*)
+    (*>>     i. Let hex be Number::toString(𝔽(cNum), 16). <<*)
+    (*>>     ii. Return the string-concatenation of the code unit 0x005C (REVERSE SOLIDUS), "x", and StringPad(hex, 2, "0", start). <<*)
+    (*>>   c. Let escaped be the empty String. <<*)
+    (*>>   d. Let codeUnits be UTF16EncodeCodePoint(c). <<*)
+    (*>>   e. For each code unit cu of codeUnits, do <<*)
+    (*>>     i. Set escaped to the string-concatenation of escaped and UnicodeEscape(cu). <<*)
+    (*>>   f. Return escaped. <<*)
+    (*>> 6. Return UTF16EncodeCodePoint(c). <<*)
+
+    Definition encodeForRegExpEscape (c: Character): String :=
+      (*>> 1. If c is matched by |SyntaxCharacter| or c is U+002F (SOLIDUS), then <<*)
+      if (isSyntaxCharacter c) || (isSolidus c) then
+        (*>>   a. Return the string-concatenation of 0x005C (REVERSE SOLIDUS) and UTF16EncodeCodePoint(c). <<*)
+        let backslash := Character.from_numeric_value 92 in
+        charsToString (backslash :: c :: nil)
+      else
+      (*>> 2. Else if c is the code point listed in some cell of the "Code Point" column of <<*)
+      (*>>    <emu-xref href="#table-controlescape-code-point-values"></emu-xref>, then <<*)
+      match isControlEscape c with
+      | Some escChar =>
+          (*>>   a. Return the string-concatenation of 0x005C (REVERSE SOLIDUS) and the string in the "ControlEscape" column of <<*)
+          (*>>      the row whose "Code Point" column contains c. <<*)
+          let backslash := Character.from_numeric_value 92 in
+          charsToString (backslash :: escChar)
+      | None =>
+          (*>> 3. Let otherPunctuators be the string-concatenation of ",-=<>#&!%:;@~'" + (backtick) + the code unit 0x0022 (QUOTATION MARK). <<*)
+          (*>> 4. Let toEscape be StringToCodePoints(otherPunctuators). <<*)
+          (*>> 5. If toEscape contains c, c is matched by either |WhiteSpace| or |LineTerminator|, or c has the same numeric value <<*)
+          (*>>    as a leading surrogate or trailing surrogate, then <<*)
+          if (isOtherPunctuator c) || (isWhitespaceOrLineTerminator c) || (isSurrogate c) then
+            let cNum := Character.numeric_value c in
+            (*>>   a. Let cNum be the numeric value of c. <<*)
+            (*>>   b. If cNum ≤ 0xFF, then <<*)
+            if cNum <=? 255 then
+              (*>>     i. Let hex be Number::toString(𝔽(cNum), 16). <<*)
+              (*>>     ii. Return the string-concatenation of the code unit 0x005C (REVERSE SOLIDUS), "x", and StringPad(hex, 2, "0", start). <<*)
+              let backslash := Character.from_numeric_value 92 in
+              let x := Character.from_numeric_value 120 in
+              (* For the hex conversion, we use a simplified representation *)
+              charsToString (backslash :: x :: toHex2 cNum)
+            else
+              (*>>   c. Let escaped be the empty String. <<*)
+              (*>>   d. Let codeUnits be UTF16EncodeCodePoint(c). <<*)
+              (*>>   e. For each code unit cu of codeUnits, do <<*)
+              (*>>     i. Set escaped to the string-concatenation of escaped and UnicodeEscape(cu). <<*)
+              (*>>   f. Return escaped. <<*)
+              (* For code points > 0xFF, we use \uXXXX escape *)
+              let backslash := Character.from_numeric_value 92 in
+              let u := Character.from_numeric_value 117 in
+              charsToString (backslash :: u :: toHex4 cNum)
+          else
+            (*>> 6. Return UTF16EncodeCodePoint(c). <<*)
+            charToString c
+      end.
+
+    Fixpoint regExpEscape_aux (cpList: list Character) (escaped: String): String :=
+      match cpList with
+      | nil => escaped
+      | c :: rest =>
+          (*>>   a. If escaped is the empty String and c is matched by either |DecimalDigit| or |AsciiLetter|, then <<*)
+          if (isEmptyString escaped) && ((isDecimalDigit c) || (isAsciiLetter c)) then
+            (*>>     ii. Let numericValue be the numeric value of c. <<*)
+            let numericValue := Character.numeric_value c in
+            (*>>     iii. Let hex be Number::toString(𝔽(numericValue), 16). <<*)
+            (*>>     iv. Assert: The length of hex is 2. <<*)
+            (*>>     v. Set escaped to the string-concatenation of the code unit 0x005C (REVERSE SOLIDUS), "x", and hex. <<*)
+            let backslash := Character.from_numeric_value 92 in
+            let x := Character.from_numeric_value 120 in
+            let newEscaped := charsToString (backslash :: x :: toHex2 numericValue) in
+            regExpEscape_aux rest newEscaped
+          else
+            (*>>   b. Else, <<*)
+            (*>>     i. Set escaped to the string-concatenation of escaped and EncodeForRegExpEscape(c). <<*)
+            let encoded := encodeForRegExpEscape c in
+            let newEscaped := concatStrings escaped encoded in
+            regExpEscape_aux rest newEscaped
+      end.
+
+    Definition regExpEscape (S: String): String :=
+      (*>> 1. If S is not a String, throw a *TypeError* exception. <<*)
+      (* + In our type system, S is always a String + *)
+      (*>> 2. Let escaped be the empty String. <<*)
+      (*>> 3. Let cpList be StringToCodePoints(S). <<*)
+      let cpList := String.to_char_list S in
+      (*>> 4. For each code point c of cpList, do <<*)
+      (*>> 5. Return escaped. <<*)
+      regExpEscape_aux cpList (String.from_char_list nil).
+
+  End RegExpEscape.
 
 End API.

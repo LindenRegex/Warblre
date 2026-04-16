@@ -323,6 +323,7 @@ Module String.
     getStringIndex: type -> non_neg_integer -> non_neg_integer;
 
     to_char_list: type -> list char;
+    from_char_list: list char -> type;
   }.
 
   Definition isEmpty `{class} (string: type) := length string == 0.
