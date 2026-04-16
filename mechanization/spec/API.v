@@ -358,9 +358,14 @@ Module API.
     (* Helper function to convert a number to a 2-digit hex representation.
        Returns the hex characters representing the number. *)
     Definition toHex2 (n: non_neg_integer): list Character :=
-      (* For now, we return a placeholder - actual hex conversion would be done at extraction time.
-         The specification says to convert to hex and pad with zeros. *)
-      Character.from_numeric_value n :: nil.
+      let high_nibble := n / 16 in
+      let low_nibble := n mod 16 in
+      let hex_digit_to_char (d: non_neg_integer): Character :=
+        if d <? 10
+        then Character.from_numeric_value (d + 48)  (* '0' - '9' *)
+        else Character.from_numeric_value (d + 55)  (* 'A' - 'F' *)
+      in
+      hex_digit_to_char high_nibble :: hex_digit_to_char low_nibble :: nil.
 
     (* Helper function to convert a number to a 4-digit hex representation *)
     Definition toHex4 (n: non_neg_integer): list Character :=
