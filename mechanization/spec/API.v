@@ -369,7 +369,16 @@ Module API.
 
     (* Helper function to convert a number to a 4-digit hex representation *)
     Definition toHex4 (n: non_neg_integer): list Character :=
-      Character.from_numeric_value n :: nil.
+      let hex_digit_to_char (d: non_neg_integer): Character :=
+        if d <? 10
+        then Character.from_numeric_value (d + 48)  (* '0' - '9' *)
+        else Character.from_numeric_value (d + 55)  (* 'A' - 'F' *)
+      in
+      let nibble1 := (n / 4096) mod 16 in
+      let nibble2 := (n / 256) mod 16 in
+      let nibble3 := (n / 16) mod 16 in
+      let nibble4 := n mod 16 in
+      hex_digit_to_char nibble1 :: hex_digit_to_char nibble2 :: hex_digit_to_char nibble3 :: hex_digit_to_char nibble4 :: nil.
 
     (* Check if a character is a decimal digit (0-9) *)
     Definition isDecimalDigit (c: Character): bool :=
