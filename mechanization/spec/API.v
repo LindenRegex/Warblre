@@ -598,11 +598,13 @@ Module API.
       (*>> 1. If S is not a String, throw a *TypeError* exception. <<*)
       (* + In our type system, S is always a String + *)
       (*>> 2. Let escaped be the empty String. <<*)
+      let escaped := String.from_char_list nil in
       (*>> 3. Let cpList be StringToCodePoints(S). <<*)
       let cpList := String.to_char_list S in
       (*>> 4. For each code point c of cpList, do <<*)
+      let escaped := regExpEscape_aux cpList escaped in
       (*>> 5. Return escaped. <<*)
-      regExpEscape_aux cpList (String.from_char_list nil).
+      escaped.
 
   End RegExpEscape.
 
