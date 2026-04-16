@@ -1,6 +1,10 @@
 {
     "$schema": "https://opencode.ai/config.json",
     "agent": {
+        "annotate_rocq": {
+            "description": "{file:./agents/annotate_rocq/description.md}",
+            "prompt": "{file:./agents/annotate_rocq/prompt.md}"
+        },
         "fix_audit_entry": {
             "description": "{file:./agents/fix_audit_entry/description.md}",
             "prompt": "{file:./agents/fix_audit_entry/prompt.md}"

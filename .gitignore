@@ -23,3 +23,7 @@ node_modules
 
 # python
 */__pycache__
+
+
+proposals
+.DS_Store
