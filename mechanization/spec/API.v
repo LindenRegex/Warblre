@@ -343,4 +343,56 @@ Module API.
     End UnicodeOps.
   End Utils.
 
+  (** >>
+      22.2.5.1 RegExp.escape ( S )
+
+      This function returns a copy of S in which characters that are potentially special in a regular expression |Pattern|
+      have been replaced by equivalent escape sequences.
+
+      It performs the following steps when called:
+  <<*)
+  (*>> 1. If S is not a String, throw a *TypeError* exception. <<*)
+  (*>> 2. Let escaped be the empty String. <<*)
+  (*>> 3. Let cpList be StringToCodePoints(S). <<*)
+  (*>> 4. For each code point c of cpList, do <<*)
+  (*>>   a. If escaped is the empty String and c is matched by either |DecimalDigit| or |AsciiLetter|, then <<*)
+  (*>>     i. NOTE: Escaping a leading digit ensures that output corresponds with pattern text which may be used after a \0 <<*)
+  (*>>        character escape or a |DecimalEscape| such as \1 and still match S rather than be interpreted as an extension <<*)
+  (*>>        of the preceding escape sequence. Escaping a leading ASCII letter does the same for the context after \c. <<*)
+  (*>>     ii. Let numericValue be the numeric value of c. <<*)
+  (*>>     iii. Let hex be Number::toString(𝔽(numericValue), 16). <<*)
+  (*>>     iv. Assert: The length of hex is 2. <<*)
+  (*>>     v. Set escaped to the string-concatenation of the code unit 0x005C (REVERSE SOLIDUS), "x", and hex. <<*)
+  (*>>   b. Else, <<*)
+  (*>>     i. Set escaped to the string-concatenation of escaped and EncodeForRegExpEscape(c). <<*)
+  (*>> 5. Return escaped. <<*)
+
+  (** >>
+      EncodeForRegExpEscape ( c )
+
+      The abstract operation EncodeForRegExpEscape takes argument c (a code point) and returns a String.
+      It returns a string representing a |Pattern| for matching c. If c is white space or an ASCII punctuator, the returned
+      value is an escape sequence. Otherwise, the returned value is a string representation of c itself.
+  <<*)
+  (*>> 1. If c is matched by |SyntaxCharacter| or c is U+002F (SOLIDUS), then <<*)
+  (*>>   a. Return the string-concatenation of 0x005C (REVERSE SOLIDUS) and UTF16EncodeCodePoint(c). <<*)
+  (*>> 2. Else if c is the code point listed in some cell of the "Code Point" column of <<*)
+  (*>>    <emu-xref href="#table-controlescape-code-point-values"></emu-xref>, then <<*)
+  (*>>   a. Return the string-concatenation of 0x005C (REVERSE SOLIDUS) and the string in the "ControlEscape" column of <<*)
+  (*>>      the row whose "Code Point" column contains c. <<*)
+  (*>> 3. Let otherPunctuators be the string-concatenation of ",-=<>#&!%:;@~'" + (backtick) + the code unit 0x0022 (QUOTATION MARK). <<*)
+  (*>> 4. Let toEscape be StringToCodePoints(otherPunctuators). <<*)
+  (*>> 5. If toEscape contains c, c is matched by either |WhiteSpace| or |LineTerminator|, or c has the same numeric value <<*)
+  (*>>    as a leading surrogate or trailing surrogate, then <<*)
+  (*>>   a. Let cNum be the numeric value of c. <<*)
+  (*>>   b. If cNum ≤ 0xFF, then <<*)
+  (*>>     i. Let hex be Number::toString(𝔽(cNum), 16). <<*)
+  (*>>     ii. Return the string-concatenation of the code unit 0x005C (REVERSE SOLIDUS), "x", and StringPad(hex, 2, "0", start). <<*)
+  (*>>   c. Let escaped be the empty String. <<*)
+  (*>>   d. Let codeUnits be UTF16EncodeCodePoint(c). <<*)
+  (*>>   e. For each code unit cu of codeUnits, do <<*)
+  (*>>     i. Set escaped to the string-concatenation of escaped and UnicodeEscape(cu). <<*)
+  (*>>   f. Return escaped. <<*)
+  (*>> 6. Return UTF16EncodeCodePoint(c). <<*)
+
 End API.
