@@ -575,14 +575,15 @@ Module API.
       | c :: rest =>
           (*>>   a. If escaped is the empty String and c is matched by either |DecimalDigit| or |AsciiLetter|, then <<*)
           if (isEmptyString escaped) && ((isDecimalDigit c) || (isAsciiLetter c)) then
-            (*>>     ii. Let numericValue be the numeric value of c. <<*)
+            (*>>     i. Let numericValue be the numeric value of c. <<*)
             let numericValue := Character.numeric_value c in
-            (*>>     iii. Let hex be Number::toString(𝔽(numericValue), 16). <<*)
-            (*>>     iv. Assert: The length of hex is 2. <<*)
-            (*>>     v. Set escaped to the string-concatenation of the code unit 0x005C (REVERSE SOLIDUS), "x", and hex. <<*)
+            (*>>     ii. Let hex be Number::toString(𝔽(numericValue), 16). <<*)
+            let hex := toHex2 numericValue in
+            (*>>     iii. Assert: The length of hex is 2. <<*)
+            (*>>     iv. Set escaped to the string-concatenation of the code unit 0x005C (REVERSE SOLIDUS), "x", and hex. <<*)
             let backslash := Character.from_numeric_value 92 in
             let x := Character.from_numeric_value 120 in
-            let newEscaped := charsToString (backslash :: x :: toHex2 numericValue) in
+            let newEscaped := charsToString (backslash :: x :: hex) in
             regExpEscape_aux rest newEscaped
           else
             (*>>   b. Else, <<*)
