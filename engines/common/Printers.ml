@@ -284,6 +284,8 @@ module Printer(P: EngineParameters) (S: Encoding.StringLike with type t := P.str
       | Group (Some name, r1) -> "(?<" ^ S.to_string name ^  ">" ^ iter r1 0 ^ ")"
       | InputStart -> prio "^" 3 current
       | InputEnd -> prio_if_strict "$" 3 current
+      | BufferStart -> prio_if_strict "\\A" 3 current
+      | BufferEnd -> prio_if_strict "\\z" 3 current
       | WordBoundary -> prio_if_strict "\\b" 3 current
       | NotWordBoundary -> prio_if_strict "\\B" 3 current
       | Lookahead (r1) -> prio_if_strict  ("(?=" ^ iter r1 0 ^ ")") 3 current
