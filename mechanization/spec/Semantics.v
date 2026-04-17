@@ -674,6 +674,34 @@ Module Semantics. Section main.
           (*>> g. Return failure. <<*)
           failure): Matcher
 
+    (** >>
+        Runtime Semantics: CompileAssertion
+
+        Assertion :: \ A
+
+    <<*)
+    (*>> 1. Return a new Matcher with parameters (x, c) that captures nothing and performs the following steps when called: <<*)
+    (*>>   a. Assert: x is a MatchState. <<*)
+    (*>>   b. Assert: c is a MatcherContinuation. <<*)
+    (*>>   c. Let e be x's endIndex. <<*)
+    (*>>   d. If e = 0, return c(x). <<*)
+    (*>>   e. Return failure. <<*)
+
+    (** >>
+        Runtime Semantics: CompileAssertion
+
+        Assertion :: \ z
+
+    <<*)
+    (*>> 1. Return a new Matcher with parameters (x, c) that captures nothing and performs the following steps when called: <<*)
+    (*>>   a. Assert: x is a MatchState. <<*)
+    (*>>   b. Assert: c is a MatcherContinuation. <<*)
+    (*>>   c. Let Input be x's input. <<*)
+    (*>>   d. Let e be x's endIndex. <<*)
+    (*>>   e. Let InputLength be the number of elements in Input. <<*)
+    (*>>   f. If e = InputLength, return c(x). <<*)
+    (*>>   g. Return failure. <<*)
+
     (** >> Assertion :: \b <<*)
     | WordBoundary =>
         (*>> 1. Return a new Matcher with parameters (x, c) that captures rer and performs the following steps when called: <<*)
