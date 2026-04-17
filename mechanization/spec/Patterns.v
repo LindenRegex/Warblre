@@ -200,6 +200,8 @@ Module Patterns.
     | InputStart
     (*>> $ <<*)
     | InputEnd
+    (*>> [+UnicodeMode] \ A <<*)
+    (*>> [+UnicodeMode] \ z <<*)
     (*>> \b <<*)
     | WordBoundary
     (*>> \B <<*)
