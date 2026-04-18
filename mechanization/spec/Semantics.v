@@ -1018,7 +1018,7 @@ Module Semantics. Section main.
   <<*)
   (** >>  Pattern :: Disjunction <<*)
   Definition compilePattern (r: Regex) (rer: RegExpRecord): Result (list Character -> non_neg_integer -> MatchResult) CompileError :=
-    (*>> 1. Let m be CompileSubpattern of Disjunction with arguments rer and forward. <<*)
+    (*>> 1. Let m be CompileSubpattern of Disjunction with arguments rer, forward, and nil. <<*)
     let! m =<< compileSubPattern r nil rer forward in
     (*>> 2. Return a new Abstract Closure with parameters (Input, index) that captures rer and m and performs the following steps when called: <<*)
     Success (fun (input: list Character) (index: non_neg_integer) =>
