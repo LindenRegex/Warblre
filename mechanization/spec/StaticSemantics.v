@@ -43,7 +43,7 @@ Section StaticSemantics.
     let result := List.flat_map ( fun r => match r with
       | (Group (Some gs) inner, ctx) =>
         (*>> a. If the CapturingGroupName of gs is name, then <<*)
-        if (gs =?= name) then
+        if (capturingGroupName gs =?= name) then
           (*>> i. Append gs to result. <<*)
           (inner, Group_inner (Some gs) :: ctx) :: nil
         else nil
