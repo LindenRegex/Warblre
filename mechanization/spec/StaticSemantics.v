@@ -374,7 +374,7 @@ Section StaticSemantics.
     (* + Return the nth group INSIDE this node +*)
     Definition nth_group_in {F} `{Result.AssertionError F} (r: RegexNode) (n: non_neg_integer): Result.Result RegexNode F :=
       let groups := all_groups_in r in
-      groups[n].
+      groups[n - 1].
 
     Definition nth_group {F} `{Result.AssertionError F} (r: Regex) (n: non_neg_integer): Result.Result RegexNode F :=
       nth_group_in (r, nil) n.
