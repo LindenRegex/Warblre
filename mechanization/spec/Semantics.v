@@ -296,14 +296,19 @@ Module Semantics. Section main.
       (*>> 1. Return the CharSet containing the character matched by SourceCharacter. <<*)
       CharSet.singleton chr
 
-  (** >> ClassEscape ::
-        b
-        -
-        CharacterEscape <<*)
-  | ClassEsc (esc_b)
-  | ClassEsc (esc_Dash)
-  | ClassEsc (CCharacterEsc _) =>
-      (*>> 1. Let cv be the CharacterValue of this ClassEscape. <<*)
+  (** >> ClassEscape :: b <<*)
+  | ClassEsc (esc_b) =>
+      (*>> 1. Return the CharSet containing the single character U+0008 (BACKSPACE). <<*)
+      CharSet.singleton Characters.BACKSPACE
+
+  (** >> ClassEscape :: - <<*)
+  | ClassEsc (esc_Dash) =>
+      (*>> 1. Return the CharSet containing the single character - (HYPHEN-MINUS). <<*)
+      CharSet.singleton Characters.HYPHEN_MINUS
+
+  (** >> ClassEscape :: CharacterEscape <<*)
+  | ClassEsc (CCharacterEsc ce) =>
+      (*>> 1. Let cv be the CharacterValue of this CharacterEscape. <<*)
       let! cv =<< characterValue self in
       (*>> 2. Let c be the character whose character value is cv. <<*)
       let c := Character.from_numeric_value cv in

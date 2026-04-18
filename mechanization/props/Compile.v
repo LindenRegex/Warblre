@@ -49,12 +49,10 @@ Section Compile.
     Proof.
       induction a; intros rer c r Sing_a Eq_r; dependent destruction Sing_a; cbn in Eq_r.
       - injection Eq_r as <-. rewrite -> Character.numeric_pseudo_bij. reflexivity.
-      - unfold nat_to_nni in Eq_r; cbn in Eq_r. rewrite -> Character.numeric_pseudo_bij in Eq_r; injection Eq_r as <-.
-        rewrite -> Character.numeric_pseudo_bij. reflexivity.
-      - unfold nat_to_nni in Eq_r; cbn in Eq_r. rewrite -> Character.numeric_pseudo_bij in Eq_r; injection Eq_r as <-.
-        rewrite -> Character.numeric_pseudo_bij. reflexivity.
+      - injection Eq_r as <-. rewrite -> Character.numeric_pseudo_bij. reflexivity.
+      - injection Eq_r as <-. rewrite -> Character.numeric_pseudo_bij. reflexivity.
       - destruct ce; try destruct esc; dependent destruction H.
-        all: unfold nat_to_nni in Eq_r; cbn in Eq_r; unfold characterValue_Hex4Digits in Eq_r. 
+        all: unfold nat_to_nni in Eq_r; cbn in Eq_r; unfold characterValue_Hex4Digits in Eq_r.
         all: try rewrite -> Character.numeric_pseudo_bij in Eq_r; injection Eq_r as <-.
         all: try rewrite -> Character.numeric_pseudo_bij; try reflexivity.
     Qed.
