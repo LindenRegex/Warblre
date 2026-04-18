@@ -10,7 +10,7 @@ Local Open Scope result_flow.
   WILDCARD Sections
   ["22.2.1.9","22.2.1.10"]
 ##*)
-(* + The section 22.1.9 and 22.1.10 RegExpIdentifierCodePoints are not implemented + *)
+(* + The section 22.2.1.9 and 22.2.1.10 RegExpIdentifierCodePoints are not implemented + *)
 Section StaticSemantics.
   Context `{specParameters: Parameters}.
   Import Patterns.
