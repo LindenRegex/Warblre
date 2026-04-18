@@ -61,7 +61,7 @@ Section StaticSemantics.
       It is defined piecewise over the following productions:
   <<*)
   (** >>
-      WILDCARD "ClassAtom"
+      WILDCARD "HexLeadSurrogate | HexTrailSurrogate | HexNonSurrogate"
   <<*)
   Definition characterValue_Hex4Digits (self: Hex4Digits): non_neg_integer :=
     (** >> HexLeadSurrogate :: Hex4Digits <<*)
