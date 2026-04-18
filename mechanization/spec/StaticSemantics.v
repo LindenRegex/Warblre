@@ -190,7 +190,7 @@ Section StaticSemantics.
   (** >>
       22.2.1.4 Static Semantics: CapturingGroupNumber
 
-      The syntax-directed operation CapturingGroupNumber takes no arguments and returns a positive integer.
+      The syntax-directed operation CapturingGroupNumber takes argument n (a positive integer) and returns a positive integer.
       It is defined piecewise over the following productions:
   <<*)
   (** >>
