@@ -379,10 +379,10 @@ Section StaticSemantics.
     Definition nth_group {F} `{Result.AssertionError F} (r: Regex) (n: non_neg_integer): Result.Result RegexNode F :=
       nth_group_in (r, nil) n.
 
-    Definition defines_groups_in {F} `{Result.AssertionError F} (r: RegexNode): bool :=
-      List.length (all_groups_in r) >=? 1.
+    Definition defines_groups_in (r: RegexNode): bool :=
+      List.length (all_groups_in r) >? 0.
 
-    Definition defines_groups {F} `{Result.AssertionError F} (r: Regex): bool :=
+    Definition defines_groups (r: Regex): bool :=
       defines_groups_in (r, nil).
   End Extensions.
 End StaticSemantics.
