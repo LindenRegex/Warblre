@@ -102,7 +102,7 @@ Section Compile.
     Qed.
 
     Lemma compileSubPattern: forall r ctx rer dir,
-      countLeftCapturingParensWithin (zip r ctx) nil = RegExpRecord.capturingGroupsCount rer ->
+      countLeftCapturingParensWithin (zip r ctx) = RegExpRecord.capturingGroupsCount rer ->
       EarlyErrors.Pass_Regex r ctx ->
       compileSubPattern r ctx rer dir <> compile_assertion_failed.
     Proof.
@@ -112,7 +112,7 @@ Section Compile.
         + repeat match goal with | [ H: _ = Error _ |- _ ] => focus <! _ [] _ !> auto destruct in H; try injection H as -> end.
         + repeat match goal with | [ H: _ = Error _ |- _ ] => focus <! _ [] _ !> auto destruct in H; try injection H as -> end.
         + boolean_simplifier. spec_reflector Nat.eqb_spec. contradiction.
-        + destruct (groupSpecifiersThatMatch (AtomEsc (GroupEsc id)) ctx id) eqn:Eq_gstm; try discriminate.
+        + destruct (groupSpecifiersThatMatch (zip (AtomEsc (GroupEsc id)) ctx) id) eqn:Eq_gstm; try discriminate.
           destruct p. apply EarlyErrors.groupSpecifiersThatMatch_head_is_group in Eq_gstm as [ ? [ ? -> ] ].
           apply NonNegInt.failure in AutoDest_2.
           apply List.Unique.head in AutoDest_1. subst. cbn in *. lia.
@@ -143,7 +143,7 @@ Section Compile.
     Qed.
 
     Lemma compilePattern: forall r rer,
-      countLeftCapturingParensWithin r nil = RegExpRecord.capturingGroupsCount rer ->
+      countLeftCapturingParensWithin r = RegExpRecord.capturingGroupsCount rer ->
       EarlyErrors.Pass_Regex r nil ->
       compilePattern r rer <> compile_assertion_failed.
     Proof.
@@ -153,7 +153,7 @@ Section Compile.
     Qed.
 
     Theorem compilePattern_success: forall r rer,
-      countLeftCapturingParensWithin r nil = RegExpRecord.capturingGroupsCount rer ->
+      countLeftCapturingParensWithin r = RegExpRecord.capturingGroupsCount rer ->
       EarlyErrors.Pass_Regex r nil ->
       exists m, Semantics.compilePattern r rer = Success m.
     Proof.

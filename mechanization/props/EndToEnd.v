@@ -15,7 +15,7 @@ Module Intuition.
   Lemma early_errors_compile `{Parameters}:
     (* For all regexes without early errors *)
     forall r rer (EE_free: StaticSemantics.earlyErrors r nil = Success false),
-    countLeftCapturingParensWithin r nil = RegExpRecord.capturingGroupsCount rer ->
+    countLeftCapturingParensWithin r = RegExpRecord.capturingGroupsCount rer ->
     (* compiling it to a matcher is a success *)
     exists m, Semantics.compilePattern r rer = Success m.
   Proof.
@@ -66,7 +66,7 @@ Module EndToEndFunctions.
   Import Patterns.
 
   Definition regex_compile `{Parameters} (r: Regex) (rer: RegExpRecord)
-      (P0: countLeftCapturingParensWithin r nil = RegExpRecord.capturingGroupsCount rer)
+      (P0: countLeftCapturingParensWithin r = RegExpRecord.capturingGroupsCount rer)
       (P1: EarlyErrors.Pass_Regex r nil):
       { m: list Character -> non_neg_integer -> MatchResult | Semantics.compilePattern r rer = Success m } :=
     match Semantics.compilePattern r rer as m return 
@@ -77,7 +77,7 @@ Module EndToEndFunctions.
     end eq_refl.
 
   Definition regex_match `{Parameters} (r: Regex) (rer: RegExpRecord) (input: list Character) (start: non_neg_integer)
-      (P0: countLeftCapturingParensWithin r nil = RegExpRecord.capturingGroupsCount rer)
+      (P0: countLeftCapturingParensWithin r = RegExpRecord.capturingGroupsCount rer)
       (P1: EarlyErrors.Pass_Regex r nil)
       (P2: start <= (length input)):
       { x: option MatchState | exists m, Semantics.compilePattern r rer = Success m /\ m input start = Success x } :=
@@ -91,7 +91,7 @@ Module EndToEndFunctions.
     end eq_refl.
 
   Definition regex_end_to_end `{Parameters} (r: Regex) (rer: RegExpRecord) (input: list Character) (start: non_neg_integer)
-      (P0: countLeftCapturingParensWithin r nil = RegExpRecord.capturingGroupsCount rer)
+      (P0: countLeftCapturingParensWithin r = RegExpRecord.capturingGroupsCount rer)
       (P1: start <= (length input)): option MatchState :=
     match StaticSemantics.earlyErrors r nil as ee return
       StaticSemantics.earlyErrors r nil = ee -> option MatchState

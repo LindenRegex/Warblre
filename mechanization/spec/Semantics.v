@@ -621,7 +621,7 @@ Module Semantics. Section main.
       (*>> 4. Let parenIndex be CountLeftCapturingParensBefore(Term). <<*)
       let parenIndex := countLeftCapturingParensBefore self ctx in
       (*>> 5. Let parenCount be CountLeftCapturingParensWithin(Atom). <<*)
-      let parenCount := countLeftCapturingParensWithin r (Quantified_inner qu :: ctx) in
+      let parenCount := countLeftCapturingParensWithin r in
       (*>> 6. Return a new Matcher with parameters (x, c) that captures m, q, parenIndex, and parenCount and performs the following steps when called: <<*)
       (fun (x: MatchState) (c: MatcherContinuation) =>
         (*>> a. Assert: x is a MatchState. <<*)
@@ -996,7 +996,7 @@ Module Semantics. Section main.
       (** >> AtomEscape :: k GroupName <<*)
       | AtomEsc (GroupEsc gn) =>
           (*>> 1. Let matchingGroupSpecifiers be GroupSpecifiersThatMatch(GroupName). <<*)
-          let matchingGroupSpecifiers := groupSpecifiersThatMatch self ctx gn in
+          let matchingGroupSpecifiers := groupSpecifiersThatMatch (zip self ctx) gn in
           (*>> 2. Assert: matchingGroupSpecifiers contains a single GroupSpecifier. <<*)
           assert! (List.length matchingGroupSpecifiers =? 1)%nat ;
           (*>> 3. Let groupSpecifier be the sole element of matchingGroupSpecifiers. <<*)

@@ -782,7 +782,7 @@ Module Match.
       end.
 
     Lemma compileSubPattern: forall root rer,
-      countLeftCapturingParensWithin root nil = RegExpRecord.capturingGroupsCount rer ->
+      countLeftCapturingParensWithin root = RegExpRecord.capturingGroupsCount rer ->
       EarlyErrors.Pass_Regex root nil ->
       forall r ctx,
       Root root (r, ctx) ->
@@ -812,7 +812,7 @@ Module Match.
   (** Monotony: when a match is found, its end position is always greater than the starting point. *)
   Theorem monotony `{Parameters}: forall r rer input i m,
     EarlyErrors.Pass_Regex r nil ->
-    countLeftCapturingParensWithin r nil = RegExpRecord.capturingGroupsCount rer ->
+    countLeftCapturingParensWithin r = RegExpRecord.capturingGroupsCount rer ->
     compilePattern r rer = Success m ->
     progress forward (match_state input (Z.of_nat i) (List.repeat None (RegExpRecord.capturingGroupsCount rer))) (m input i).
   Proof.
@@ -842,7 +842,7 @@ Module Match.
   (* Another variant, which doesn't use progress *)
   Theorem monotony' `{Parameters}: forall r rer input i m z,
     EarlyErrors.Pass_Regex r nil ->
-    countLeftCapturingParensWithin r nil = RegExpRecord.capturingGroupsCount rer ->
+    countLeftCapturingParensWithin r = RegExpRecord.capturingGroupsCount rer ->
     compilePattern r rer = Success m ->
     m input i = Success (Some z) ->
     (Z.of_nat i <= MatchState.endIndex z)%Z.
@@ -857,7 +857,7 @@ Module Match.
   (** Termination: the matching process never runs out of fuel, i.e. out_of_fuel is never returned *)
   Theorem termination `{Parameters}: forall r rer input i m,
     EarlyErrors.Pass_Regex r nil ->
-    countLeftCapturingParensWithin r nil = RegExpRecord.capturingGroupsCount rer ->
+    countLeftCapturingParensWithin r = RegExpRecord.capturingGroupsCount rer ->
     compilePattern r rer = Success m ->
     (m input i) <> out_of_fuel.
   Proof.
@@ -886,7 +886,7 @@ Module Match.
   (** No failure: no assertion is ever triggered, and no unspecified behavior occurs, i.e. match_assertion_failed is never returned *)
   Theorem no_failure `{Parameters}: forall r rer input i m,
     EarlyErrors.Pass_Regex r nil ->
-    countLeftCapturingParensWithin r nil = RegExpRecord.capturingGroupsCount rer ->
+    countLeftCapturingParensWithin r = RegExpRecord.capturingGroupsCount rer ->
     compilePattern r rer = Success m ->
     (i <= length input) ->
     (m input i) <> match_assertion_failed.

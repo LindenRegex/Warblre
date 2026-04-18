@@ -128,27 +128,27 @@ Qed.
 (* Capture Reset lemmas *)
 Lemma capture_reset_validity:
   forall (r:Regex) (root:Regex) (ctx:RegexContext) (rer:RegExpRecord)
-    (RER_ADEQUACY: countLeftCapturingParensWithin root nil = RegExpRecord.capturingGroupsCount rer)
+    (RER_ADEQUACY: countLeftCapturingParensWithin root = RegExpRecord.capturingGroupsCount rer)
     (ROOT: Root root (r, ctx))
     (EARLY_ERRORS: EarlyErrors.Pass_Regex root nil),
-    Captures.Valid rer (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensWithin r ctx).
+    Captures.Valid rer (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensWithin r).
 Proof.
   intros r root ctx rer RER_ADEQUACY ROOT EARLY_ERRORS.
   intros i v Eq_indexed.
   pose proof (List.Indexing.Nat.success_bounds _ _ _ Eq_indexed). rewrite -> List.Range.Nat.Bounds.length in *.
   apply List.Range.Nat.Bounds.indexing in Eq_indexed.
   pose proof (EarlyErrors.countLeftCapturingParensBefore_contextualized _ _ _ ROOT EARLY_ERRORS).
-  unfold countLeftCapturingParensBefore,countLeftCapturingParensWithin in *. lia.
+  unfold countLeftCapturingParensBefore,countLeftCapturingParensWithin, countLeftCapturingParensWithin_impl in *. lia.
 Qed.
 
 Lemma capture_reset_success:
   forall (r:Regex) (ctx:RegexContext) (rer:RegExpRecord)
     (x:MatchState) (VALID: Valid (input x) rer x)
-    (CAP_VALID: Captures.Valid rer (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensWithin r ctx)),
-  exists capupd, List.Update.Nat.Batch.update None (captures x) (List.Range.Nat.Bounds.range (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensBefore r ctx + countLeftCapturingParensWithin r ctx)) = Success capupd.
+    (CAP_VALID: Captures.Valid rer (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensWithin r)),
+  exists capupd, List.Update.Nat.Batch.update None (captures x) (List.Range.Nat.Bounds.range (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensBefore r ctx + countLeftCapturingParensWithin r)) = Success capupd.
 Proof.
   intros r ctx rer x VALID CAP_VALID.
-  destruct (List.Update.Nat.Batch.update None (captures x) (List.Range.Nat.Bounds.range (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensBefore r ctx + countLeftCapturingParensWithin r ctx))) as [xupd|] eqn:UPD; eauto.
+  destruct (List.Update.Nat.Batch.update None (captures x) (List.Range.Nat.Bounds.range (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensBefore r ctx + countLeftCapturingParensWithin r))) as [xupd|] eqn:UPD; eauto.
   apply List.Update.Nat.Batch.failure_bounds in UPD.
   unfold Captures.Valid in CAP_VALID.
   destruct VALID as [ _ [ _ [ VCL_x _ ]]]. rewrite -> VCL_x in *. contradiction. 
@@ -157,11 +157,11 @@ Qed.
 Lemma quant_capture_reset_success:
   forall (r:Regex) (ctx:RegexContext) (rer:RegExpRecord) (q:Quantifier)
     (x:MatchState) (VALID: Valid (input x) rer x)
-    (CAP_VALID: Captures.Valid rer (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensWithin r ctx)),
-  exists capupd, List.Update.Nat.Batch.update None (captures x) (List.Range.Nat.Bounds.range (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensBefore r ctx + countLeftCapturingParensWithin r (Quantified_inner q::ctx))) = Success capupd.
+    (CAP_VALID: Captures.Valid rer (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensWithin r)),
+  exists capupd, List.Update.Nat.Batch.update None (captures x) (List.Range.Nat.Bounds.range (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensBefore r ctx + countLeftCapturingParensWithin r)) = Success capupd.
 Proof.
   intros r ctx rer q x VALID CAP_VALID.
-  destruct (List.Update.Nat.Batch.update None (captures x) (List.Range.Nat.Bounds.range (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensBefore r ctx + countLeftCapturingParensWithin r ctx))) as [xupd|] eqn:UPD; eauto.
+  destruct (List.Update.Nat.Batch.update None (captures x) (List.Range.Nat.Bounds.range (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensBefore r ctx + countLeftCapturingParensWithin r))) as [xupd|] eqn:UPD; eauto.
   apply List.Update.Nat.Batch.failure_bounds in UPD.
   unfold Captures.Valid in CAP_VALID.
   destruct VALID as [ _ [ _ [ VCL_x _ ]]]. rewrite -> VCL_x in *. contradiction. 
@@ -172,7 +172,7 @@ Lemma capture_reset_preserve_validity:
   forall (r:Regex) (ctx:RegexContext) (rer:RegExpRecord)
     (x:MatchState) (VALID: Valid (input x) rer x)
     (xupd: list (option CaptureRange))
-    (UPD: List.Update.Nat.Batch.update None (captures x) (List.Range.Nat.Bounds.range (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensBefore r ctx + countLeftCapturingParensWithin r ctx)) = Success xupd),
+    (UPD: List.Update.Nat.Batch.update None (captures x) (List.Range.Nat.Bounds.range (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensBefore r ctx + countLeftCapturingParensWithin r)) = Success xupd),
     Valid (input x) rer (match_state (input x) (endIndex x) xupd).
 Proof.
   intros r ctx rer x VALID xupd UPD. 
@@ -188,7 +188,7 @@ Lemma quant_capture_reset_preserve_validity:
   forall (r:Regex) (ctx:RegexContext) (rer:RegExpRecord) (q:Quantifier)
     (x:MatchState) (VALID: Valid (input x) rer x)
     (xupd: list (option CaptureRange))
-    (UPD: List.Update.Nat.Batch.update None (captures x) (List.Range.Nat.Bounds.range (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensBefore r ctx + countLeftCapturingParensWithin r (Quantified_inner q::ctx))) = Success xupd),
+    (UPD: List.Update.Nat.Batch.update None (captures x) (List.Range.Nat.Bounds.range (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensBefore r ctx + countLeftCapturingParensWithin r)) = Success xupd),
     Valid (input x) rer (match_state (input x) (endIndex x) xupd).
 Proof.
   intros r ctx rer q x VALID xupd UPD. 
@@ -210,20 +210,20 @@ Lemma repeat_matcher_min_0:
   forall (r:Regex) (root:Regex) (s:Matcher) (q:Quantifier) (rer:RegExpRecord) (ctx:RegexContext)
     (x:MatchState) (c:MatcherContinuation) (max:non_neg_integer_or_inf) (fuel:nat)
     (VALID: Valid (input x) rer x)
-    (RER_ADEQUACY: countLeftCapturingParensWithin root nil = RegExpRecord.capturingGroupsCount rer)
+    (RER_ADEQUACY: countLeftCapturingParensWithin root = RegExpRecord.capturingGroupsCount rer)
     (ROOT: Root root (Quantified r q, ctx))
     (EARLY_ERRORS: EarlyErrors.Pass_Regex root nil)
     (SN: strictly_nullable_matcher s rer),
     repeatMatcher' s 0 max
       (CompiledQuantifier_greedy (compileQuantifier q)) x c (countLeftCapturingParensBefore r ctx)
-      (countLeftCapturingParensWithin r (Quantified_inner q :: ctx)) (S fuel) = None \/
+      (countLeftCapturingParensWithin r) (S fuel) = None \/
       (exists y : MatchState,
           Valid (input x) rer y /\
             endIndex x = endIndex y /\
             c y =
               repeatMatcher' s 0 max
                 (CompiledQuantifier_greedy (compileQuantifier q)) x c (countLeftCapturingParensBefore r ctx)
-                (countLeftCapturingParensWithin r (Quantified_inner q :: ctx)) (S fuel)).
+                (countLeftCapturingParensWithin r) (S fuel)).
 Proof.
   intros r root s q rer ctx x c max fuel VALID RER_ADEQUACY ROOT EARLY_ERRORS SN.
   (* capture reset succeeds and preserves validity *)
@@ -271,21 +271,21 @@ Lemma repeat_matcher_sn:
     (min:nat) (max:non_neg_integer_or_inf) (fuel:nat)
     (x:MatchState) (c:MatcherContinuation)
     (VALID: Valid (input x) rer x)
-    (RER_ADEQUACY: countLeftCapturingParensWithin root nil = RegExpRecord.capturingGroupsCount rer)
+    (RER_ADEQUACY: countLeftCapturingParensWithin root = RegExpRecord.capturingGroupsCount rer)
     (ROOT: Root root (Quantified r q, ctx))
     (EARLY_ERRORS: EarlyErrors.Pass_Regex root nil)
     (FUEL: fuel > min)
     (SN: strictly_nullable_matcher s rer),
     repeatMatcher' s min max
       (CompiledQuantifier_greedy (compileQuantifier q)) x c (countLeftCapturingParensBefore r ctx)
-      (countLeftCapturingParensWithin r (Quantified_inner q :: ctx)) fuel = None \/
+      (countLeftCapturingParensWithin r) fuel = None \/
       (exists y : MatchState,
           Valid (input x) rer y /\
             endIndex x = endIndex y /\
             c y =
               repeatMatcher' s min max
                 (CompiledQuantifier_greedy (compileQuantifier q)) x c (countLeftCapturingParensBefore r ctx)
-                (countLeftCapturingParensWithin r (Quantified_inner q :: ctx)) fuel).
+                (countLeftCapturingParensWithin r) fuel).
 Proof.
   intros r root s q rer ctx min. 
   induction min; intros.
@@ -331,7 +331,7 @@ Theorem strictly_nullable_analysis_correct:
   forall (r:Regex) (root:Regex) (ctx:RegexContext) (rer:RegExpRecord) (dir:Direction) (m:Matcher)
     (STRICTLY_NULLABLE: strictly_nullable r = true)
     (COMPILE: compileSubPattern r ctx rer dir = Success m)
-    (RER_ADEQUACY: countLeftCapturingParensWithin root nil = RegExpRecord.capturingGroupsCount rer)
+    (RER_ADEQUACY: countLeftCapturingParensWithin root = RegExpRecord.capturingGroupsCount rer)
     (ROOT: Root root (r, ctx))
     (EARLY_ERRORS: EarlyErrors.Pass_Regex root nil),
     strictly_nullable_matcher m rer.
@@ -531,12 +531,12 @@ Lemma strictly_nullable_repeatmatcher':
   forall (r:Regex) (root:Regex) (ctx:RegexContext) (rer:RegExpRecord) (dir:Direction) (m:Matcher)
     (STRICTLY_NULLABLE: strictly_nullable r = true)
     (COMPILE: compileSubPattern r ctx rer dir = Success m)
-    (RER_ADEQUACY: countLeftCapturingParensWithin root nil = RegExpRecord.capturingGroupsCount rer)
+    (RER_ADEQUACY: countLeftCapturingParensWithin root = RegExpRecord.capturingGroupsCount rer)
     (ROOT: Root root (r, ctx))
     (EARLY_ERRORS: EarlyErrors.Pass_Regex root nil),
   forall (x:MatchState) (c:MatcherContinuation)
     (VALID: Valid (input x) rer x),
-    repeatMatcher' m O%nat NoI.Inf true x c (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensWithin r ctx) (repeatMatcherFuel O%nat x) = c x.
+    repeatMatcher' m O%nat NoI.Inf true x c (countLeftCapturingParensBefore r ctx) (countLeftCapturingParensWithin r) (repeatMatcherFuel O%nat x) = c x.
 Proof.
   intros r root ctx rer dir m STRICTLY_NULLABLE COMPILE RER_ADEQUACY ROOT EARLY_ERRORS x c VALID.
   apply strictly_nullable_analysis_correct with (ctx:=ctx) (rer:=rer) (dir:=dir) (m:=m) (root:=root) in STRICTLY_NULLABLE; auto.
@@ -554,7 +554,7 @@ Proof.
        then None
        else
         repeatMatcher' m 0 +∞ true y c (countLeftCapturingParensBefore r ctx)
-                              (countLeftCapturingParensWithin r ctx) n) UPDVALID).
+                              (countLeftCapturingParensWithin r) n) UPDVALID).
   cbn. destruct STRICTLY_NULLABLE as [MISMATCH | [y [VALIDy [SAMEIDX EQUAL]]]].
   - rewrite MISMATCH. auto.
   - rewrite <- EQUAL. simpl in SAMEIDX. rewrite SAMEIDX. rewrite Z.eqb_refl. auto.
@@ -568,7 +568,7 @@ Theorem strictly_nullable_same_matcher:
     (STRICTLY_NULLABLE: strictly_nullable r = true)
     (COMPILESTAR: compileSubPattern (Quantified r (Greedy Star)) ctx rer dir = Success mstar)
     (COMPILEEMPTY: compileSubPattern Empty ctx rer dir = Success mempty)
-    (RER_ADEQUACY: countLeftCapturingParensWithin root nil = RegExpRecord.capturingGroupsCount rer)
+    (RER_ADEQUACY: countLeftCapturingParensWithin root = RegExpRecord.capturingGroupsCount rer)
     (ROOT: Root root (r, Quantified_inner (Greedy Star) :: ctx))
     (EARLY_ERRORS: EarlyErrors.Pass_Regex root nil),
   forall (x:MatchState) (c:MatcherContinuation) (VALID: Valid (input x) rer x),

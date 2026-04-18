@@ -43,10 +43,10 @@ Section EarlyErrors.
   | Pass_InvertedCC: forall crs, Pass_ClassRanges crs -> Pass_CharClass (Patterns.InvertedCC crs).
 
   Inductive Pass_AtomEscape: Patterns.AtomEscape -> RegexContext -> Prop :=
-  | Pass_DecimalEsc: forall ctx n, (positive_to_non_neg n) <= (countLeftCapturingParensWithin (zip (AtomEsc (DecimalEsc n)) ctx) (nil)) -> Pass_AtomEscape (DecimalEsc n) ctx
+  | Pass_DecimalEsc: forall ctx n, (positive_to_non_neg n) <= (countLeftCapturingParensWithin (zip (AtomEsc (DecimalEsc n)) ctx)) -> Pass_AtomEscape (DecimalEsc n) ctx
   | Pass_CharacterClassEsc: forall ctx esc, Pass_AtomEscape (ACharacterClassEsc esc) ctx
   | Pass_CharacterEsc: forall ctx esc, Pass_AtomEscape (ACharacterEsc esc) ctx
-  | Pass_GroupEsc: forall ctx gn, List.length (groupSpecifiersThatMatch (AtomEsc (GroupEsc gn)) ctx gn) = 1 -> Pass_AtomEscape (GroupEsc gn) ctx.
+  | Pass_GroupEsc: forall ctx gn, List.length (groupSpecifiersThatMatch (zip (AtomEsc (GroupEsc gn)) ctx) gn) = 1 -> Pass_AtomEscape (GroupEsc gn) ctx.
 
   Inductive Pass_QuantifierPrefix: Patterns.QuantifierPrefix -> Prop :=
   | Pass_Star: Pass_QuantifierPrefix Patterns.Star
@@ -82,12 +82,12 @@ Section EarlyErrors.
   Lemma countLeftCapturingParensBefore_contextualized: forall ctx f r,
     Root r (f, ctx) ->
     Pass_Regex r nil ->
-    (countLeftCapturingParensBefore f ctx) + (countLeftCapturingParensWithin f ctx) <= countLeftCapturingParensWithin r nil.
+    (countLeftCapturingParensBefore f ctx) + (countLeftCapturingParensWithin f) <= countLeftCapturingParensWithin r.
   Proof.
     unfold Root; cbn.
     induction ctx; intros f r R_r EEP_r.
     - rewrite -> Zipper.Zip.id in R_r. subst. cbn. lia.
-    - unfold countLeftCapturingParensBefore,countLeftCapturingParensWithin in *.
+    - unfold countLeftCapturingParensBefore, countLeftCapturingParensWithin in *.
       destruct a; try solve [
         cbn in *;
         lazymatch goal with
@@ -96,15 +96,15 @@ Section EarlyErrors.
         specialize (IHctx _ _ ltac:(eassumption) ltac:(eassumption)); lia ].
   Qed.
 
-  Lemma groupSpecifiersThatMatch_is_filter_map {F: Type} {_: Result.AssertionError F}: forall r ctx gn, exists f,
+  Lemma groupSpecifiersThatMatch_is_filter_map {F: Type} {_: Result.AssertionError F}: forall pattern gn, exists f,
     (forall i j, f i = f j -> i = j) /\
-    (forall i r' ctx', List.Indexing.Nat.indexing (groupSpecifiersThatMatch r ctx gn) i = Success (r', ctx') ->
+    (forall i r' ctx', List.Indexing.Nat.indexing (groupSpecifiersThatMatch pattern gn) i = Success (r', ctx') ->
     exists ctx'',
       Group_inner (Some gn) :: ctx'' = ctx' /\
-      List.Indexing.Nat.indexing (Zipper.Walk.walk (zip r ctx) nil) (f i) = Success (Group (Some gn) r', ctx'')).
+      List.Indexing.Nat.indexing (Zipper.Walk.walk pattern nil) (f i) = Success (Group (Some gn) r', ctx'')).
   Proof.
     unfold groupSpecifiersThatMatch.
-    intros r ctx gn. generalize dependent (Zipper.Walk.walk (zip r ctx) nil). clear r. clear ctx.
+    intros pattern gn. generalize dependent (Zipper.Walk.walk pattern nil).
     induction l as [| [rh ctxh] l' (f' & H0 & H1) ].
     - exists (fun x => x). split.
       + intros i j <-. reflexivity.
@@ -123,20 +123,20 @@ Section EarlyErrors.
         * rewrite -> List.Indexing.Nat.cons. rewrite -> Nat.sub_0_r. apply H1.
   Qed.
 
-  Lemma groupSpecifiersThatMatch_too_big_cause {F: Type} {_: Result.AssertionError F}: forall r ctx gn,
-    (List.length (groupSpecifiersThatMatch r ctx gn) >= 2)%nat ->
+  Lemma groupSpecifiersThatMatch_too_big_cause {F: Type} {_: Result.AssertionError F}: forall pattern gn,
+    (List.length (groupSpecifiersThatMatch pattern gn) >= 2)%nat ->
     exists i j ri ctxi rj ctxj,
       i <> j /\
-      List.Indexing.Nat.indexing (Zipper.Walk.walk (zip r ctx) nil) i = Success (Group (Some gn) ri, ctxi) /\
-      List.Indexing.Nat.indexing (Zipper.Walk.walk (zip r ctx) nil) j = Success (Group (Some gn) rj, ctxj).
+      List.Indexing.Nat.indexing (Zipper.Walk.walk pattern nil) i = Success (Group (Some gn) ri, ctxi) /\
+      List.Indexing.Nat.indexing (Zipper.Walk.walk pattern nil) j = Success (Group (Some gn) rj, ctxj).
   Proof.
-    intros r ctx gn B_length.
-    assert (exists v w, List.Indexing.Nat.indexing (groupSpecifiersThatMatch r ctx gn) 0 = Success v /\ List.Indexing.Nat.indexing (groupSpecifiersThatMatch r ctx gn) 1 = Success w)
+    intros pattern gn B_length.
+    assert (exists v w, List.Indexing.Nat.indexing (groupSpecifiersThatMatch pattern gn) 0 = Success v /\ List.Indexing.Nat.indexing (groupSpecifiersThatMatch pattern gn) 1 = Success w)
         as ([ r0 ctx0 ] & [ r1 ctx1 ] & Eq_indexed_0 & Eq_indexed_1). {
-      destruct (groupSpecifiersThatMatch r ctx gn) as [ | h0 [ | h1 ? ]] eqn:Eq; try solve [ cbn in B_length; lia ].
+      destruct (groupSpecifiersThatMatch pattern gn) as [ | h0 [ | h1 ? ]] eqn:Eq; try solve [ cbn in B_length; lia ].
       exists h0. exists h1. split; reflexivity.
     }
-    pose proof (groupSpecifiersThatMatch_is_filter_map r ctx gn) as (f & Inj_f & Def_f).
+    pose proof (groupSpecifiersThatMatch_is_filter_map pattern gn) as (f & Inj_f & Def_f).
     pose proof (Def_f _ _ _ Eq_indexed_0) as (? & ? & ?).
     pose proof (Def_f _ _ _ Eq_indexed_1) as (? & ? & ?).
     exists (f 0). exists (f 1). do 4 eexists. split; [ | repeat (split; [ eassumption | ]); eassumption ].
@@ -144,13 +144,13 @@ Section EarlyErrors.
     specialize Inj_f with (1 := Eq_f). discriminate.
   Qed.
 
-  Lemma groupSpecifiersThatMatch_head_is_group: forall r0 ctx0 gn r ctx t, groupSpecifiersThatMatch r0 ctx0 gn = (r, ctx) :: t ->
+  Lemma groupSpecifiersThatMatch_head_is_group: forall pattern gn r ctx t, groupSpecifiersThatMatch pattern gn = (r, ctx) :: t ->
     0 < countLeftCapturingParensBefore r ctx /\
     exists ctx', ctx = Group_inner (Some gn) :: ctx'.
   Proof.
-    intros r0 ctx0 gn r ctx t H.
+    intros pattern gn r ctx t H.
     unfold groupSpecifiersThatMatch in H.
-    generalize dependent (Zipper.Walk.walk (zip r0 ctx0) nil). clear r0. clear ctx0.
+    generalize dependent (Zipper.Walk.walk pattern nil).
     induction l as [ | h t' ]; intros H.
     - discriminate.
     - cbn in H. destruct h as [ h_r h_ctx ].
@@ -164,9 +164,9 @@ Section EarlyErrors.
       + cbn in H. apply (IHt' H).
   Qed.
 
-  Lemma groupSpecifiersThatMatch_singleton {_: Result.AssertionError SyntaxError}: forall r name,
-      List.Exists.exist (Zipper.Walk.walk r nil) (fun node0 =>
-        List.Exists.exist (Zipper.Walk.walk r nil) (fun node1 =>
+  Lemma groupSpecifiersThatMatch_singleton {_: Result.AssertionError SyntaxError}: forall pattern name,
+      List.Exists.exist (Zipper.Walk.walk pattern nil) (fun node0 =>
+        List.Exists.exist (Zipper.Walk.walk pattern nil) (fun node1 =>
           if node0 =?= node1 then Success false
           else
             let (r0, ctx0) := node0 in
@@ -176,13 +176,12 @@ Section EarlyErrors.
             | _, _ => Success false
             end))
         = @Success _ SyntaxError false ->
-      (List.length (groupSpecifiersThatMatch r nil name) <= 1)%nat.
+      (List.length (groupSpecifiersThatMatch pattern name) <= 1)%nat.
   Proof.
-    intros r name Ex.
-    destruct (Compare_dec.lt_dec (List.length (groupSpecifiersThatMatch r nil name)) 2) as [ Ineq | Ineq ].
+    intros pattern name Ex.
+    destruct (Compare_dec.lt_dec (List.length (groupSpecifiersThatMatch pattern name)) 2) as [ Ineq | Ineq ].
     - lia.
     - apply Compare_dec.not_lt in Ineq. apply groupSpecifiersThatMatch_too_big_cause in Ineq as (i & j & ri & ctxi & rj & ctxj & Ineq_ij & Eq_indexed_i & Eq_indexed_j).
-      rewrite -> Zipper.Zip.id in *.
       apply List.Exists.false_to_prop in Ex. specialize (Ex _ _ Eq_indexed_i).
       apply List.Exists.false_to_prop in Ex. specialize (Ex _ _ Eq_indexed_j). cbn beta in Ex.
       focus <! _ [] _ !> auto destruct in Ex.

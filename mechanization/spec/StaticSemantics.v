@@ -33,11 +33,10 @@ Section StaticSemantics.
       The abstract operation GroupSpecifiersThatMatch takes argument thisGroupName (a GroupName Parse Node) and returns
       a List of GroupSpecifier Parse Nodes. It performs the following steps when called:
   <<*)
-  Definition groupSpecifiersThatMatch (r: Regex) (ctx: RegexContext) (thisGroupName: GroupName): list (Regex * RegexContext) :=
+  Definition groupSpecifiersThatMatch (pattern: Regex) (thisGroupName: GroupName): list (Regex * RegexContext) :=
     (*>> 1. Let name be the CapturingGroupName of thisGroupName. <<*)
     let name := capturingGroupName thisGroupName in
     (*>> 2. Let pattern be the Pattern containing thisGroupName. <<*)
-    let pattern := zip r ctx in
     (*>> 3. Let result be a new empty List. <<*)
     (*>> 4. For each GroupSpecifier gs that pattern contains, do <<*)
     let result := List.flat_map ( fun r => match r with
@@ -233,7 +232,7 @@ Section StaticSemantics.
     | Lookbehind r0 => countLeftCapturingParensWithin_impl r0
     | NegativeLookbehind r0 => countLeftCapturingParensWithin_impl r0
     end.
-  Definition countLeftCapturingParensWithin (r: Regex) (ctx: RegexContext): non_neg_integer := countLeftCapturingParensWithin_impl r.
+  Definition countLeftCapturingParensWithin (r: Regex): non_neg_integer := countLeftCapturingParensWithin_impl r.
 
   (** >>
       22.2.1.3 Static Semantics: CountLeftCapturingParensBefore ( node )
@@ -320,11 +319,11 @@ Section StaticSemantics.
     (** >> AtomEscape :: DecimalEscape <<*)
     | AtomEsc (DecimalEsc n) =>
         (*>> * It is a Syntax Error if the CapturingGroupNumber of DecimalEscape is strictly greater than CountLeftCapturingParensWithin(the Pattern containing AtomEscape). <<*)
-        if (capturingGroupNumber n >? countLeftCapturingParensWithin (zip r ctx) nil)%nat then true else false
+        if (capturingGroupNumber n >? countLeftCapturingParensWithin (zip r ctx))%nat then true else false
     (** >> AtomEscape :: k GroupName <<*)
     | AtomEsc (GroupEsc name) =>
         (*>> * It is a Syntax Error if GroupSpecifiersThatMatch(GroupName) is empty. <<*)
-        if (List.length (groupSpecifiersThatMatch (AtomEsc (GroupEsc name)) ctx name) =? 0)%nat then true else false
+        if (List.length (groupSpecifiersThatMatch (zip r ctx) name) =? 0)%nat then true else false
     | AtomEsc _ => false
     | CharacterClass cc => earlyErrors_char_class cc
     | Disjunction r1 r2 => earlyErrors_rec r1 (Disjunction_left r2 :: ctx) ||! earlyErrors_rec r2 (Disjunction_right r1 :: ctx)
