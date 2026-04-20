@@ -31,6 +31,13 @@
         "run_local_audit": {
             "description": "{file:./agents/run_local_audit/description.md}",
             "prompt": "{file:./agents/run_local_audit/prompt.md}"
+        },
+        "test262_converter": {
+            "description": "{file:./agents/test262-converter/description.md}",
+            "prompt": "{file:./agents/test262-converter/prompt.md}",
+            "tools": {
+                "task": true
+            }
         }
     }
 }
