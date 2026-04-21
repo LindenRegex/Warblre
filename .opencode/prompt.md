@@ -16,10 +16,23 @@ I want you to read the latest commit, and add a test file that's the same format
 
 
 Step 1 : comment writing 
-@annotate_rocq, implement the comments for the following proposal : proposals/unicode_property_escape
+@annotate_rocq, implement the comments for the following proposal : proposals/buffer_boundaries/
 
 Step 2 : Code writing 
-@implement_from_comments, add the code for the following proposal : proposals/unicode_property_escape
+@implement_from_comments, add the code for the following proposal : proposals/buffer_boundaries/
+
+Step 3 : Create audit
+python comment_code_audit.py --files ../../../mechanization/spec/Semantics.v ../../../mechanization/spec/StaticSemantics.v ../../../mechanization/spec/Patterns.v
+
+Step 4 : Filter audit
+@filter_audit filter the audit just generated
+
+Step 5 : Use audit to fix code
+@fix_audit_batch use the latest filter result created and the other subagent on your prompt to solve all of those problems 
+
+Step 6 : Generate the tests
+@test262_converter, use the latest 2 commits on regexp-buffer-boundaries to generate the tests
+
 
 
 

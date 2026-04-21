@@ -1,6 +1,17 @@
 {
     "$schema": "https://opencode.ai/config.json",
     "agent": {
+        "fix_test262_batch": {
+            "description": "{file:./agents/fix_test262_batch/description.md}",
+            "prompt": "{file:./agents/fix_test262_batch/prompt.md}",
+            "tools": {
+                "task": true
+            }
+        },
+        "fix_test262_file": {
+            "description": "{file:./agents/fix_test262_file/description.md}",
+            "prompt": "{file:./agents/fix_test262_file/prompt.md}"
+        },
         "annotate_rocq": {
             "description": "{file:./agents/annotate_rocq/description.md}",
             "prompt": "{file:./agents/annotate_rocq/prompt.md}"
