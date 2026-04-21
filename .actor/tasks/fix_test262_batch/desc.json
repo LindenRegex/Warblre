@@ -1,0 +1,67 @@
+{
+  "name": "fix_test262_batch",
+  "description": "Orchestrates the complete fixing of Test262 tests by coordinating with fix_test262_file to process all JS test files sequentially. Entry point for test conversion workflow.",
+  "input": {
+    "ocaml_test_file": "Path to the generated OCaml test file (e.g., tests/tests/Test262_<Feature>.ml)",
+    "test262_repo_path": "Path to test262 repo (default: ./test262)",
+    "branch": "Branch name in test262 repo (e.g., regexp-buffer-boundaries)"
+  },
+  "workflow": {
+    "phase_1_discovery": [
+      "Parse the OCaml test file to identify all JS test file references",
+      "Extract the mapping between test sections and their original JS sources",
+      "Discover all unique JS test files that need processing",
+      "List ALL JS files in the relevant test262 directories as backup discovery"
+    ],
+    "phase_2_coordination": [
+      "For each JS test file found:",
+      "  - Call fix_test262_file with complete context",
+      "  - Wait for completion before processing next file",
+      "  - Aggregate results and track progress",
+      "  - Handle errors gracefully, continue with remaining files",
+      "  - CRITICAL: Verify that tests_generated equals assertions_found for each file"
+    ],
+    "phase_3_validation": [
+      "Run dune build to verify all generated code compiles",
+      "Run dune test to verify expect blocks are correct",
+      "Count total assertions across all JS files",
+      "Count total tests generated in OCaml file",
+      "Verify total_tests_generated == total_assertions_found",
+      "Report summary of: files processed, tests added/fixed, errors encountered"
+    ]
+  },
+  "delegation": {
+    "primary": "Delegates individual JS file processing to fix_test262_file",
+    "sequence": "Sequential processing (not parallel) to avoid conflicts",
+    "context_passing": "Provides js_test_file, ocaml_test_file, test262_repo_path, and branch to each fix_test262_file call",
+    "verification": "Must verify each fix_test262_file call returns tests_generated == assertions_found"
+  },
+  "output": {
+    "summary_report": {
+      "total_js_files": "Number of JS source files discovered",
+      "files_processed": "Number of files successfully processed",
+      "total_assertions_found": "Total assert() calls across all JS files",
+      "total_tests_generated": "Total OCaml tests generated - MUST equal total_assertions_found",
+      "tests_added_per_file": "Detailed breakdown per JS file with assertion count vs test count",
+      "build_status": "Compilation success/failure",
+      "test_status": "Test execution results",
+      "errors": "Any errors encountered during processing"
+    }
+  },
+  "constraints": [
+    "MUST process files sequentially (not in parallel)",
+    "MUST wait for each fix_test262_file result before continuing",
+    "MUST NOT skip files on error - track and report instead",
+    "MUST provide complete context to fix_test262_file for each call",
+    "MUST verify tests_generated == assertions_found for each file",
+    "MUST run final build and test validation",
+    "MUST report discrepancy if total_tests_generated != total_assertions_found"
+  ],
+  "critical_requirements": [
+    "Every assert() in JS must have a corresponding OCaml test",
+    "No test should be skipped due to perceived redundancy",
+    "Literal and constructor forms are separate tests",
+    "Different flag combinations are separate tests",
+    "u mode and v mode tests are both required"
+  ]
+}

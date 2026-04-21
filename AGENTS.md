@@ -103,3 +103,57 @@ Before committing:
 3. `rocqchk` validates compiled libraries
 4. Code follows repository naming conventions
 5. Comments reference ECMAScript spec sections when applicable
+
+## Test262 Test Conversion Workflow
+
+For converting Test262 JavaScript RegExp tests to OCaml expect-tests, use the coordinated agent workflow:
+
+### Entry Point: fix_test262_batch
+Use this agent to convert ALL tests from a test262 branch:
+
+```
+Input:
+  - ocaml_test_file: Path to target OCaml file (e.g., tests/tests/Test262_<Feature>.ml)
+  - test262_repo_path: Path to test262 repo (default: ./test262)
+  - branch: Branch name (e.g., regexp-buffer-boundaries)
+```
+
+This agent will:
+1. Discover all JS test files in the branch
+2. Delegate to `fix_test262_file` for each file (sequentially)
+3. Aggregate results and run final validation
+4. Report summary of all converted tests
+
+### Worker: fix_test262_file
+This agent is called by fix_test262_batch for each JS file:
+
+```
+Input:
+  - js_test_file: Path to specific JS test file
+  - ocaml_test_file: Path to OCaml file to update
+  - test262_repo_path: Path to test262 repo
+  - branch: Branch name
+```
+
+This agent will:
+1. Parse the complete JS test file
+2. Generate OCaml expect-tests for ALL assertions
+3. Update the OCaml file with new tests
+4. Verify compilation and return results
+
+### Example Usage
+
+To convert all buffer-boundaries tests:
+```
+fix_test262_batch(
+  ocaml_test_file="tests/tests/Test262_BufferBoundaries.ml",
+  test262_repo_path="./test262",
+  branch="regexp-buffer-boundaries"
+)
+```
+
+The agent workflow ensures:
+- Complete coverage (all JS files processed)
+- Correct syntax (compilation verified)
+- Proper test format (expect blocks validated)
+- Traceability (comments link to source)

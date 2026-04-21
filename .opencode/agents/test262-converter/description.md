@@ -4,7 +4,7 @@ Input:
 - A test262 branch name (e.g., "regexp-modifiers", "dotall", "named-groups")
 
 Responsibilities:
-1. Checkout the specified branch in test262 repo (at /Users/valentinschneeberger/epfl/masterProject/test262)
+1. Checkout the specified branch in test262 repo (at ./test262)
 2. Get the latest commit from that branch
 3. Discover and parse all .js test files in the relevant directories
 4. Extract regex patterns, test inputs, expected results, and metadata

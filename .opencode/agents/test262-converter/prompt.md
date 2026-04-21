@@ -31,7 +31,7 @@ You will be given:
 
 1. Go to the test262 repository:
    ```bash
-   cd /Users/valentinschneeberger/epfl/masterProject/test262
+   cd test262
    ```
 
 2. Fetch and checkout the specified branch:
@@ -40,7 +40,7 @@ You will be given:
    git checkout <branch-name>
    ```
 
-3. Get the latest commit:
+3. Get the latest commits:
    ```bash
    git log -1 --format="%H %s"
    ```
@@ -187,7 +187,7 @@ Repeat until:
 
 1. **File Location**: Write ONLY to `tests/tests/Test262_<Feature>.ml`
 2. **Always Overwrite**: Create a NEW file each time (don't preserve old tests)
-3. **Style**: Follow existing code in `tests/tests/RegExpModifiers.ml` and `tests/tests/Tests.ml`
+3. **Style**: Follow existing code in `tests/tests/Lookarounds.ml` and `tests/tests/Tests.ml`
 4. **Naming**: Use descriptive test names based on test262 filename + test number
 5. **Comments**: Include file and description comments for each test262 source file
 6. **NO PROJECT CODE CHANGES**: Do NOT modify any existing Warblre code
