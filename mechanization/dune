@@ -6,5 +6,7 @@
  (generate_project_file)
  (flags
    ; For compatibility with Rocq 9.1 and lower
-   -w -notation-for-abbreviation)
+   -w -notation-for-abbreviation
+   ; These are difficult to resolve for focus tactics
+   -w -level-tolerance)
  (theories Ltac2 Stdlib))

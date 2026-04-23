@@ -48,9 +48,9 @@ Instance int_indexer: Indexer Z := {
   update_using := fun T F f ls i v => Result.assertion_failed; (* This operation is never used. *)
 }.
 
-Notation "ls '[' i ']'" := (indexing ls i) (at level 98, left associativity).
-Notation "'set' ls '[' i ']' ':=' v 'in' z" := (let! ls: list _ =<< update ls i v in z) (at level 200, ls at level 97, i at level 90, right associativity).
-Notation "'set' ls '[' s '---' e ']' ':=' v 'in' z" := (let! ls: list _ =<< List.Update.Nat.Batch.update v ls (List.Range.Nat.Bounds.range (s - 1) (e - 1)) in z) (at level 200, ls at level 97, s at level 90, e at level 90, right associativity).
+Notation "ls '[' i ']'" := (indexing ls i) (at level 1, left associativity).
+Notation "'set' ls '[' i ']' ':=' v 'in' z" := (let! ls: list _ =<< update ls i v in z) (at level 200, ls at level 0, i at level 90, right associativity).
+Notation "'set' ls '[' s '---' e ']' ':=' v 'in' z" := (let! ls: list _ =<< List.Update.Nat.Batch.update v ls (List.Range.Nat.Bounds.range (s - 1) (e - 1)) in z) (at level 200, ls at level 0, s at level 90, e at level 90, right associativity).
 
 (** The is (not) operator *)
 

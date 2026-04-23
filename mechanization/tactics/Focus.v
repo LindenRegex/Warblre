@@ -25,11 +25,12 @@ Inductive focus :=
 (** Grammar to write focuses. *)
 (* TODO: the levels were changed to avoid factorization issues, but
    I have not put enough thoughts into it to be sure these changes are fine. *)
+Set Warnings "-postfix-notation-not-level-1".
 Declare Custom Entry focus.
 Notation "'<!' e '!>'" := e (e custom focus at level 99).
 Notation "'[]'" := Here (in custom focus at level 0).
 Notation "'(' f ')'" := f (in custom focus at level 0, f at level 99).
-Notation "'if' f 'then' '_' 'else' '_'" := (IteCond f) (in custom focus at level 99).
+Notation "'if' f 'then' '_' 'else' '_'" := (IteCond f) (in custom focus at level 0).
 Notation "f '->' '_'" := (ArrowL f) (in custom focus at level 70, right associativity).
 Notation "'_' '->' f" := (ArrowR f) (in custom focus at level 70, right associativity).
 Notation "f '_'" := (AppL f) (in custom focus at level 70, no associativity).
