@@ -1,5 +1,16 @@
 {
     "$schema": "https://opencode.ai/config.json",
+    "mcp": {
+        "rocq-lsp": {
+            "enabled": true,
+            "type": "local",
+            "command": "coq-lsp",
+            "args": [],
+            "env": {
+                "ROCQPATH": "_build/default/mechanization"
+            }
+        }
+    },
     "agent": {
         "fix_test262_batch": {
             "description": "{file:./agents/fix_test262_batch/description.md}",
@@ -42,6 +53,14 @@
         "run_local_audit": {
             "description": "{file:./agents/run_local_audit/description.md}",
             "prompt": "{file:./agents/run_local_audit/prompt.md}"
+        },
+        "fix_proofs": {
+            "description": "{file:./agents/fix_proofs/description.md}",
+            "prompt": "{file:./agents/fix_proofs/prompt.md}",
+            "tools": {
+                "mcp": true,
+                "rocq-lsp": true
+            }
         },
         "test262_converter": {
             "description": "{file:./agents/test262-converter/description.md}",
