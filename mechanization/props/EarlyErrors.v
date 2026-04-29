@@ -72,6 +72,8 @@ Section EarlyErrors.
   | Pass_Group: forall name r ctx, Pass_Regex r (Group_inner name :: ctx) -> Pass_Regex (Patterns.Group name r) ctx
   | Pass_InputStart: forall ctx, Pass_Regex Patterns.InputStart ctx
   | Pass_InputEnd: forall ctx, Pass_Regex Patterns.InputEnd ctx
+  | Pass_BufferStart: forall ctx, Pass_Regex Patterns.BufferStart ctx
+  | Pass_BufferEnd: forall ctx, Pass_Regex Patterns.BufferEnd ctx
   | Pass_WordBoundary: forall ctx, Pass_Regex Patterns.WordBoundary ctx
   | Pass_NotWordBoundary: forall ctx, Pass_Regex Patterns.NotWordBoundary ctx
   | Pass_Lookahead: forall r ctx, Pass_Regex r (Lookahead_inner :: ctx) -> Pass_Regex (Patterns.Lookahead r) ctx
@@ -264,9 +266,9 @@ Section EarlyErrors.
       induction r; intros ctx H; cbn in H; Result.assertion_failed_helper.
       - focus <! _ [] _ !> auto destruct in H.
       - apply (Safety_char_class _ H).
-      - focus <! _ [] _ !> auto destruct in H; subst. + apply (IHr2 _ H). + destruct f. apply (IHr1 _ AutoDest_).
+      - focus <! _ [] _ !> auto destruct in H; subst; try destruct f; try apply (IHr2 _ H); try apply (IHr1 _ AutoDest_).
       - focus <! _ [] _ !> auto destruct in H. Result.assertion_failed_helper. apply (IHr _ AutoDest_).
-      - focus <! _ [] _ !> auto destruct in H; subst. + apply (IHr2 _ H). + destruct f. apply (IHr1 _ AutoDest_).
+      - focus <! _ [] _ !> auto destruct in H; subst; try destruct f; try apply (IHr2 _ H); try apply (IHr1 _ AutoDest_).
       - apply (IHr _ H).
       - apply (IHr _ H).
       - apply (IHr _ H).
@@ -340,9 +342,45 @@ Section EarlyErrors.
       Root root (r, ctx) ->
       earlyErrors_rec r ctx = Success false ->
       Pass_Regex r ctx.
-    Proof. Admitted.
+    Proof.
+      intros root. induction r; intros ctx RP Root_r EE_r.
+      - constructor.
+      - constructor.
+      - constructor.
+      - constructor. destruct ae; cbn in EE_r; constructor.
+        + focus <! _ [] _ !> auto destruct in EE_r. unfold capturingGroupNumber,positive_to_non_neg,positive_to_nat in *. focus <! _ [] _ !> auto destruct in AutoDest_.
+          * lia.
+          * spec_reflector Nat.leb_spec0. lia.
+        + focus <! _ [] _ !> auto destruct in EE_r. spec_reflector Nat.eqb_spec.
+          pose proof (groupSpecifiersThatMatch_singleton _ id RP).
+          unfold groupSpecifiersThatMatch in *. rewrite <- Root_r in *.
+          lia.
+      - constructor. apply Completeness_char_class. apply EE_r.
+      - constructor.
+        + cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr1; try assumption.
+        + cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr2; try assumption.
+      - constructor. cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr; try assumption.
+        apply Completeness_quantifier.
+        cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. injection EE_r as EE_r. apply EE_r.
+      - constructor.
+        + cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr1; try assumption.
+        + cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr2; try assumption.
+      - constructor. cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr; try assumption.
+      - constructor.
+      - constructor.
+      - constructor.
+      - constructor.
+      - constructor.
+      - constructor.
+      - constructor. cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr; try assumption.
+      - constructor. cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr; try assumption.
+      - constructor. cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr; try assumption.
+      - constructor. cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr; try assumption.
+    Qed.
 
     Lemma earlyErrors: forall r, earlyErrors r nil = Success false -> Pass_Regex r nil.
-    Proof. Admitted.
+    Proof.
+      intros r H. unfold earlyErrors in H. focus <! _ [] _ !> auto destruct in H. apply rec with (root := r); solve [ assumption | reflexivity ].
+    Qed.
   End Completeness.
 End EarlyErrors.

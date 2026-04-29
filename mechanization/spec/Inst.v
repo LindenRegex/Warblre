@@ -466,10 +466,16 @@ Module FastEngineParameters <: API.EngineParameters.
     Theorem empty_spec: forall c, ~ In c empty.
     Proof. apply CS.empty_spec. Qed.
     Theorem from_list_spec: forall c l, In c (from_list l) <-> List.In c l.
-    Proof. Admitted.
+    Proof.
+      intros c l. unfold from_list, In. rewrite <- CS.fold_spec_left.
+      induction l as [| h t IH].
+      - cbn. rewrite CS.empty_spec. split; [ | intros [] ]. reflexivity.
+      - cbn. rewrite CS.add_spec. split.
+        + intros [ -> | H ]; [ left; reflexivity | right; apply IH; assumption ].
+        + intros [ -> | H ]; [ left; reflexivity | right; apply IH; assumption ].
+    Qed.
     Theorem union_spec: forall c s1 s2, In c (union s1 s2) <-> In c s1 \/ In c s2.
-    Proof. intros c s1 s2. apply CS.union_spec. Print CS.t.
-    Admitted.
+    Proof. intros c s1 s2. apply CS.union_spec. Qed.
   End CharSet.
 
   Module CharSets.
