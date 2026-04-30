@@ -637,22 +637,38 @@ Module Semantics. Section main.
         It is defined piecewise over the following productions:
     <<*)
     (** >> Assertion :: \ A <<*)
-      (*>> 1. Return a new Matcher with parameters (x, c) that captures nothing and performs the following steps when called: <<*)
-      (*>>   a. Assert: x is a MatchState. <<*)
-      (*>>   b. Assert: c is a MatcherContinuation. <<*)
-      (*>>   c. Let e be x's endIndex. <<*)
-      (*>>   d. If e = 0, return c(x). <<*)
-      (*>>   e. Return failure. <<*)
+    | BufferStart =>
+        (*>> 1. Return a new Matcher with parameters (x, c) that captures nothing and performs the following steps when called: <<*)
+        (fun (x: MatchState) (c: MatcherContinuation) =>
+          (*>>   a. Assert: x is a MatchState. <<*)
+          (*>>   b. Assert: c is a MatcherContinuation. <<*)
+          (*>>   c. Let e be x's endIndex. <<*)
+          let e := MatchState.endIndex x in
+          (*>>   d. If e = 0, return c(x). <<*)
+          if (e =? 0)%Z then
+            c x
+          else
+          (*>>   e. Return failure. <<*)
+          failure): Matcher
 
     (** >> Assertion :: \ z <<*)
-      (*>> 1. Return a new Matcher with parameters (x, c) that captures nothing and performs the following steps when called: <<*)
-      (*>>   a. Assert: x is a MatchState. <<*)
-      (*>>   b. Assert: c is a MatcherContinuation. <<*)
-      (*>>   c. Let Input be x's input. <<*)
-      (*>>   d. Let e be x's endIndex. <<*)
-      (*>>   e. Let InputLength be the number of elements in Input. <<*)
-      (*>>   f. If e = InputLength, return c(x). <<*)
-      (*>>   g. Return failure. <<*)
+    | BufferEnd =>
+        (*>> 1. Return a new Matcher with parameters (x, c) that captures nothing and performs the following steps when called: <<*)
+        (fun (x: MatchState) (c: MatcherContinuation) =>
+          (*>>   a. Assert: x is a MatchState. <<*)
+          (*>>   b. Assert: c is a MatcherContinuation. <<*)
+          (*>>   c. Let Input be x's input. <<*)
+          let input := MatchState.input x in
+          (*>>   d. Let e be x's endIndex. <<*)
+          let e := MatchState.endIndex x in
+          (*>>   e. Let InputLength be the number of elements in Input. <<*)
+          let inputLength := List.length input in
+          (*>>   f. If e = InputLength, return c(x). <<*)
+          if (e =? inputLength)%Z then
+            c x
+          else
+          (*>>   g. Return failure. <<*)
+          failure): Matcher
 
     (** >> Assertion :: ^ <<*)
     | InputStart =>

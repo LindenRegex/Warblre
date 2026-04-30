@@ -359,7 +359,7 @@ module Fuzzer (P: EngineParameters) (S: Warblre_js.Encoding.StringLike with type
             let name = M.find_opt (!group_id) names_map in
             group_id := (!group_id) + 1;
             Group (name, iter r1)
-        | InputStart | InputEnd | WordBoundary | NotWordBoundary -> r
+        | InputStart | InputEnd | BufferStart | BufferEnd | WordBoundary | NotWordBoundary -> r
         | Lookahead (r1) -> Lookahead (iter r1)
         | NegativeLookahead (r1) -> NegativeLookahead (iter r1)
         | Lookbehind (r1) -> Lookbehind (iter r1)

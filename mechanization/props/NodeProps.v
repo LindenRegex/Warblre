@@ -147,6 +147,8 @@ Module Zipper.
       | Group name r0 => walk r0 (Group_inner name :: ctx)
       | InputStart => nil
       | InputEnd => nil
+      | BufferStart => nil
+      | BufferEnd => nil
       | WordBoundary => nil
       | NotWordBoundary => nil
       | Lookahead r0 => walk r0 (Lookahead_inner :: ctx)
@@ -206,6 +208,8 @@ Module Zipper.
         + symmetry in Eq_indexed. specialize (IHr1 _ _ _ Eq_indexed). apply Relation_Operators.rt_trans with (1 := IHr1). apply Relation_Operators.rt_step. constructor.
         + symmetry in Eq_indexed. specialize (IHr2 _ _ _ Eq_indexed). apply Relation_Operators.rt_trans with (1 := IHr2). apply Relation_Operators.rt_step. constructor.
       - specialize (IHr _ _ _ Eq_indexed). apply Relation_Operators.rt_trans with (1 := IHr). apply Relation_Operators.rt_step. constructor.
+      - rewrite -> List.Indexing.Nat.nil in Eq_indexed. Result.assertion_failed_helper.
+      - rewrite -> List.Indexing.Nat.nil in Eq_indexed. Result.assertion_failed_helper.
       - rewrite -> List.Indexing.Nat.nil in Eq_indexed. Result.assertion_failed_helper.
       - rewrite -> List.Indexing.Nat.nil in Eq_indexed. Result.assertion_failed_helper.
       - rewrite -> List.Indexing.Nat.nil in Eq_indexed. Result.assertion_failed_helper.
@@ -323,6 +327,10 @@ Section Induction.
         Root root (InputStart, ctx) -> P (InputStart, ctx)) ->
       (forall ctx,
         (Root root (InputEnd, ctx) -> P (InputEnd, ctx))) ->
+      (forall ctx,
+        (Root root (BufferStart, ctx) -> P (BufferStart, ctx))) ->
+      (forall ctx,
+        (Root root (BufferEnd, ctx) -> P (BufferEnd, ctx))) ->
       (forall ctx,
         (Root root (WordBoundary, ctx) -> P (WordBoundary, ctx))) ->
       (forall ctx,

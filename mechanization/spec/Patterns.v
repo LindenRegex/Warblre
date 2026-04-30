@@ -201,7 +201,9 @@ Module Patterns.
     (*>> $ <<*)
     | InputEnd
     (*>> [+UnicodeMode] \ A <<*)
+    | BufferStart
     (*>> [+UnicodeMode] \ z <<*)
+    | BufferEnd
     (*>> \b <<*)
     | WordBoundary
     (*>> \B <<*)
@@ -245,5 +247,6 @@ Module Patterns.
     Proof. decide equality; apply EqDec.eq_dec. Defined.
     #[export] #[refine] Instance eqdec_Regex: EqDec Regex := {}.
     Proof. decide equality; apply EqDec.eq_dec. Defined.
+    (* + BufferStart and BufferEnd constructors have no arguments, so decide equality handles them automatically + *)
   End EqDec.
 End Patterns.
