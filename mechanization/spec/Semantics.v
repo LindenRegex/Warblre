@@ -636,6 +636,24 @@ Module Semantics. Section main.
         The syntax-directed operation CompileAssertion takes argument rer (a RegExp Record) and returns a Matcher.
         It is defined piecewise over the following productions:
     <<*)
+    (** >> Assertion :: \ A <<*)
+      (*>> 1. Return a new Matcher with parameters (x, c) that captures nothing and performs the following steps when called: <<*)
+      (*>>   a. Assert: x is a MatchState. <<*)
+      (*>>   b. Assert: c is a MatcherContinuation. <<*)
+      (*>>   c. Let e be x's endIndex. <<*)
+      (*>>   d. If e = 0, return c(x). <<*)
+      (*>>   e. Return failure. <<*)
+
+    (** >> Assertion :: \ z <<*)
+      (*>> 1. Return a new Matcher with parameters (x, c) that captures nothing and performs the following steps when called: <<*)
+      (*>>   a. Assert: x is a MatchState. <<*)
+      (*>>   b. Assert: c is a MatcherContinuation. <<*)
+      (*>>   c. Let Input be x's input. <<*)
+      (*>>   d. Let e be x's endIndex. <<*)
+      (*>>   e. Let InputLength be the number of elements in Input. <<*)
+      (*>>   f. If e = InputLength, return c(x). <<*)
+      (*>>   g. Return failure. <<*)
+
     (** >> Assertion :: ^ <<*)
     | InputStart =>
         (*>> 1. Return a new Matcher with parameters (x, c) that captures rer and performs the following steps when called: <<*)
