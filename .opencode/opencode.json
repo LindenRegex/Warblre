@@ -1,14 +1,29 @@
 {
     "$schema": "https://opencode.ai/config.json",
     "mcp": {
-        "rocq-lsp": {
+        "rocq-mcp": {
             "enabled": true,
             "type": "local",
-            "command": "coq-lsp",
-            "args": [],
-            "env": {
-                "ROCQPATH": "_build/default/mechanization"
+            "command": [
+                "/home/valentin/epfl/masterProject/rocq-mcp/.venv/bin/rocq-mcp"
+            ],
+            "environment": {
+                "ROCQ_WORKSPACE": "/home/valentin/epfl/masterProject/warblre",
+                "ROCQPATH": "_build/default/mechanization",
+                "ROCQ_COQC_BINARY": "coqc",
+                "ROCQ_PET_TIMEOUT": "30",
+                "ROCQ_COQC_TIMEOUT": "60",
+                "ROCQ_VERIFY_TIMEOUT": "120"
             }
+        },
+        "warblre-context": {
+            "enabled": true,
+            "type": "local",
+            "command": [
+                "node",
+                "/home/valentin/epfl/masterProject/warblre/.opencode/mcp/warblre-server.js"
+            ],
+            "environment": {}
         }
     },
     "agent": {
@@ -56,11 +71,7 @@
         },
         "fix_proofs": {
             "description": "{file:./agents/fix_proofs/description.md}",
-            "prompt": "{file:./agents/fix_proofs/prompt.md}",
-            "tools": {
-                "mcp": true,
-                "rocq-lsp": true
-            }
+            "prompt": "{file:./agents/fix_proofs/prompt.md}"
         },
         "test262_converter": {
             "description": "{file:./agents/test262-converter/description.md}",

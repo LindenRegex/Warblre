@@ -9,7 +9,7 @@ Responsibilities:
    - Extract the lemma statement and context
    - Find similar proven cases to use as templates
    - Synthesize a proof script following established patterns
-   - Verify the proof using coq-lsp/rocq repl
+   - Verify the proof using rocq-mcp / dune build
    - Apply the fix if successful
 3. Handle complex proofs by:
    - Using structural induction patterns
@@ -21,9 +21,8 @@ Responsibilities:
    - Summary statistics
 
 Tools Available:
-- coq-lsp: Language Server Protocol for Rocq/Coq
-- rocq repl: Interactive proof environment
-- git: For retrieving original proof patterns from history
+- rocq-mcp: MCP server for Rocq proof development (compile, query)
+- dune: Build system for verification
 
 Constraints:
 - Must verify all proofs compile with `dune build @all`
