@@ -1,0 +1,180 @@
+{
+  "$schema": "https://opencode.ai/mcp-schema.json",
+  "servers": {
+    "vsrocq-proof": {
+      "name": "VSRocq Proof State Server",
+      "description": "Access Rocq proof states via VSRocq LSP server",
+      "transport": {
+        "type": "stdio",
+        "command": "opam",
+        "args": ["exec", "--", "vsrocqtop", "--stdio"],
+        "env": {
+          "ROCQPATH": "_build/default/mechanization"
+        }
+      },
+      "tools": {
+        "get_proof_state": {
+          "description": "Get the current proof state at a specific location in a .v file",
+          "parameters": {
+            "file_path": {
+              "type": "string",
+              "description": "Absolute path to the .v file"
+            },
+            "line": {
+              "type": "integer",
+              "description": "Line number (1-indexed)"
+            },
+            "column": {
+              "type": "integer",
+              "description": "Column number (0-indexed)"
+            }
+          }
+        },
+        "get_goals": {
+          "description": "Get all open goals in the current proof",
+          "parameters": {
+            "file_path": {
+              "type": "string",
+              "description": "Absolute path to the .v file"
+            },
+            "proof_name": {
+              "type": "string",
+              "description": "Name of the theorem/lemma being proved"
+            }
+          }
+        },
+        "search_lemmas": {
+          "description": "Search for lemmas matching a pattern",
+          "parameters": {
+            "pattern": {
+              "type": "string",
+              "description": "Search pattern (can use wildcards * ?)"
+            },
+            "module": {
+              "type": "string",
+              "description": "Optional module to search in"
+            }
+          }
+        },
+        "find_similar_proofs": {
+          "description": "Find proofs with similar structure or goals",
+          "parameters": {
+            "goal_pattern": {
+              "type": "string",
+              "description": "Pattern to match in goal types"
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Maximum number of results",
+              "default": 5
+            }
+          }
+        },
+        "suggest_tactics": {
+          "description": "Suggest tactics based on current goal",
+          "parameters": {
+            "goal": {
+              "type": "string",
+              "description": "Current goal state"
+            },
+            "context": {
+              "type": "string",
+              "description": "Current proof context (hypotheses)"
+            }
+          }
+        },
+        "get_lemma_dependencies": {
+          "description": "Get the dependency graph for a lemma",
+          "parameters": {
+            "lemma_name": {
+              "type": "string",
+              "description": "Name of the lemma"
+            }
+          }
+        },
+        "check_compile": {
+          "description": "Check if a file compiles up to a specific point",
+          "parameters": {
+            "file_path": {
+              "type": "string",
+              "description": "Absolute path to the .v file"
+            },
+            "line": {
+              "type": "integer",
+              "description": "Line number to check up to"
+            }
+          }
+        }
+      }
+    },
+    "warblre-context": {
+      "name": "Warblre Project Context Server",
+      "description": "Access project-specific context for Warblre mechanization",
+      "transport": {
+        "type": "stdio",
+        "command": "node",
+        "args": [".opencode/mcp/warblre-server.js"]
+      },
+      "tools": {
+        "find_admitted_proofs": {
+          "description": "Find all admitted proofs in the mechanization",
+          "parameters": {
+            "module": {
+              "type": "string",
+              "description": "Optional specific module to search"
+            }
+          }
+        },
+        "get_spec_section": {
+          "description": "Get ECMAScript spec section by reference",
+          "parameters": {
+            "section_number": {
+              "type": "string",
+              "description": "Spec section number (e.g., '22.2.2.1')"
+            }
+          }
+        },
+        "get_custom_tactics": {
+          "description": "Get available custom tactics from tactics/ directory",
+          "parameters": {
+            "tactic_name": {
+              "type": "string",
+              "description": "Optional specific tactic to get info about"
+            }
+          }
+        },
+        "search_by_spec_comment": {
+          "description": "Search for code by ECMAScript spec comment",
+          "parameters": {
+            "spec_reference": {
+              "type": "string",
+              "description": "Spec reference to search for (e.g., 'CompileSubPattern')"
+            }
+          }
+        },
+        "get_inductive_constructors": {
+          "description": "Get all constructors of an inductive type",
+          "parameters": {
+            "type_name": {
+              "type": "string",
+              "description": "Name of the inductive type"
+            },
+            "module": {
+              "type": "string",
+              "description": "Module where the type is defined"
+            }
+          }
+        },
+        "get_lemma_statement": {
+          "description": "Get the full statement of a lemma/theorem",
+          "parameters": {
+            "name": {
+              "type": "string",
+              "description": "Name of the lemma/theorem"
+            }
+          }
+        }
+      }
+    }
+  }
+}

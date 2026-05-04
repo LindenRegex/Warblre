@@ -1,0 +1,68 @@
+{
+  "name": "fix_test262_file",
+  "description": "Processes a SINGLE JavaScript test file from Test262 to generate complete, correct OCaml expect-tests. Specialized worker agent called by fix_test262_batch.",
+  "input": {
+    "js_test_file": "Path to the JS test file in test262 repo",
+    "ocaml_test_file": "Path to the OCaml file to update",
+    "test262_repo_path": "Path to test262 repo",
+    "branch": "Branch name"
+  },
+  "responsibilities": {
+    "read_and_parse": [
+      "Read the COMPLETE JS test file from test262 repo",
+      "Parse test262 metadata (description, flags, features, etc.)",
+      "Extract ALL assert() calls and their line numbers - EVERY SINGLE ONE",
+      "Identify regex patterns, test inputs, and expected results",
+      "Handle all RegExp flags (i, m, s, g, y, u, d, v)",
+      "Count total assertions found in the file"
+    ],
+    "generate_ocaml": [
+      "Create properly formatted let%expect_test blocks",
+      "Use correct Warblre notations (BufferStart, BufferEnd, etc.)",
+      "Generate appropriate expect blocks with actual output",
+      "Follow existing OCaml code style from the project",
+      "Add comments mapping each test to its test262 source file and line number",
+      "Handle JS escape sequences properly in generated OCaml strings"
+    ],
+    "update_and_validate": [
+      "Insert/update tests in the correct section of the OCaml file",
+      "Maintain proper file organization and section structure",
+      "Run dune build to ensure the code compiles",
+      "Fix any syntax errors that arise",
+      "Verify expect blocks match actual execution output",
+      "CRITICAL: Verify that number of tests generated equals number of assertions found"
+    ]
+  },
+  "output": {
+    "structured_report": {
+      "js_file_processed": "Path to the JS file",
+      "assertions_found": "Number of assert() calls found",
+      "tests_generated": "Number of OCaml tests - MUST equal assertions_found",
+      "build_status": "Compilation success/failure",
+      "errors": "Any errors encountered"
+    }
+  },
+  "constraints": [
+    "MUST read the ENTIRE JS file - no partial reading",
+    "MUST generate ONE OCaml test for EVERY assert() call in the JS file",
+    "MUST NOT skip any tests - NO EXCEPTIONS",
+    "MUST NOT assume tests are redundant even if behavior appears similar",
+    "MUST generate separate tests for: literal patterns vs constructor patterns, u mode vs v mode, different flag combinations",
+    "MUST count assertions and verify tests_generated equals assertions_found",
+    "MUST ensure generated code compiles with dune build",
+    "MUST follow existing OCaml code style in tests/tests/",
+    "MUST use Warblre.OCamlEngines.UnicodeNotations and UnicodeTester",
+    "MUST include comments mapping to test262 source"
+  ],
+  "critical_rules": [
+    "RULE 1: If JS file has N assert() calls, generate exactly N OCaml tests",
+    "RULE 2: Literal patterns and constructor patterns are DIFFERENT tests - generate both",
+    "RULE 3: u mode and v mode tests are DIFFERENT - generate both (document if v mode unavailable)",
+    "RULE 4: Each unique flag combination is a separate test - generate all",
+    "RULE 5: If assertions_found not equal tests_generated, this is a FAILURE - fix before returning"
+  ],
+  "integration": {
+    "caller": "fix_test262_batch",
+    "call_pattern": "Called sequentially for each JS test file"
+  }
+}
