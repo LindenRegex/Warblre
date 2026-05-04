@@ -1,8 +1,6 @@
 [
-  
-
   {
-    "model": "moonshotai/Kimi-K2.5",
+    "model": "moonshotai/Kimi-K2.6",
     "base_url": "https://inference.rcp.epfl.ch/v1",
     "generation": {
       "temperature": 0,
