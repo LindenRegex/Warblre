@@ -7,7 +7,7 @@
 
 @filter_audit filter the latest results created
 
-@fix_audit_batch use the latest filter result created and the other subagent on your prompt to solve all of those problems 
+@fix_audit_batcPh use the latest filter result created and the other subagent on your prompt to solve all of those problems 
 
 
 

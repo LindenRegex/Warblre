@@ -14,13 +14,15 @@ curl -fsSL https://opencode.ai/install | bash
 
 After installation, **restart your terminal** and verify that `opencode` is available.
 
+link : <a href="https://opencode.ai/"> `opencode` </a>
+
 ---
 
 ## 2. Provider Setup
 
 ### 2.1 Create Configuration File
 
-Save the following provider configuration to `~/.config/opencode/opencode.json`:
+Save the provider configuration to `~/.config/opencode/opencode.json`
 
 ```bash
 mkdir -p ~/.config/opencode
@@ -78,54 +80,21 @@ EOF
 
 ## 4. MCP Server Configuration
 
-The pipeline relies on **rocq-mcp** for interactive proof checking, compilation, and code navigation. This server must be running before you execute agents that touch Rocq code.
+The pipeline relies on **rocq-mcp** for interactive proof checking, compilation, and code navigation. This server must be running before you execute the agent that fix the proofs.
 
 ### 4.1 Prerequisites
 
 - **Rocq / Coq** — `coqc` must be on your `PATH` (version 9.0.0 or 9.1.0)
 - **Python 3.11+**
-- **rocq-mcp** — installed in a virtual environment (e.g., `/home/valentin/epfl/masterProject/rocq-mcp`)
-- **pet** (from `pytanque`) — optional, required only for interactive tools (`rocq_start`, `rocq_check`, `rocq_step_multi`)
-- **Compiled artifacts** — the project must be built so `.vo` files exist
+- **rocq-mcp** — to be download from <a href="https://github.com/LLM4Rocq/rocq-mcp"> rocq-mcp </a> installed in a virtual environment (e.g., `~/rocq-mcp`), follow the instructions there
 
 ### 4.2 Create MCP Configuration
 
-Create `.opencode/mcp.json` at the project root:
-
-```bash
-cat > .opencode/mcp.json << 'EOF'
-{
-  "$schema": "https://opencode.ai/mcp-schema.json",
-  "servers": {
-    "rocq-mcp": {
-      "name": "Rocq MCP Server",
-      "description": "Real-time proof checking and code navigation for Rocq",
-      "transport": {
-        "type": "stdio",
-        "command": "python",
-        "args": ["-m", "rocq_mcp.server"]
-      },
-      "env": {
-        "ROCQ_WORKSPACE": "/home/valentin/epfl/masterProject/warblre",
-        "ROCQPATH": "_build/default/mechanization",
-        "ROCQ_COQC_BINARY": "coqc"
-      }
-    }
-  }
-}
-EOF
-```
-
-> Adjust `ROCQ_WORKSPACE` to your absolute project path if it differs.
+Modify the paths on `.opencode/opencode.json` (inside this project) ***I have put this /Users/valentinschneeberger because ~ was not working!!***
 
 ### 4.3 Verify the Server
 
-1. Build the project to ensure `.vo` files are present:
-   ```bash
-   opam exec -- dune build @all
-   ```
-
-2. In OpenCode, check that rocq-mcp tools are available. A quick test is:
+1. In OpenCode, check that rocq-mcp tools are available. A quick test is:
    ```
    @fix_proofs verify that you can access the mcp server
    ```
