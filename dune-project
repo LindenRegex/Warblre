@@ -1,10 +1,10 @@
-(lang dune 3.21)
+(lang dune 3.23)
 
 (name warblre)
 
 (generate_opam_files true)
 
-(using rocq 0.11)
+(using rocq 0.13)
 (using melange 0.1)
 (using directory-targets 0.1)
 
