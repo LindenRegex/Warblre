@@ -1,9 +1,9 @@
-(lang dune 3.21)
+(lang dune 3.23)
 ; This package is defined in a sub dune-project to prevent the installation of example executables
 
 (generate_opam_files false)
 
-(using rocq 0.11)
+(using rocq 0.13)
 (using melange 0.1)
 (using directory-targets 0.1)
 
