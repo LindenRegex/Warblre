@@ -1,0 +1,50 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "mcp": {
+        "rocq-mcp": {
+            "enabled": true,
+            "type": "local",
+            "command": [
+                "/Users/valentinschneeberger/miniconda3/envs/coq-proof/bin/rocq-mcp"
+            ],
+            "environment": {
+                "ROCQ_WORKSPACE": "/Users/valentinschneeberger/epfl/masterProject/warblre",
+                "ROCQPATH": "_build/default/mechanization",
+                "ROCQ_COQC_BINARY": "/Users/valentinschneeberger/.opam/default/bin/coqc",
+                "ROCQ_PET_BINARY": "/Users/valentinschneeberger/.opam/default/bin/pet",
+                "ROCQ_PET_TIMEOUT": "30",
+                "ROCQ_COQC_TIMEOUT": "60",
+                "ROCQ_VERIFY_TIMEOUT": "120"
+            }
+        }
+    },
+    "agent": {
+        "annotate_rocq": {
+            "description": "{file:./agents/annotate_rocq/description.md}",
+            "prompt": "{file:./agents/annotate_rocq/prompt.md}"
+        },
+        "filter_audit": {
+            "description": "{file:./agents/filter_audit/description.md}",
+            "prompt": "{file:./agents/filter_audit/prompt.md}"
+        },
+        "fix_audit_batch": {
+            "description": "{file:./agents/fix_audit_batch/description.md}",
+            "prompt": "{file:./agents/fix_audit_batch/prompt.md}",
+            "tools": {
+                "task": true
+            }
+        },
+        "fix_audit_entry": {
+            "description": "{file:./agents/fix_audit_entry/description.md}",
+            "prompt": "{file:./agents/fix_audit_entry/prompt.md}"
+        },
+        "fix_proofs": {
+            "description": "{file:./agents/fix_proofs/description.md}",
+            "prompt": "{file:./agents/fix_proofs/prompt.md}"
+        },
+        "implement_from_comments": {
+            "description": "{file:./agents/implement_from_comments/description.md}",
+            "prompt": "{file:./agents/implement_from_comments/prompt.md}"
+        }
+    }
+}
