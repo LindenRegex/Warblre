@@ -224,6 +224,8 @@ Section StaticSemantics.
     | Group _ r0 => 1 + (countLeftCapturingParensWithin_impl r0)
     | InputStart => 0
     | InputEnd => 0
+    | BufferStart => 0
+    | BufferEnd => 0
     | WordBoundary => 0
     | NotWordBoundary => 0
     | Lookahead r0 => countLeftCapturingParensWithin_impl r0
@@ -331,6 +333,8 @@ Section StaticSemantics.
     | Group name r => earlyErrors_rec r (Group_inner name :: ctx)
     | InputStart => false
     | InputEnd => false
+    | BufferStart => false
+    | BufferEnd => false
     | WordBoundary => false
     | NotWordBoundary => false
     | Lookahead r => earlyErrors_rec r (Lookahead_inner :: ctx)

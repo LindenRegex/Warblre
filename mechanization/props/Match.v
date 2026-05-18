@@ -894,6 +894,10 @@ Module Match.
         injection Matching as ->.
         pinpoint_failure.
         MatchState.solve_with lia.
+      - (* Buffer start *)
+        injection Eq_m as <-. run matcher as Matching; try search; injection Matching as <-; pinpoint_failure; contradiction.
+      - (* Buffer end *)
+        injection Eq_m as <-. run matcher as Matching; try search; injection Matching as <-; pinpoint_failure; contradiction.
       - (* Word boundary *)
         injection Eq_m as <-. run matcher as Matching; try search; injection Matching as <-; pinpoint_failure; contradiction.
       - (* Non word boundary *)

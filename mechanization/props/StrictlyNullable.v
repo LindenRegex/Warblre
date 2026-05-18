@@ -23,7 +23,7 @@ Section StriclyNullable.
 Fixpoint strictly_nullable (r:Regex) : bool :=
   match r with
   | Empty | Lookahead _ | NegativeLookahead _ | Lookbehind _ | NegativeLookbehind _ => true
-  | InputStart | InputEnd | WordBoundary | NotWordBoundary => true
+  | InputStart | InputEnd | BufferStart | BufferEnd | WordBoundary | NotWordBoundary => true
   | Char _ | Dot | CharacterClass _ | AtomEsc _ => false
   | Disjunction r1 r2 | Seq r1 r2 => andb (strictly_nullable r1) (strictly_nullable r2)
   | Quantified r1 _ | Group _ r1 => strictly_nullable r1
@@ -466,6 +466,18 @@ Proof.
     simpl. destruct (CharSet.contains Characters.line_terminators s) eqn:TERMINATOR.
     + right. exists x. auto.
     + left. auto.
+  (* BufferStart *)
+  - inversion COMPILE as [M]. clear COMPILE M.
+    destruct (endIndex x =? 0)%Z eqn:START.
+    (* start of buffer *)
+    { right. exists x. auto. }
+    left. auto.
+  (* BufferEnd *)
+  - inversion COMPILE as [M]. clear COMPILE M.
+    destruct (endIndex x =? (length (input x)))%Z eqn:END.
+    (* end of buffer *)
+    { right. exists x. auto. }
+    left. auto.
   (* WordBoundary *)
   - inversion COMPILE as [M]. clear COMPILE M.
     apply isWordsuccess in VALID as H. destruct H as [v1 WORD1]. rewrite WORD1.
