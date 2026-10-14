@@ -757,8 +757,8 @@ Module Match.
       end; intros _.
 
     Ltac compileSubPattern_helper := repeat match goal with
-    | [ IH: forall _ _, compileSubPattern ?r _ _ _ = Success _ -> _, H: compileSubPattern ?r _ _ _ = Success _  |- _ ] =>
-        specialize IH with (1 := H)
+    | [ IH: forall _ _ _ _, compileSubPattern ?r _ _ _ = Success _ -> _, H1: compileSubPattern ?r _ _ _ = Success _, H2: countLeftCapturingParensWithin _ _ = RegExpRecord.capturingGroupsCount _ |- _ ] =>
+        specialize IH with (1 := H2) (2 := H1)
     end.
 
     Lemma isWordChar_failure: forall rer x f, isWordChar rer (MatchState.input x) (MatchState.endIndex x) = Error f -> ~ MatchState.Valid (MatchState.input x) rer x.
@@ -781,18 +781,28 @@ Module Match.
       | [ H: isWordChar _ _ _ = Error _ |- _ ] => apply isWordChar_failure in H + apply isWordChar_failure_min in H
       end.
 
-    Lemma compileSubPattern: forall root rer,
-      countLeftCapturingParensWithin root nil = RegExpRecord.capturingGroupsCount rer ->
+    Lemma matcher_invariant_rer: forall m dir rer rer',
+      RegExpRecord.capturingGroupsCount rer = RegExpRecord.capturingGroupsCount rer' ->
+      matcher_invariant m dir rer -> matcher_invariant m dir rer'.
+    Proof.
+      intros m dir rer rer' Heq Hinv.
+      unfold matcher_invariant, MatchState.input, MatchState.Valid in *.
+      rewrite <- Heq; assumption.
+    Qed.
+
+    Lemma compileSubPattern: forall root,
       EarlyErrors.Pass_Regex root nil ->
       forall r ctx,
       Root root (r, ctx) ->
+      forall rer,
+      countLeftCapturingParensWithin root nil = RegExpRecord.capturingGroupsCount rer ->
       forall  dir m,
       compileSubPattern r ctx rer dir = Success m ->
       matcher_invariant m dir rer.
     Proof.
-      intros root rer Eq_rer EE_root.
+      intros root EE_root. 
       node_induction.
-      all: intros dir m Eq_m; cbn -[Semantics.repeatMatcher] in Eq_m.
+      all: intros rer Eq_rer dir m Eq_m; cbn -[Semantics.repeatMatcher] in Eq_m.
       - (* Empty *)
         injection Eq_m as <-. intros x c V_x. right. exists x. split_conjs; [ assumption | Progress.solve | reflexivity ].
       - (* Character *)
@@ -833,6 +843,10 @@ Module Match.
         focus <! _ [] _ !> auto destruct in Eq_m. injection Eq_m as <-.
         compileSubPattern_helper.
         run matcher as Matching; try ltac2:(retrieve (s _ _ = _) as H0); rewrite <- Matching, <- ?H0 in *; auto.
+      - (* Modifiers *)
+        focus <! _ [] _ !> auto destruct in Eq_m. injection Eq_m as <-.
+        unfold updateModifiers in *; destruct (negb (negb _ && negb _ && negb _)); try easy.
+        eapply (matcher_invariant_rer _ _ s _); injection AutoDest_ as <-; [reflexivity|eauto using IH0].
       - (* Quantifier *)
         focus <! _ [] _ !> auto destruct in Eq_m. injection Eq_m as <-. apply repeatMatcher.
         + intros i v Eq_indexed.
@@ -946,7 +960,7 @@ Module Match.
       }
       (* Use the matcher invariant *)
       pose proof (MatcherInvariant.compileSubPattern) as G.
-      specialize G with (1 := Eq_rer) (2 := EE_root) (3 := ltac:(apply Zipper.Root.id)) (4 := H0).
+      specialize G with (1 := EE_root) (2 := ltac:(apply Zipper.Root.id)) (3 := Eq_rer) (4 := H0).
       specialize (G x (fun y => y) V_x).
       (* Match either failed or succeeded *)
       destruct G as [ -> | (y & ? & ? & <-) ].
@@ -990,7 +1004,7 @@ Module Match.
     }
     (* Use the matcher invariant *)
     pose proof (MatcherInvariant.compileSubPattern) as G.
-    specialize G with (1 := Eq_rer) (2 := EE_root) (3 := ltac:(apply Zipper.Root.id)) (4 := H0).
+    specialize G with (1 := EE_root) (2 := ltac:(apply Zipper.Root.id)) (3 := Eq_rer) (4 := H0).
     specialize (G x (fun y => y) V_x).
     (* Match either failed or succeeded *)
     destruct G as [ -> | (y & ? & ? & <-) ].
@@ -1021,7 +1035,7 @@ Module Match.
       }
       (* Use the matcher invariant *)
       pose proof (MatcherInvariant.compileSubPattern) as G.
-      specialize G with (1 := Eq_rer) (2 := EE_root) (3 := ltac:(apply Zipper.Root.id)) (4 := H0).
+      specialize G with (1 := EE_root) (2 := ltac:(apply Zipper.Root.id)) (3 := Eq_rer) (4 := H0).
       specialize (G x (fun y => y) V_x).
       (* Match either failed or succeeded *)
       destruct G as [ -> | (y & ? & ? & <-) ].
