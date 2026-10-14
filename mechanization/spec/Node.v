@@ -37,6 +37,7 @@ Section Zipper.
   | Seq_left (r: Regex)
   | Seq_right (l: Regex)
   | Group_inner (name: option GroupName)
+  | Modifiers_inner (add remove : RegularExpressionModifiers)
   | Lookahead_inner
   | NegativeLookahead_inner
   | Lookbehind_inner
@@ -48,6 +49,7 @@ Section Zipper.
   | Disjunction_left r => Disjunction focus r
   | Disjunction_right l => Disjunction l focus
   | Quantified_inner q => Quantified focus q
+  | Modifiers_inner add remove => Modifiers add remove focus
   | Seq_left r => Seq focus r
   | Seq_right l => Seq l focus
   | Group_inner name => Group name focus

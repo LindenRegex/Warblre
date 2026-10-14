@@ -26,6 +26,22 @@ From Warblre Require Import List Result Typeclasses Notation Numeric Characters 
       rather than a sequence of digits which have to transformed into a number.
 +*)
 
+(** >> RegularExpressionModifiers :: <<*)
+Module RegularExpressionModifiers.
+  (** >> RegularExpressionModifier :: one of <<*)
+  Record type := make {
+    (*>> i <<*)
+    i : bool;
+    (*>> m <<*)
+    m : bool;
+    (*>> s <<*)
+    s : bool
+  }.
+End RegularExpressionModifiers.
+
+Notation RegularExpressionModifiers := RegularExpressionModifiers.type.
+Notation reg_exp_mods := RegularExpressionModifiers.make.
+
 Module Patterns.
   Section Types.
     Local Definition String {T: Type} `{StringMarker T} := T.
@@ -188,6 +204,10 @@ Module Patterns.
     | AtomEsc (ae: AtomEscape)
     (*>> CharacterClass[?UnicodeMode] <<*)
     | CharacterClass (cc: CharClass)
+    (*>> (? RegularExpressionModifiers : Disjunction[?UnicodeMode, ?N] ) <<*)
+    (* + This production collapses into the next, making the early error (?a-:r) unrepresentable. *)
+    (*>> (? RegularExpressionModifiers - RegularExpressionModifiers : Disjunction[?UnicodeMode, ?N] ) <<*)
+    | Modifiers (add remove : RegularExpressionModifiers) (r : Regex)
     (*>> Alternative[?UnicodeMode, ?N] | Disjunction[?UnicodeMode, ?N] <<*)
     | Disjunction (r1 r2: Regex)
     (*>> Atom[?UnicodeMode, ?N] Quantifier <<*)
@@ -240,6 +260,8 @@ Module Patterns.
     #[export] #[refine] Instance eqdec_ClassRanges: EqDec ClassRanges := {}.
     Proof. decide equality; apply EqDec.eq_dec. Defined.
     #[export] #[refine] Instance eqdec_CharClass: EqDec CharClass := {}.
+    Proof. decide equality; apply EqDec.eq_dec. Defined.
+    #[export] #[refine] Instance eqdec_RegularExpressionModifiers : EqDec RegularExpressionModifiers := {}.
     Proof. decide equality; apply EqDec.eq_dec. Defined.
     #[export] #[refine] Instance eqdec_Regex: EqDec Regex := {}.
     Proof. decide equality; apply EqDec.eq_dec. Defined.
