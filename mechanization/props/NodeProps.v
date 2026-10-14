@@ -62,6 +62,7 @@ Module Zipper.
     | Down_Quantified_inner: forall r q ctx, Down (r, Quantified_inner q :: ctx) (Quantified r q, ctx)
     | Down_Seq_left: forall r1 r2 ctx, Down (r1, Seq_left r2 :: ctx) (Seq r1 r2, ctx)
     | Down_Seq_right: forall r1 r2 ctx, Down (r2, Seq_right r1 :: ctx) (Seq r1 r2, ctx)
+    | Down_Modifiers_inner: forall add remove r ctx, Down (r, Modifiers_inner add remove :: ctx) (Modifiers add remove r, ctx)
     | Down_Group_inner: forall name r ctx, Down (r, Group_inner name :: ctx) (Group name r, ctx)
     | Down_Lookahead_inner: forall r ctx, Down (r, Lookahead_inner :: ctx) (Lookahead r, ctx)
     | Down_NegativeLookahead_inner: forall r ctx, Down (r, NegativeLookahead_inner :: ctx) (NegativeLookahead r, ctx)
@@ -141,6 +142,7 @@ Module Zipper.
       | Dot => nil
       | CharacterClass _ => nil
       | AtomEsc _ => nil
+      | Modifiers add remove r => walk r (Modifiers_inner add remove :: ctx)
       | Disjunction r1 r2 => walk r1 (Disjunction_left r2 :: ctx) ++ walk r2 (Disjunction_right r1 :: ctx)
       | Quantified r0 q => walk r0 (Quantified_inner q :: ctx)
       | Seq r1 r2 => walk r1 (Seq_left r2 :: ctx) ++ walk r2 (Seq_right r1 :: ctx)
@@ -198,6 +200,7 @@ Module Zipper.
       - rewrite -> List.Indexing.Nat.nil in Eq_indexed. Result.assertion_failed_helper.
       - rewrite -> List.Indexing.Nat.nil in Eq_indexed. Result.assertion_failed_helper.
       - rewrite -> List.Indexing.Nat.nil in Eq_indexed. Result.assertion_failed_helper.
+      - specialize (IHr _ _ _ Eq_indexed). apply Relation_Operators.rt_trans with (1 := IHr). apply Relation_Operators.rt_step. constructor.
       - apply List.Indexing.Nat.concat in Eq_indexed as  [[ _ Eq_indexed ]|[ _ Eq_indexed ]].
         + symmetry in Eq_indexed. specialize (IHr1 _ _ _ Eq_indexed). apply Relation_Operators.rt_trans with (1 := IHr1). apply Relation_Operators.rt_step. constructor.
         + symmetry in Eq_indexed. specialize (IHr2 _ _ _ Eq_indexed). apply Relation_Operators.rt_trans with (1 := IHr2). apply Relation_Operators.rt_step. constructor.
@@ -250,6 +253,7 @@ Module Zipper.
             apply Down.antisymmetry with (2 := H) in Falsum as [=]; List.rec_eq
             end
         | reflexivity].
+      - f_equal. eapply IHr; eassumption.
       - f_equal. eapply IHr1; eassumption.
       - destruct v as [ r' ctx' ].
         apply soundness in Eq_indexed_i. apply Down.down_prefix in Eq_indexed_i as [pre_i ctx_i].
@@ -309,6 +313,9 @@ Section Induction.
         Root root (r1, Disjunction_left r2 :: ctx) -> P (r1, Disjunction_left r2 :: ctx) ->
         Root root (r2, Disjunction_right r1 :: ctx) -> P (r2, Disjunction_right r1 :: ctx) ->
         Root root (Disjunction r1 r2, ctx) -> P (Disjunction r1 r2, ctx)) ->
+      (forall ctx r add remove,
+        Root root (r, Modifiers_inner add remove :: ctx) -> P (r, Modifiers_inner add remove :: ctx) ->
+        Root root (Modifiers add remove r, ctx) -> P (Modifiers add remove r, ctx)) ->
       (forall ctx r q,
         Root root (r, Quantified_inner q :: ctx) -> P (r, Quantified_inner q :: ctx) ->
         Root root (Quantified r q, ctx) -> P (Quantified r q, ctx)) ->
