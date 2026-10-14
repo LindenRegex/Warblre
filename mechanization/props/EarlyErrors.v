@@ -59,6 +59,12 @@ Section EarlyErrors.
   Inductive Pass_Quantifier: Patterns.Quantifier -> Prop :=
   | Pass_Greedy: forall p, Pass_QuantifierPrefix p -> Pass_Quantifier (Patterns.Greedy p)
   | Pass_Lazy: forall p, Pass_QuantifierPrefix p -> Pass_Quantifier (Patterns.Lazy p).
+  
+  Definition Pass_Mods (add remove : RegularExpressionModifiers) : Prop :=
+    (andb (remod_empty add) (remod_empty remove) = false) /\
+    (andb (RegularExpressionModifiers.i add) (RegularExpressionModifiers.i remove) = false) /\
+    (andb (RegularExpressionModifiers.s add) (RegularExpressionModifiers.s remove) = false) /\
+    (andb (RegularExpressionModifiers.m add) (RegularExpressionModifiers.m remove) = false).
 
   Inductive Pass_Regex: Patterns.Regex -> RegexContext -> Prop :=
   | Pass_Empty: forall ctx, Pass_Regex Patterns.Empty ctx
@@ -66,6 +72,7 @@ Section EarlyErrors.
   | Pass_Dot: forall ctx, Pass_Regex Patterns.Dot ctx
   | Pass_AtomEsc: forall esc ctx, Pass_AtomEscape esc ctx -> Pass_Regex (Patterns.AtomEsc esc) ctx
   | Pass_CharacterClass: forall cc ctx, Pass_CharClass cc -> Pass_Regex (Patterns.CharacterClass cc) ctx
+  | Pass_Modifiers: forall r add remove ctx, Pass_Regex r (Modifiers_inner add remove :: ctx) -> Pass_Mods add remove -> Pass_Regex (Patterns.Modifiers add remove r) ctx
   | Pass_Disjunction: forall r1 r2 ctx, Pass_Regex r1 (Disjunction_left r2 :: ctx) -> Pass_Regex r2 (Disjunction_right r1 :: ctx) -> Pass_Regex (Patterns.Disjunction r1 r2) ctx
   | Pass_Quantified: forall r q ctx, Pass_Regex r (Quantified_inner q :: ctx) -> Pass_Quantifier q -> Pass_Regex (Patterns.Quantified r q) ctx
   | Pass_Seq: forall r1 r2 ctx, Pass_Regex r1 (Seq_left r2 :: ctx) -> Pass_Regex r2 (Seq_right r1 :: ctx) -> Pass_Regex (Patterns.Seq r1 r2) ctx
@@ -262,6 +269,7 @@ Section EarlyErrors.
       induction r; intros ctx H; cbn in H; Result.assertion_failed_helper.
       - focus <! _ [] _ !> auto destruct in H.
       - apply (Safety_char_class _ H).
+      - focus <! _ [] _ !> auto destruct in H; subst. destruct f. eapply (IHr _). eassumption.
       - focus <! _ [] _ !> auto destruct in H; subst. + apply (IHr2 _ H). + destruct f. apply (IHr1 _ AutoDest_).
       - focus <! _ [] _ !> auto destruct in H. Result.assertion_failed_helper. apply (IHr _ AutoDest_).
       - focus <! _ [] _ !> auto destruct in H; subst. + apply (IHr2 _ H). + destruct f. apply (IHr1 _ AutoDest_).
@@ -319,9 +327,11 @@ Section EarlyErrors.
     Definition Completeness_quantifier_prefix: forall q, earlyErrors_quantifier_prefix q = false -> Pass_QuantifierPrefix q.
     Proof. intros; destruct q; constructor. cbn in H. destruct min as [ ] eqn:Eq_min. - lia. - destruct (max <=? n) eqn:Ineq; spec_reflector Nat.leb_spec0; lia. Qed.
 
-
     Definition Completeness_quantifier: forall q, earlyErrors_quantifier q = false -> Pass_Quantifier q.
     Proof. intros; destruct q; constructor; apply Completeness_quantifier_prefix; assumption. Qed.
+
+    Definition Completeness_modifiers: forall add remove, earlyErrors_modifiers add remove = false -> Pass_Mods add remove.
+    Proof. intros; unfold earlyErrors_modifiers in H; repeat rewrite Bool.orb_false_iff in H; unfold Pass_Mods; tauto. Qed.
 
     Lemma rec: forall root r ctx,
         List.Exists.exist (Zipper.Walk.walk root nil) (fun node0 =>
@@ -353,6 +363,10 @@ Section EarlyErrors.
           rewrite -> Zipper.Zip.id in *.
           lia.
       - constructor. apply Completeness_char_class. apply EE_r.
+      - constructor.
+        + cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr; try assumption.
+        + cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. injection EE_r as EE_r.
+          apply Completeness_modifiers. apply EE_r.
       - constructor.
         + cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr1; try assumption.
         + cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr2; try assumption.
@@ -433,6 +447,15 @@ Section EarlyErrors.
     intros q H. destruct q; cbn; inversion H; subst; eauto using soundness_quantifier_prefix.
   Qed.
 
+  Lemma soundness_modifiers :
+    forall add remove, Pass_Mods add remove -> earlyErrors_modifiers add remove = false.
+  Proof.
+    unfold earlyErrors_modifiers, Pass_Mods.
+    intros add remove Hpass.
+    repeat rewrite Bool.orb_false_iff.
+    tauto.
+  Qed.
+
   Lemma soundness_rec :
     forall r ctx, Pass_Regex r ctx -> earlyErrors_rec r ctx = Success false.
   Proof.
@@ -448,6 +471,8 @@ Section EarlyErrors.
         exfalso. apply Nat.leb_le in E. lia.
       + (* GroupEsc *) rewrite Hlen. auto.
     - (* CharacterClass *) apply soundness_char_class. auto.
+    - (* Modifiers *)
+      rewrite IHPass_Regex. rewrite soundness_modifiers; auto.
     - (* Disjunction *)
       rewrite IHPass_Regex1. rewrite IHPass_Regex2. auto.
     - (* Quantified *)

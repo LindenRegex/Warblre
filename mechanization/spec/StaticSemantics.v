@@ -221,6 +221,7 @@ Section StaticSemantics.
     | Disjunction r1 r2 => (countLeftCapturingParensWithin_impl r1) + (countLeftCapturingParensWithin_impl r2)
     | Quantified r0 _ => countLeftCapturingParensWithin_impl r0
     | Seq r1 r2 => (countLeftCapturingParensWithin_impl r1) + (countLeftCapturingParensWithin_impl r2)
+    | Modifiers _ _ r0 => 1 + (countLeftCapturingParensWithin_impl r0)
     | Group _ r0 => 1 + (countLeftCapturingParensWithin_impl r0)
     | InputStart => 0
     | InputEnd => 0
@@ -251,6 +252,7 @@ Section StaticSemantics.
       | Quantified_inner _ => 0
       | Seq_left _ => 0
       | Seq_right l => countLeftCapturingParensWithin_impl l
+      | Modifiers_inner _ _ => 1
       | Group_inner _ => 1
       | Lookahead_inner => 0
       | NegativeLookahead_inner => 0
@@ -298,6 +300,25 @@ Section StaticSemantics.
   | InvertedCC cr => earlyErrors_class_ranges cr
   end.
 
+  (** >> [OMITTED] Atom :: (? RegularExpressionModifiers : Disjunction ) <<*)
+  (*>> * It is a Syntax Error if the source text matched by |RegularExpressionModifiers| contains the same code point more than once. <<*)
+
+  Definition remod_empty (remod : RegularExpressionModifiers): bool := 
+    negb (RegularExpressionModifiers.i remod || RegularExpressionModifiers.s remod || RegularExpressionModifiers.m remod).
+
+  (** >> Atom :: (? RegularExpressionModifiers - RegularExpressionModifiers : Disjunction ) <<*)
+  Definition earlyErrors_modifiers (add remove: RegularExpressionModifiers): bool :=
+    (*>> [OMITTED] * It is a Syntax Error if the source text matched by the first |RegularExpressionModifiers| contains the same code point more than once. <<*)
+    (*>> [OMITTED] * It is a Syntax Error if the source text matched by the second |RegularExpressionModifiers| contains the same code point more than once. <<*)
+    (* + The record structure makes these cases impossible *)
+    (*>> * It is a Syntax Error if the source text matched by the first RegularExpressionModifiers and the source text matched by the second RegularExpressionModifiers are both empty. <<*)
+    (remod_empty add && remod_empty remove) || (
+      (*>> * It is a Syntax Error if any code point in the source text matched by the first |RegularExpressionModifiers| is also contained in the source text matched by the second |RegularExpressionModifiers|. <<*)
+      (RegularExpressionModifiers.i add && RegularExpressionModifiers.i remove) ||
+      (RegularExpressionModifiers.s add && RegularExpressionModifiers.s remove) ||
+      (RegularExpressionModifiers.m add && RegularExpressionModifiers.m remove)
+    ).
+
   Definition earlyErrors_quantifier_prefix (q: QuantifierPrefix): bool := match q with
   (** >> QuantifierPrefix :: { DecimalDigits , DecimalDigits } <<*)
   | RepRange l h =>
@@ -325,6 +346,7 @@ Section StaticSemantics.
         if (List.length (groupSpecifiersThatMatch (AtomEsc (GroupEsc name)) ctx name) =? 0)%nat then true else false
     | AtomEsc _ => false
     | CharacterClass cc => earlyErrors_char_class cc
+    | Modifiers add remove r => earlyErrors_rec r (Modifiers_inner add remove :: ctx) ||! earlyErrors_modifiers add remove
     | Disjunction r1 r2 => earlyErrors_rec r1 (Disjunction_left r2 :: ctx) ||! earlyErrors_rec r2 (Disjunction_right r1 :: ctx)
     | Quantified r q => earlyErrors_rec r (Quantified_inner q :: ctx) ||! earlyErrors_quantifier q
     | Seq r1 r2 => earlyErrors_rec r1 (Seq_left r2 :: ctx) ||! earlyErrors_rec r2 (Seq_right r1 :: ctx)
