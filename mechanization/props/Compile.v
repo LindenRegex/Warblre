@@ -123,6 +123,11 @@ Section Compile.
       - focus <! _ (_ [] _) !> auto destruct; destruct f; try easy.
         exfalso. apply (compileCharacterClass _ _ H0 ltac:(eassumption)).
       - focus <! _ (_ [] _) !> auto destruct; destruct f; try easy.
+        all: unfold updateModifiers in *; destruct (negb (negb _ && negb _ && negb _)) eqn:Heq; try easy.
+        + exfalso. apply IHr with (3 := ltac:(eassumption)); try easy.
+          injection AutoDest_ as <-; eassumption.
+        + destruct H0 as [_ [Hi [Hs Hm]]]; boolean_simplifier.
+      - focus <! _ (_ [] _) !> auto destruct; destruct f; try easy.
         + exfalso. apply IHr2 with (3 := ltac:(eassumption)); assumption.
         + exfalso. apply IHr1 with (3 := ltac:(eassumption)); assumption.
       - apply compileQuantifier in H0.
