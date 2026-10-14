@@ -26,7 +26,7 @@ Fixpoint strictly_nullable (r:Regex) : bool :=
   | InputStart | InputEnd | WordBoundary | NotWordBoundary => true
   | Char _ | Dot | CharacterClass _ | AtomEsc _ => false
   | Disjunction r1 r2 | Seq r1 r2 => andb (strictly_nullable r1) (strictly_nullable r2)
-  | Quantified r1 _ | Group _ r1 => strictly_nullable r1
+  | Quantified r1 _ | Group _ r1 | Modifiers _ _ r1 => strictly_nullable r1
   end.
 
 (* For a few constructors, we could be more precise *)
@@ -200,7 +200,35 @@ Proof.
       apply Match.CaptureRange.vCrUndefined.
 Qed.
 
-    
+
+Lemma updateModifiers_groups :
+  forall add remove rer rer',
+    updateModifiers rer add remove = @Success RegExpRecord CompileError rer' ->
+    RegExpRecord.capturingGroupsCount rer = RegExpRecord.capturingGroupsCount rer'.
+Proof.
+  unfold updateModifiers; intros add remove rer rer'.
+  destruct (negb (negb _ && negb _ && negb _)) eqn:Heq; try injection 1 as <-; easy.
+Qed.
+
+Lemma rer_preserves_validity:
+  forall (rer rer':RegExpRecord) (x:MatchState) (str: list Character) (VALID: Valid str rer x),
+    RegExpRecord.capturingGroupsCount rer = RegExpRecord.capturingGroupsCount rer' ->
+    Valid str rer' x.
+Proof.
+  intros rer rer' x str [Ha [[Hb1 Hb2] [Hc Hd]]] EQ.
+  repeat split; try rewrite <- EQ; assumption.
+Qed.
+
+Lemma modifiers_preserve_validity:
+  forall (r:Regex) (ctx:RegexContext) (rer rer':RegExpRecord)
+    (x:MatchState) (VALID: Valid (input x) rer x)
+    (add remove: RegularExpressionModifiers),
+  updateModifiers rer add remove = @Success _ CompileError rer' ->
+  Valid (input x) rer' x.
+Proof.
+  intros; eauto using rer_preserves_validity, updateModifiers_groups.
+Qed.
+
 
 (** * Analysis Correctness  *)
 
@@ -346,6 +374,23 @@ Proof.
     + destruct s; auto. right.
       exists x. split; auto.
     + right. exists x. split; auto.
+  (* modifiers *)
+  - inversion STRICTLY_NULLABLE as [SN12].
+    clear STRICTLY_NULLABLE.
+    destruct (updateModifiers rer add remove) eqn:UPD_CORR; try easy; simpl in COMPILE.
+    destruct (compileSubPattern r (Modifiers_inner add remove :: ctx) s dir) as [m'|] eqn:SNM;
+      try solve[inversion COMPILE].
+    inversion COMPILE as [M]; subst m; clear COMPILE.
+
+    pose proof (updateModifiers_groups _ _ _ _ UPD_CORR).
+    apply IHr with (root := root) in SNM;
+      try rewrite <- H; eauto using updateModifiers_groups; clear IHr.
+
+    assert (Valid (input x) s x) as VALID' by (eauto using modifiers_preserve_validity).
+    destruct (SNM x c VALID') as [NONE| (y & YVALID & IDX & MATCH)]; try eauto.
+    right; exists y; split; [ | split; assumption].
+    eapply rer_preserves_validity; try assumption; eauto using H.
+    
   (* disjunction *)
   - simpl in COMPILE.
     inversion STRICTLY_NULLABLE as [SN12]. rewrite andb_true_iff in SN12. destruct SN12 as [SN1 SN2].
