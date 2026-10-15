@@ -37,6 +37,13 @@ Module Match.
   #[export]
   Hint Constructors progress: core.
 
+  (*  Work around `dependent destruction`'s overuse of JMeq. *)
+  Local Ltac dependent_destruction_progress H :=
+    lazymatch type of H with
+    | progress ?dir ?x ?r => change (progress dir x (r : MatchResult)) in H
+    end;
+    dependent destruction H.
+
   Definition IteratorOn `{Parameters} (str: list Character) (i: Z) := (0 <= i <= Z.of_nat (length str))%Z.
 
   Module CaptureRange. Section main.
@@ -287,9 +294,9 @@ Module Match.
     ||  rewrite <- (ignores_captures_l (List.empty)) in *
     ||  rewrite <- (ignores_captures_r (List.empty)) in *
     ||  lazymatch goal with
-        | [ H: progress forward _ _ |- _ ] => dependent destruction H
+        | [ H: progress forward _ _ |- _ ] => dependent_destruction_progress H
         | [ H: directionalProgress forward _ _ |- _ ] => dependent destruction H
-        | [ H: progress backward _ _ |- _ ] => dependent destruction H
+        | [ H: progress backward _ _ |- _ ] => dependent_destruction_progress H
         | [ H: directionalProgress backward _ _ |- _ ] => dependent destruction H
         | [ |- progress forward _ _ ] => constructor; constructor
         | [ |- progress backward _ _ ] => constructor; constructor
@@ -581,7 +588,7 @@ Module Match.
         fuelBound min x' dir <= b.
       Proof.
         intros dir rer min x x' b P_x_x' Neq_Eis [ ? [ [ Bei_x_l Bei_x_h ] VC_x ] ] [ ? [ [ B_Ei_x'_l B_Ei_x'_h ] VC_x' ] ] Ineq_fuel.
-        dependent destruction P_x_x'. rename H into Eq_inp_x_x', H0 into Dp_x_x'.
+        dependent_destruction_progress P_x_x'. rename H into Eq_inp_x_x', H0 into Dp_x_x'.
         unfold fuelBound, MatchState.remainingChars in *.
         rewrite <- Eq_inp_x_x' in *.
         spec_reflector Z.eqb_spec.
@@ -966,7 +973,7 @@ Module Match.
   Proof.
     intros r rer input i m z EE_r Eq_rer Eq_m Eq_z.
     pose proof (monotony r rer input i m EE_r Eq_rer Eq_m) as P.
-    dependent destruction P; autounfold with result_wrappers in *; try congruence.
+    dependent_destruction_progress P; autounfold with result_wrappers in *; try congruence.
     dependent destruction H1.
     cbn in *. rewrite -> Eq_z in *. injection x as [=->]. assumption.
   Qed.
