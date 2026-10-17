@@ -30,5 +30,5 @@
   (integers (>= 0.7.0))
   (uucp (>= 15.0.0))
   (zarith (>= 1.13))
-  (melange (= 5.1.0-414))
+  (melange (>= 5.1.0))
   (ppx_expect (>= v0.16.0))))
