@@ -444,53 +444,53 @@ Module List.
       Module Batch.
         Definition update {T F: Type} {_: Result.AssertionError F} (v: T) := lift_to_list (One.update v).
 
-        Lemma step {T F: Type} {_: Result.AssertionError F}: forall (ls: list T) (i: nat) (is: list nat) (v: T),
-          update v ls (i :: is) = let! ls' =<< One.update v ls i in update v ls' is.
-        Proof. intros ls i is v. cbn. destruct (One.update v ls i) eqn:Eq. - reflexivity. - destruct is; reflexivity. Qed.
+        Lemma step {T F: Type} {_: Result.AssertionError F}: forall (ls: list T) (n: nat) (ns: list nat) (v: T),
+          update v ls (n :: ns) = let! ls' =<< One.update v ls n in update v ls' ns.
+        Proof. intros ls n ns v. cbn. destruct (One.update v ls n) eqn:Eq. - reflexivity. - destruct ns; reflexivity. Qed.
 
-        Lemma failure_is_assertion {T F: Type} {f: Result.AssertionError F}: forall (is: list nat) (ls: list T) (v: T) (f': F),
-          update v ls is = Result.Error f' -> {| Result.f := f' |} = f.
+        Lemma failure_is_assertion {T F: Type} {f: Result.AssertionError F}: forall (ns: list nat) (ls: list T) (v: T) (f': F),
+          update v ls ns = Result.Error f' -> {| Result.f := f' |} = f.
         Proof.
-          induction is; intros ls v f' H.
+          induction ns; intros ls v f' H.
           - discriminate.
           - rewrite -> step in H. destruct (One.update v ls a) eqn:Eq_update.
-            + apply IHis with (ls := s) (v := v). assumption.
+            + apply IHns with (ls := s) (v := v). assumption.
             + injection H as <-. apply One.failure_is_assertion in Eq_update. assumption.
         Qed.
 
-        Lemma failure_bounds {T F: Type} {f: Result.AssertionError F}: forall (is: list nat) (ls: list T) (v: T) (f': F),
-          @update T F f v ls is = Result.Error f' -> ~ Forall.Forall is (fun i => i < length ls)%nat.
+        Lemma failure_bounds {T F: Type} {f: Result.AssertionError F}: forall (ns: list nat) (ls: list T) (v: T) (f': F),
+          @update T F f v ls ns = Result.Error f' -> ~ Forall.Forall ns (fun i => i < length ls)%nat.
         Proof.
-          induction is; intros; intros Falsum.
+          induction ns; intros; intros Falsum.
           - discriminate.
           - cbn in H. destruct (One.update v ls a) eqn:Eq_update.
-            + specialize IHis with (1 := H). apply Forall.cons_inv_tail in Falsum. apply IHis. intros j w G. apply One.success_length in Eq_update as <-.
+            + specialize IHns with (1 := H). apply Forall.cons_inv_tail in Falsum. apply IHns. intros j w G. apply One.success_length in Eq_update as <-.
               specialize (Falsum j w). auto.
             + apply One.failure_bounds in Eq_update. specialize (Falsum 0%nat a). cbn in Falsum. fforward Falsum. lia.
         Qed.
 
-        Lemma success_length {T F: Type} {_: Result.AssertionError F}: forall (is: list nat) (ls ls': list T) (v: T),
-          update v ls is = Success ls' -> (length ls) = (length ls').
+        Lemma success_length {T F: Type} {_: Result.AssertionError F}: forall (ns: list nat) (ls ls': list T) (v: T),
+          update v ls ns = Success ls' -> (length ls) = (length ls').
         Proof.
-          induction is; intros ls0 ls2 v H; cbn in H.
+          induction ns; intros ls0 ls2 v H; cbn in H.
           - injection H as <-. reflexivity.
           - destruct (One.update v ls0 a) as [ ls1 | ] eqn:Eq_ls1.
             + apply One.success_length in Eq_ls1 as ->.
-              apply IHis with (v := v). apply H.
+              apply IHns with (v := v). apply H.
             + rewrite -> FoldResult.zero_failure0 in H. discriminate.
         Qed.
 
-        Lemma prop_preservation {T F: Type} {_: Result.AssertionError F}: forall is (ls: list T) v ls' P,
+        Lemma prop_preservation {T F: Type} {_: Result.AssertionError F}: forall ns (ls: list T) v ls' P,
           Forall.Forall ls P ->
           P v ->
-          update v ls is = Success ls' ->
+          update v ls ns = Success ls' ->
           Forall.Forall ls' P.
         Proof.
-          induction is; intros ls v ls' P FP_ls P_v Eq_ls'.
+          induction ns; intros ls v ls' P FP_ls P_v Eq_ls'.
           - cbn in Eq_ls'. injection Eq_ls' as <-. assumption.
           - cbn in Eq_ls'.
             destruct (One.update v ls a) eqn:Eq_update.
-            + apply IHis with (ls := s) (v := v); try assumption.
+            + apply IHns with (ls := s) (v := v); try assumption.
               apply One.prop_preservation with (ls := ls) (i := a) (v := v); try assumption.
             + rewrite FoldResult.zero_failure0 in Eq_ls'. discriminate.
         Qed.
