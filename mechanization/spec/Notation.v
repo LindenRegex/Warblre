@@ -28,7 +28,7 @@ Module Notation.
   Notation capture_range := CaptureRange.make.
 
   #[refine] #[export]
-  Instance eqdec_captureRange: EqDec CaptureRange := {}. decide equality; apply EqDec.eq_dec. Defined.
+  Instance eqdec_captureRange: EqDec CaptureRange := {}. Proof. decide equality; apply EqDec.eq_dec. Defined.
 
   (** >>
       A MatchState is an ordered triple (input, endIndex, captures) where input is a List of characters representing
@@ -55,7 +55,7 @@ Module Notation.
 
   #[export] #[refine]
   Instance eqdec_matchState {C} `{m: CharacterMarker C} `{EqDec C}: EqDec MatchState := {}.
-    decide equality; try apply EqDec.eq_dec. Defined.
+    Proof. decide equality; try apply EqDec.eq_dec. Defined.
 
   (** >>
       A MatchResult is either a MatchState or the special token failure that indicates that the match failed.

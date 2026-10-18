@@ -103,6 +103,6 @@ Module Result.
 End Result.
 
 From Warblre Require Import Typeclasses.
-#[refine] Instance eqdec_result {T F: Type} `{EqDec T} `{EqDec F}: EqDec (Result T F) := {}. decide equality; apply EqDec.eq_dec. Defined.
+#[refine] Instance eqdec_result {T F: Type} `{EqDec T} `{EqDec F}: EqDec (Result T F) := {}. Proof. decide equality; apply EqDec.eq_dec. Defined.
 
 

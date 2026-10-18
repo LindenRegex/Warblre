@@ -36,7 +36,7 @@ End HexDigit.
 Notation HexDigit := HexDigit.type.
 Notation Hex4Digits := HexDigit.Hex4Digits.
 #[refine] #[export]
-Instance eqdec_HexDigit: EqDec HexDigit := {}. decide equality. Defined.
+Instance eqdec_HexDigit: EqDec HexDigit := {}. Proof. decide equality. Defined.
 
 Module AsciiLetter.
   Inductive type: Type :=
@@ -54,7 +54,7 @@ Module AsciiLetter.
 End AsciiLetter.
 Notation AsciiLetter := AsciiLetter.type.
 #[refine] #[export]
-Instance eqdec_AsciiLetter: EqDec AsciiLetter := {}. decide equality. Defined.
+Instance eqdec_AsciiLetter: EqDec AsciiLetter := {}. Proof. decide equality. Defined.
 
 Module Unicode.
   Definition utf16SurrogatePair (lead trail: non_neg_integer): non_neg_integer :=
