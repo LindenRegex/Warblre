@@ -187,8 +187,8 @@ Module Semantics. Section main.
     (** 5. Let unicode be rer.[[Unicode]]. *)
     let unicode := RegExpRecord.unicode rer in
     
-    (** [OMITTED] 6. Let unicodeSets be rer.[[UnicodeSets]]. *)
-    (** + Ignored *)
+    (** [TODO] 6. Let unicodeSets be rer.[[UnicodeSets]]. *)
+    (** + Requires `v` flag *)
     (** 7. Let capturingGroupsCount be rer.[[CapturingGroupsCount]]. *)
     let capturingGroupsCount := RegExpRecord.capturingGroupsCount rer in
 
