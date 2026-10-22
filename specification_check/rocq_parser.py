@@ -116,7 +116,7 @@ class ROCQParser(Parser):
         return (comment.replace("\n", "")
             .replace("(*>>", "").replace("<<*)", "").replace("(** >>", "")
             .replace("(*##", "").replace("##*)", "").replace("(** ##", "")
-            .replace("[OMITTED]","").lstrip().rstrip())
+            .replace("[TODO]", "").replace("[OMITTED]","").lstrip().rstrip())
 
     # Completely arbitrary in our case
     @staticmethod
