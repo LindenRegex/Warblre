@@ -221,7 +221,7 @@ Section StaticSemantics.
     | Disjunction r1 r2 => (countLeftCapturingParensWithin_impl r1) + (countLeftCapturingParensWithin_impl r2)
     | Quantified r0 _ => countLeftCapturingParensWithin_impl r0
     | Seq r1 r2 => (countLeftCapturingParensWithin_impl r1) + (countLeftCapturingParensWithin_impl r2)
-    | Modifiers _ _ r0 => 1 + (countLeftCapturingParensWithin_impl r0)
+    | Modifiers _ _ r0 => (countLeftCapturingParensWithin_impl r0)
     | Group _ r0 => 1 + (countLeftCapturingParensWithin_impl r0)
     | InputStart => 0
     | InputEnd => 0
@@ -252,7 +252,7 @@ Section StaticSemantics.
       | Quantified_inner _ => 0
       | Seq_left _ => 0
       | Seq_right l => countLeftCapturingParensWithin_impl l
-      | Modifiers_inner _ _ => 1
+      | Modifiers_inner _ _ => 0
       | Group_inner _ => 1
       | Lookahead_inner => 0
       | NegativeLookahead_inner => 0
