@@ -68,11 +68,11 @@ Section Zipper.
 
   Section EqDec.
     #[export] #[refine] Instance eqdec_RegexContextLayer: EqDec RegexContextLayer := {}.
-      decide equality; try apply EqDec.eq_dec. Defined.
+      Proof. decide equality; try apply EqDec.eq_dec. Defined.
     #[export] #[refine] Instance eqdec_RegexContext: EqDec RegexContext := {}.
-      decide equality; apply EqDec.eq_dec. Defined.
+      Proof. decide equality; apply EqDec.eq_dec. Defined.
     #[export] #[refine] Instance eqdec_RegexNode: EqDec RegexNode := {}.
-      decide equality; apply EqDec.eq_dec. Defined.
+      Proof. decide equality; apply EqDec.eq_dec. Defined.
   End EqDec.
 End Zipper.
 Notation RegexContext := (list RegexContextLayer).

@@ -9,7 +9,7 @@ Module SyntaxError.
 End SyntaxError.
 Notation SyntaxError := SyntaxError.type.
 #[refine] #[export]
-Instance eqdec_syntaxError: EqDec SyntaxError := {}. decide equality. Defined.
+Instance eqdec_syntaxError: EqDec SyntaxError := {}. Proof. decide equality. Defined.
 #[export]
 Instance syntax_assertion_error: Result.AssertionError SyntaxError := { f := SyntaxError.AssertionFailed }.
 
@@ -20,7 +20,7 @@ Module CompileError.
 End CompileError.
 Notation CompileError := CompileError.type.
 #[refine] #[export]
-Instance eqdec_compileError: EqDec CompileError := {}. decide equality. Defined.
+Instance eqdec_compileError: EqDec CompileError := {}. Proof. decide equality. Defined.
 #[export]
 Instance compile_assertion_error: Result.AssertionError CompileError := { f := CompileError.AssertionFailed }.
 
@@ -31,7 +31,7 @@ Module MatchError.
 End MatchError.
 Notation MatchError := MatchError.type.
 #[refine] #[export]
-Instance eqdec_matchError: EqDec MatchError := {}. decide equality. Defined.
+Instance eqdec_matchError: EqDec MatchError := {}. Proof. decide equality. Defined.
 #[export]
 Instance match_assertion_error: Result.AssertionError MatchError := { f := MatchError.AssertionFailed }.
 
