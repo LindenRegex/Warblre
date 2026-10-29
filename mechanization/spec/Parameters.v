@@ -40,6 +40,7 @@ Module Character.
   }.
 
   Lemma numeric_inj `{class}: forall c c', numeric_value c = numeric_value c' -> c = c'.
+  Proof.
     intros c c' ?%(f_equal from_numeric_value).
     rewrite !numeric_pseudo_bij in *.
     assumption.

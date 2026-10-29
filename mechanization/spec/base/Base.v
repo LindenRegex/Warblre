@@ -47,4 +47,4 @@ Instance int_indexer: Indexer Z := {
 Inductive Direction :=
 | forward
 | backward.
-#[refine] Instance eqdec_Direction: EqDec Direction := {}. decide equality. Defined.
+#[refine] Instance eqdec_Direction: EqDec Direction := {}. Proof. decide equality. Defined.

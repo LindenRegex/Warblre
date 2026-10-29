@@ -186,8 +186,8 @@ Module Zipper.
       intros r0 ctx0 r1 ctx1 D. dependent induction D.
       - apply down_yield_sublist0. assumption.
       - apply List.Sublist.refl.
-      - destruct y as [ri ctxi]. specialize IHD1 with (X := X) (1 := eq_refl) (2 := eq_refl). specialize IHD2 with (X := X) (1 := eq_refl) (2 := eq_refl).
-        apply List.Sublist.trans with (l1 := (walk ri ctxi)); assumption.
+      - destruct y as [ri ctxi]. specialize IHD1 with (1 := eq_refl) (2 := eq_refl). specialize IHD2 with (1 := eq_refl) (2 := eq_refl).
+        apply List.Sublist.trans with (l1 := (walk ri ctxi)); [apply IHD1|apply IHD2].
     Qed.
 
     (* All elements of the list are sub-nodes of the provided node *)

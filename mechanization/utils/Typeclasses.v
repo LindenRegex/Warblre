@@ -34,7 +34,7 @@ Infix "!=?" := EqDec.neqb (at level 70, no associativity): wt_scope.
 
 Instance eqdec_bool: EqDec bool := { eq_dec := Bool.bool_dec }.
 Instance eqdec_nat: EqDec nat := { eq_dec := Nat.eq_dec }.
-#[refine] Instance eqdec_positive: EqDec positive := {}. decide equality. Defined.
-#[refine] Instance eqdec_Z: EqDec Z := {}. decide equality; apply EqDec.eq_dec. Defined.
-#[refine] Instance eqdec_option {T: Type} `{EqDec T}: EqDec (option T) := {}. decide equality; apply EqDec.eq_dec. Defined.
-#[refine] Instance eqdec_list {T: Type} `{EqDec T}: EqDec (list T) := {}. decide equality; apply EqDec.eq_dec. Defined.
+#[refine] Instance eqdec_positive: EqDec positive := {}. Proof. decide equality. Defined.
+#[refine] Instance eqdec_Z: EqDec Z := {}. Proof. decide equality; apply EqDec.eq_dec. Defined.
+#[refine] Instance eqdec_option {T: Type} `{EqDec T}: EqDec (option T) := {}. Proof. decide equality; apply EqDec.eq_dec. Defined.
+#[refine] Instance eqdec_list {T: Type} `{EqDec T}: EqDec (list T) := {}. Proof. decide equality; apply EqDec.eq_dec. Defined.
