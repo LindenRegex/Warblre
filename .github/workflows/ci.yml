@@ -5,8 +5,8 @@ on:
     branches:
       - main
   pull_request:
-    branches:
-      - '**'
+    branches-ignore:
+      - next
 
 jobs:
   check:
