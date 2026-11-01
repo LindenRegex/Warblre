@@ -186,21 +186,11 @@ Module NaiveEngineParameters <: API.EngineParameters.
       - apply ListSet.set_mem_correct2 with (Aeq_dec := Character.equal). auto.
     Qed.
 
-    Lemma range_seq: forall base l, List.List.Range.Nat.Length.range base l = Stdlib.Lists.List.seq base l.
-    Proof.
-      intros base l.
-      revert base.
-      induction l as [|l IHl].
-      - simpl. reflexivity.
-      - intro base. simpl. f_equal. replace (base + 1)%nat with (S base) by lia.
-        apply IHl.
-    Qed.
-
     (* TODO copied from Linden; should be somewhere else*)
     Theorem range_spec: forall c l h, In c (range l h) <-> Character.numeric_value l <= Character.numeric_value c /\ Character.numeric_value c <= Character.numeric_value h.
     Proof.
       intros c l h. unfold range, List.Range.Nat.Bounds.range.
-      rewrite range_seq, List.in_seq. unfold Character.numeric_value. lia.
+      rewrite List.Range.Nat.Length.range_seq, List.in_seq. unfold Character.numeric_value. lia.
     Qed.
 
     Lemma Equal_singleton_nodup:
