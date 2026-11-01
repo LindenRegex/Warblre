@@ -321,6 +321,12 @@ Module BoundedEngineParameters (A: Alphabet) <: API.EngineParameters.
     Definition ascii_word_characters: list character :=
       List.map Character.from_numeric_value A.ascii_word_characters.
 
+    Theorem all_complete: forall c, List.In c all.
+    Proof.
+      intro c. rewrite <- (Character.numeric_pseudo_bij c). unfold Character.from_numeric_value.
+      replace (N.of_nat _) with (Z.to_N (Z.of_nat (Character.numeric_value c))) by lia.
+      apply (List.in_map (fun z => clamp (Z.to_N z))), List.Range.Int.Length.in_range. pose proof (Character.numeric_bound c). lia.
+    Qed.
   End CharSets.
 
   Definition property: Type := list character.

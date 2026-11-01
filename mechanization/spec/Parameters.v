@@ -33,6 +33,7 @@ Module Character.
 
     numeric_pseudo_bij: forall c, from_numeric_value (numeric_value c) = c;
     numeric_round_trip_order: forall l r, l <= r -> (numeric_value (from_numeric_value l)) <= (numeric_value (from_numeric_value r));
+    all_complete: forall c, In c all;
 
     (* From 22.2.2.7.3 Canonicalize ( rer, ch ): *)
     (* 2. If rer.[[IgnoreCase]] is false, return ch. *)
