@@ -404,6 +404,13 @@ Module BoundedEngineParameters (Σ: BoundedAlphabet) <: API.EngineParameters.
     Definition ascii_word_characters: list character :=
       List.map Character.from_numeric_value Σ.ascii_word_characters.
 
+    Theorem all_complete: forall c, List.In c all.
+    Proof.
+      intro c. unfold all, List.Range.Nat.Bounds.range.
+      pose proof (Character.numeric_bound c).
+      rewrite List.Range.Nat.Length.range_seq, Character.in_map_from_numeric_value, List.in_seq; [lia|].
+      intros n IN%List.in_seq. lia.
+    Qed.
   End CharSets.
 
   Definition property: Type := list character.

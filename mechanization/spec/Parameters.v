@@ -31,6 +31,7 @@ Module Character.
     white_spaces: list type;
     ascii_word_characters: list type;
 
+    all_complete: forall c, In c all;
     numeric_pseudo_bij: forall c, from_numeric_value (numeric_value c) = c;
     numeric_round_trip_order: forall l r, l <= r -> (numeric_value (from_numeric_value l)) <= (numeric_value (from_numeric_value r));
 
