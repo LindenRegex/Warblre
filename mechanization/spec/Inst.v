@@ -1,6 +1,6 @@
 From Warblre Require Import API.
 From Warblre Require Import Frontend.
-From Stdlib Require Import Lia.
+From Stdlib Require Import Lia NArith ZArith Eqdep_dec.
 
 (* This is one instantiation of the alphabet that can be executed within Rocq. *)
 (* This encodes the ASCII alphabet *)
@@ -13,67 +13,80 @@ From Stdlib Require Import Lia.
    - Linden: instantiate and test
  *)
 
-Module NaiveEngineParameters <: API.EngineParameters.
+Module Type Alphabet.
+  Import RegExpRecord.
+
+  Parameter max: N.
+  Parameter canonicalize: RegExpRecord -> nat -> nat.
+  Axiom canonicalize_casesenst: forall rer n, RegExpRecord.ignoreCase rer = false -> canonicalize rer n = n.
+
+  Parameter line_terminators: list nat.
+  Parameter digits: list nat.
+  Parameter white_spaces: list nat.
+  Parameter ascii_word_characters: list nat.
+End Alphabet.
+
+Module BoundedEngineParameters (A: Alphabet) <: API.EngineParameters.
   Import RegExpRecord Numeric List PeanoNat Result.
   Import List.ListNotations.
   Open Scope list_scope.
 
-  Definition character : Type := nat.
+  Record bounded := make { value: N; value_bound: N.leb value A.max = true }.
+
+  Definition character: Type := bounded.
+
+  Lemma clamp_bound: forall n, N.leb (N.min n A.max) A.max = true.
+  Proof. intro n. apply N.leb_le, N.le_min_r. Qed.
+
+  Definition clamp (n: N): character := make (N.min n A.max) (clamp_bound n).
+
+  Lemma value_inj: forall c d, value c = value d -> c = d.
+  Proof. intros [n Hn] [m Hm]; cbn; intros <-. f_equal. apply UIP_dec, Bool.bool_dec. Qed.
 
   Module Character.
-    Definition equal: forall (l r: character), {l=r} + {l<>r} :=
-      Nat.eq_dec.
     Definition from_numeric_value (n: nat): character :=
-      n.
+      clamp (N.of_nat n).
     Definition numeric_value (c: character) : nat :=
-      c.
+      N.to_nat (value c).
 
-    (* ascii-specific canonicalization *)
-    Definition canonicalize (r: RegExpRecord) (ch: character): character :=
-      match (RegExpRecord.ignoreCase r) with
-      | true =>
-          (* following https://unicode.org/Public/UCD/latest/ucd/CaseFolding.txt *)
-          match ch with
-          | 0x0041 => 0x0061
-          | 0x0042 => 0x0062
-          | 0x0043 => 0x0063
-          | 0x0044 => 0x0064
-          | 0x0045 => 0x0065
-          | 0x0046 => 0x0066
-          | 0x0047 => 0x0067
-          | 0x0048 => 0x0068
-          | 0x0049 => 0x0069
-          | 0x004A => 0x006A
-          | 0x004B => 0x006B
-          | 0x004C => 0x006C
-          | 0x004D => 0x006D
-          | 0x004E => 0x006E
-          | 0x004F => 0x006F
-          | 0x0050 => 0x0070
-          | 0x0051 => 0x0071
-          | 0x0052 => 0x0072
-          | 0x0053 => 0x0073
-          | 0x0054 => 0x0074
-          | 0x0055 => 0x0075
-          | 0x0056 => 0x0076
-          | 0x0057 => 0x0077
-          | 0x0058 => 0x0078
-          | 0x0059 => 0x0079
-          | 0x005A => 0x007A
-          | _ => ch
-          end
-      | false => ch
+    Definition equal (c d: character): {c = d} + {c <> d} :=
+      match N.eq_dec (value c) (value d) with
+      | left E => left (value_inj c d E)
+      | right NE => right (fun E => NE (f_equal value E))
       end.
 
+    Lemma numeric_bound: forall c, numeric_value c <= N.to_nat A.max.
+    Proof.
+      intros [n Hn]; unfold numeric_value; cbn. destruct (N.leb_spec n A.max); [lia|discriminate].
+    Qed.
+
+    Lemma numeric_round_trip: forall n, numeric_value (from_numeric_value n) = Nat.min n (N.to_nat A.max).
+    Proof.
+      intro n; unfold numeric_value, from_numeric_value, clamp; cbn. lia.
+    Qed.
+
+    Definition canonicalize (r: RegExpRecord) (ch: character): character :=
+      from_numeric_value (A.canonicalize r (numeric_value ch)).
+
     Theorem numeric_pseudo_bij: forall c, from_numeric_value (numeric_value c) = c.
-    Proof. reflexivity. Qed.
+    Proof.
+      intro c. apply value_inj, N2Nat.inj. change (numeric_value (from_numeric_value (numeric_value c)) = numeric_value c).
+      rewrite numeric_round_trip. pose proof (numeric_bound c). lia.
+    Qed.
 
     Theorem numeric_round_trip_order: forall l r, l <= r -> (numeric_value (from_numeric_value l)) <= (numeric_value (from_numeric_value r)).
-    Proof. easy. Qed.
+    Proof. intros; rewrite !numeric_round_trip; lia. Qed.
 
     Theorem canonicalize_casesenst: forall rer chr, RegExpRecord.ignoreCase rer = false -> canonicalize rer chr = chr.
-    Proof. intros rer chr H. unfold canonicalize. rewrite H. auto. Qed.
+    Proof. intros rer chr H. unfold canonicalize. rewrite A.canonicalize_casesenst by assumption. apply numeric_pseudo_bij. Qed.
 
+    Lemma in_map_from_numeric_value: forall c l, List.forallb (fun n => n <=? N.to_nat A.max) l = true ->
+      List.In c (List.map from_numeric_value l) <-> List.In (numeric_value c) l.
+    Proof.
+      intros c l BOUND. rewrite List.forallb_forall in BOUND. rewrite List.in_map_iff. split.
+      - intros (n & <- & IN). rewrite numeric_round_trip, Nat.min_l by (apply Nat.leb_le, BOUND, IN). exact IN.
+      - eauto using numeric_pseudo_bij.
+    Qed.
   End Character.
 
   Definition string : Type :=
@@ -112,7 +125,8 @@ Module NaiveEngineParameters <: API.EngineParameters.
     Definition elements (cs: char_set): list character := List.nodup Character.equal cs.
     Definition contains (cs: char_set) (c: character) : bool := ListSet.set_mem Character.equal c cs.
     Definition range (first: character) (last: character) : char_set :=
-      List.Range.Nat.Bounds.range first (last + 1).
+      List.map Character.from_numeric_value
+        (List.Range.Nat.Bounds.range (Character.numeric_value first) (Character.numeric_value last + 1)).
     Definition unique (F: Type) (_: Result.AssertionError F) (cs: char_set) : Result character F :=
       match List.nodup Character.equal cs with
       | [x] => Result.Success x (* Assumes deduplicated ListSet *)
@@ -189,8 +203,9 @@ Module NaiveEngineParameters <: API.EngineParameters.
     (* TODO copied from Linden; should be somewhere else*)
     Theorem range_spec: forall c l h, In c (range l h) <-> Character.numeric_value l <= Character.numeric_value c /\ Character.numeric_value c <= Character.numeric_value h.
     Proof.
-      intros c l h. unfold range, List.Range.Nat.Bounds.range.
-      rewrite List.Range.Nat.Length.range_seq, List.in_seq. unfold Character.numeric_value. lia.
+      intros c l h. unfold In, ListSet.set_In, range, List.Range.Nat.Bounds.range.
+      pose proof (Character.numeric_bound h). rewrite List.Range.Nat.Length.range_seq, Character.in_map_from_numeric_value, List.in_seq; [lia|].
+      apply List.forallb_forall. intros n IN%List.in_seq. apply Nat.leb_le. lia.
     Qed.
 
     Lemma Equal_singleton_nodup:
@@ -296,29 +311,16 @@ Module NaiveEngineParameters <: API.EngineParameters.
 
   Module CharSets.
     Definition all: list character :=
-      Eval cbv in List.Range.Nat.Bounds.range 0 0x80.
-    Definition line_terminators: list character := [
-        (* line feed *) 0xA;
-        (* vertical tab *) 0xB;
-        (* form feed *) 0xC;
-        (* carriage return *) 0xD
-      ].
+      List.map (fun z => clamp (Z.to_N z)) (List.Range.Int.Length.range 0 (S (N.to_nat A.max))).
+    Definition line_terminators: list character :=
+      List.map Character.from_numeric_value A.line_terminators.
     Definition digits: list character :=
-      Eval cbv in List.Range.Nat.Bounds.range 0x30 0x3A.
-    Definition white_spaces: list character := [
-        (* line feed *) 0x0A;
-        (* line tabulation *) 0x0B;
-        (* form feed *) 0x0C;
-        (* carriage return *) 0x0D;
-        (* space *) 0x20
-      ].
+      List.map Character.from_numeric_value A.digits.
+    Definition white_spaces: list character :=
+      List.map Character.from_numeric_value A.white_spaces.
     Definition ascii_word_characters: list character :=
-      Eval cbv in (
-          (List.Range.Nat.Bounds.range 65 91) ++ (* uppercase *)
-            (List.Range.Nat.Bounds.range 97 123) ++ (* lowercase *)
-            (List.Range.Nat.Bounds.range 48 58) ++ (* numbers *)
-            [95] (* '_' *)
-        ).
+      List.map Character.from_numeric_value A.ascii_word_characters.
+
   End CharSets.
 
   Definition property: Type := list character.
@@ -330,7 +332,49 @@ Module NaiveEngineParameters <: API.EngineParameters.
     Definition code_points (p: property) : list character :=
       p.
   End Property.
-End NaiveEngineParameters.
+End BoundedEngineParameters.
+
+Module Ascii <: Alphabet.
+  Import RegExpRecord List PeanoNat.
+  Import List.ListNotations.
+
+  Definition max: N := 0x7F.
+
+  (* ascii-specific canonicalization *)
+  (* following https://unicode.org/Public/UCD/latest/ucd/CaseFolding.txt *)
+  Definition canonicalize (r: RegExpRecord) (ch: nat): nat :=
+    if (RegExpRecord.ignoreCase r && (0x41 <=? ch) && (ch <=? 0x5A))%bool then ch + 0x20 else ch.
+
+  Theorem canonicalize_casesenst: forall rer n, RegExpRecord.ignoreCase rer = false -> canonicalize rer n = n.
+  Proof. intros rer n H. unfold canonicalize. rewrite H. auto. Qed.
+
+  Definition line_terminators: list nat := [
+      (* line feed *) 0xA;
+      (* vertical tab *) 0xB;
+      (* form feed *) 0xC;
+      (* carriage return *) 0xD
+    ].
+  Definition digits: list nat :=
+    Eval cbv in List.Range.Nat.Bounds.range 0x30 0x3A.
+  Definition white_spaces: list nat := [
+      (* line feed *) 0x0A;
+      (* line tabulation *) 0x0B;
+      (* form feed *) 0x0C;
+      (* carriage return *) 0x0D;
+      (* space *) 0x20
+    ].
+  Definition ascii_word_characters: list nat :=
+    Eval cbv in (
+        (List.Range.Nat.Bounds.range 65 91) ++ (* uppercase *)
+          (List.Range.Nat.Bounds.range 97 123) ++ (* lowercase *)
+          (List.Range.Nat.Bounds.range 48 58) ++ (* numbers *)
+          [95] (* '_' *)
+      ).
+End Ascii.
+
+Module NaiveEngineParameters := BoundedEngineParameters Ascii.
+
+
 
 Module NaiveEngine := API.Engine (NaiveEngineParameters).
 
@@ -349,10 +393,10 @@ Definition get_success {S F: Type} (r: Result S F) : match r with Success _ => S
   end.
 
 Definition string_of_String (s: Stdlib.Strings.String.string) :=
-  List.map Byte.to_nat (String.list_byte_of_string s).
+  List.map (fun b => NaiveEngineParameters.Character.from_numeric_value (Byte.to_nat b)) (String.list_byte_of_string s).
 
 Definition character_of_Ascii (a: Stdlib.Strings.Ascii.ascii) :=
-  Byte.to_nat (byte_of_ascii a).
+  NaiveEngineParameters.Character.from_numeric_value (Byte.to_nat (byte_of_ascii a)).
 
 Example flags :=
   (RegExpFlags.make false false false false false tt false).
