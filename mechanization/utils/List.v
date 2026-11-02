@@ -669,6 +669,16 @@ Module List.
           - apply indexing in Eq. f_equal. lia.
           - apply Indexing.Nat.failure_bounds in Eq. lia.
         Qed.
+
+        Lemma range_seq: forall base l, range base l = Stdlib.Lists.List.seq base l.
+        Proof.
+          intros base l.
+          revert base.
+          induction l as [|l IHl].
+          - simpl. reflexivity.
+          - intro base. simpl. f_equal. replace (base + 1)%nat with (S base) by lia.
+            apply IHl.
+        Qed.
       End Length.
 
       Module Bounds.
@@ -731,6 +741,9 @@ Module List.
           - apply indexing in Eq. f_equal. lia.
           - apply Indexing.Int.failure_bounds in Eq. lia.
         Qed.
+
+        Lemma in_range: forall l s z, In z (range s l) <-> (s <= z < s + Z.of_nat l)%Z.
+        Proof. induction l; intros; cbn [range In]; [|rewrite IHl]; lia. Qed.
       End Length.
 
       Module Bounds.

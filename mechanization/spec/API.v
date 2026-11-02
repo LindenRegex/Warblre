@@ -91,6 +91,8 @@ Module API.
       Parameter digits: list character.
       Parameter white_spaces: list character.
       Parameter ascii_word_characters: list character.
+
+      Axiom all_complete: forall c, List.In c all.
     End CharSets.
 
     Parameter property: Type.
@@ -125,6 +127,7 @@ Module API.
         P.CharSets.ascii_word_characters
         P.Character.numeric_pseudo_bij
         P.Character.numeric_round_trip_order
+        P.CharSets.all_complete
         P.Character.canonicalize_casesenst)
       in
       Parameters.make
