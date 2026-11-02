@@ -978,6 +978,28 @@ Module Match.
     cbn in *. rewrite -> Eq_z in *. injection x as [=->]. assumption.
   Qed.
 
+  (** Validity: when a match is found, its state is valid w.r.t. the input. *)
+  Theorem validity `{Parameters}: forall r rer input i m z,
+    EarlyErrors.Pass_Regex r nil ->
+    countLeftCapturingParensWithin r nil = RegExpRecord.capturingGroupsCount rer ->
+    compilePattern r rer = Success m ->
+    m input i = Success (Some z) ->
+    MatchState.Valid input rer z.
+  Proof.
+    intros r rer input i m z EE_root Eq_rer Eq_m Eq_z.
+    unfold compilePattern in *.
+    focus <! _ [] _ !> auto destruct in Eq_m. injection Eq_m as <-. ltac2:(retrieve (compileSubPattern r _ _ _ = Success _) as H0).
+    cbn in Eq_z. destruct (i <=? length input) eqn:Bound_i; cbn in Eq_z; [ | discriminate ].
+    spec_reflector Nat.leb_spec0.
+    (* Use the matcher invariant on the (valid) start state *)
+    pose proof (MatcherInvariant.compileSubPattern) as G.
+    specialize G with (1 := Eq_rer) (2 := EE_root) (3 := ltac:(apply Zipper.Root.id)) (4 := H0).
+    specialize (G _ (fun y => y) (initialState_validity input i rer Bound_i)).
+    destruct G as [ Eq | (y & V_y & _ & Eq) ].
+    - rewrite -> Eq in Eq_z. discriminate.
+    - rewrite <- Eq in Eq_z. injection Eq_z as <-. assumption.
+  Qed.
+
   (** Termination: the matching process never runs out of fuel, i.e. out_of_fuel is never returned *)
   Theorem termination `{Parameters}: forall r rer input i m,
     EarlyErrors.Pass_Regex r nil ->
