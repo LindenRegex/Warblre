@@ -438,6 +438,51 @@ Section BuiltinExec.
     in
     iter stringIndex 0.
 
+  (* + runs the repeat loop of step 13, which either terminates or finds a match +*)
+  Fixpoint repeat_matcher_loop (R: RegExpInstance) (S: String) (length: nat) (global sticky: bool)
+    (matcher: list Character -> non_neg_integer -> MatchResult) (input: list Character)
+    (lastIndex: nat) (fuel: nat): Result LoopResult MatchError :=
+    (*>> 13. Repeat, while matchSucceeded is false, <<*)
+    (* + We change the repeat loop to a recursive function with fuel +*)
+    match fuel with
+    | 0 => out_of_fuel
+    | S fuel' =>
+        (*>> a. If lastIndex > length, then <<*)
+        if (lastIndex >? length)%nat then
+          (*>> i. If global is true or sticky is true, then <<*)
+          let R := if (orb global sticky) then
+                     (*>> 1. Perform ? Set(R, "lastIndex", +0𝔽, true). <<*)
+                     RegExpInstance.setLastIndex R 0%Z
+                   else R in
+          (*>> ii. Return null. <<*)
+          Success (Terminates (Null R))
+        else
+        (*>> b. Let inputIndex be the index into input of the character that was obtained from element lastIndex of S. <<*)
+        (* + Nasty piece of english prose... +*)
+        let! inputIndex =<< to_list_index lastIndex S in
+        (*>> c. Let r be matcher(input, inputIndex). <<*)
+        let! r:(option MatchState) =<< matcher input inputIndex in
+        (*>> d. If r is failure, then <<*)
+        if r == failure then
+          (*>> i. If sticky is true, then <<*)
+          if sticky then
+            (*>> 1. Perform ? Set(R, "lastIndex", +0𝔽, true). <<*)
+            let R := RegExpInstance.setLastIndex R 0%Z in
+            (*>> 2. Return null. <<*)
+            Success (Terminates (Null R))
+          else
+          (*>> ii. Set lastIndex to AdvanceStringIndex(S, lastIndex, fullUnicode). <<*)
+          let lastIndex := @String.advanceStringIndex _ Parameters.string_class S lastIndex in
+          repeat_matcher_loop R S length global sticky matcher input lastIndex fuel'
+        (*>> e. Else <<*)
+        else
+          (*>> i. Assert: r is a MatchState. <<*)
+          assert! (r is (Some _));
+          destruct! Some r <- (r:option MatchState) in
+          (*>> ii. Set matchSucceeded to true. <<*)
+          Success (Continues r lastIndex)
+    end.
+
   Definition regExpBuiltinExec (R: RegExpInstance) (S: String): Result.Result ExecResult MatchError :=
     (*>> 1. Let length be the length of S. <<*)
     let length := String.length S in
@@ -463,49 +508,8 @@ Section BuiltinExec.
     (*>> 11. If fullUnicode is true, let input be StringToCodePoints(S). Otherwise, let input be a List whose elements are the code units that are the elements of S. <<*)
     let input := String.to_char_list S in
     (*>> 12. NOTE: Each element of input is considered to be a character. <<*)
-    (*>> 13. Repeat, while matchSucceeded is false, <<*)
-    (* + We change the repeat loop to a recursive function with fuel +*)
-    let fix repeatloop (lastIndex: nat) (fuel: nat): Result LoopResult MatchError :=
-      match fuel with
-      | 0 => out_of_fuel
-      | S fuel' =>
-          (*>> a. If lastIndex > length, then <<*)
-          if (lastIndex >? length)%nat then
-            (*>> i. If global is true or sticky is true, then <<*)
-            let R := if (orb global sticky) then
-                       (*>> 1. Perform ? Set(R, "lastIndex", +0𝔽, true). <<*)
-                       RegExpInstance.setLastIndex R 0%Z
-                     else R in
-            (*>> ii. Return null. <<*)
-            Success (Terminates (Null R))
-          else
-          (*>> b. Let inputIndex be the index into input of the character that was obtained from element lastIndex of S. <<*)
-          (* + Nasty piece of english prose... +*)
-          let! inputIndex =<< to_list_index lastIndex S in
-          (*>> c. Let r be matcher(input, inputIndex). <<*)
-          let! r:(option MatchState) =<< matcher input inputIndex in
-          (*>> d. If r is failure, then <<*)
-          if r == failure then
-            (*>> i. If sticky is true, then <<*)
-            if sticky then
-              (*>> 1. Perform ? Set(R, "lastIndex", +0𝔽, true). <<*)
-              let R := RegExpInstance.setLastIndex R 0%Z in
-              (*>> 2. Return null. <<*)
-              Success (Terminates (Null R))
-            else
-            (*>> ii. Set lastIndex to AdvanceStringIndex(S, lastIndex, fullUnicode). <<*)
-            let lastIndex := @String.advanceStringIndex _ Parameters.string_class S lastIndex in
-            repeatloop lastIndex fuel'
-          (*>> e. Else <<*)
-          else
-            (*>> i. Assert: r is a MatchState. <<*)
-            assert! (r is (Some _));
-            destruct! Some r <- (r:option MatchState) in
-            (*>> ii. Set matchSucceeded to true. <<*)
-            Success (Continues r lastIndex)
-    end in
     (* + we know that there are at most length+1 iterations, we can use that as fuel +*)
-    let! repeatresult =<< repeatloop lastIndex ((List.length input) +2) in
+    let! repeatresult =<< repeat_matcher_loop R S length global sticky matcher input lastIndex ((List.length input) +2) in
     match repeatresult with
     | Terminates execresult => Success (execresult)
     | Continues r lastIndex =>
