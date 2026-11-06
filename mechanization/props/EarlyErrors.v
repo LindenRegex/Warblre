@@ -81,6 +81,9 @@ Section EarlyErrors.
   | Pass_InputEnd: forall ctx, Pass_Regex Patterns.InputEnd ctx
   | Pass_WordBoundary: forall ctx, Pass_Regex Patterns.WordBoundary ctx
   | Pass_NotWordBoundary: forall ctx, Pass_Regex Patterns.NotWordBoundary ctx
+  | Pass_BufferStart: forall ctx, Pass_Regex Patterns.BufferStart ctx
+  | Pass_BufferEnd: forall ctx, Pass_Regex Patterns.BufferEnd ctx
+  | Pass_BufferEndLineAware: forall ctx, Pass_Regex Patterns.BufferEndLineAware ctx
   | Pass_Lookahead: forall r ctx, Pass_Regex r (Lookahead_inner :: ctx) -> Pass_Regex (Patterns.Lookahead r) ctx
   | Pass_NegativeLookahead: forall r ctx, Pass_Regex r (NegativeLookahead_inner :: ctx) -> Pass_Regex (Patterns.NegativeLookahead r) ctx
   | Pass_Lookbehind: forall r ctx, Pass_Regex r (Lookbehind_inner :: ctx) -> Pass_Regex (Patterns.Lookbehind r) ctx
@@ -377,6 +380,9 @@ Section EarlyErrors.
         + cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr1; try assumption.
         + cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr2; try assumption.
       - constructor. cbn in EE_r. focus <! _ [] _ !> auto destruct in EE_r. apply IHr; try assumption.
+      - constructor.
+      - constructor.
+      - constructor.
       - constructor.
       - constructor.
       - constructor.
