@@ -23,7 +23,7 @@ Section StriclyNullable.
 Fixpoint strictly_nullable (r:Regex) : bool :=
   match r with
   | Empty | Lookahead _ | NegativeLookahead _ | Lookbehind _ | NegativeLookbehind _ => true
-  | InputStart | InputEnd | WordBoundary | NotWordBoundary => true
+  | InputStart | InputEnd | BufferStart | BufferEnd | BufferEndLineAware | WordBoundary | NotWordBoundary => true
   | Char _ | Dot | CharacterClass _ | AtomEsc _ => false
   | Disjunction r1 r2 | Seq r1 r2 => andb (strictly_nullable r1) (strictly_nullable r2)
   | Quantified r1 _ | Group _ r1 | Modifiers _ _ r1 => strictly_nullable r1
@@ -521,6 +521,19 @@ Proof.
     apply isWordsuccess in VALID as H. destruct H as [v1 WORD1]. rewrite WORD1.
     apply isWordsuccess_minusone in VALID as H. destruct H as [v2 WORD2]. rewrite WORD2.
     destruct v1; destruct v2; eauto.
+  (* BufferStart *)
+  - inversion COMPILE as [M]. clear COMPILE M.
+    destruct (endIndex x =? 0)%Z; eauto.
+  (* BufferEnd *)
+  - inversion COMPILE as [M]. clear COMPILE M.
+    destruct (endIndex x =? length (input x))%Z; eauto.
+  (* BufferEndLineAware *)
+  - (* TODO: incomplete!!!! *)
+    inversion COMPILE as [M]. clear COMPILE M.
+    destruct (endIndex x =? length (input x))%Z; eauto.
+    destruct (endIndex x =? length (input x) - 1)%Z; eauto.
+    destruct (List.Indexing.Int.indexing (input x) (endIndex x)) eqn:INDEX; eauto.
+    destruct (endIndex x =? length (input x) - 2)%Z; eauto.
   (* Lookahead *)
   - destruct (compileSubPattern r (Lookahead_inner :: ctx) rer forward) eqn:SNM; try solve[inversion COMPILE].
     eapply MatcherInvariant.compileSubPattern in SNM as LOOK_INV; eauto.

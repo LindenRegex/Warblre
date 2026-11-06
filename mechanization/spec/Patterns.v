@@ -224,6 +224,12 @@ Module Patterns.
     | WordBoundary
     (*>> \B <<*)
     | NotWordBoundary
+    (*>> [+UnicodeMode] \A <<*)
+    | BufferStart
+    (*>> [+UnicodeMode] \z <<*)
+    | BufferEnd
+    (*>> [+UnicodeMode] \Z <<*)
+    | BufferEndLineAware
     (*>> (?= Disjunction[?UnicodeMode, ?N] ) <<*)
     | Lookahead (r: Regex)
     (*>> (?! Disjunction[?UnicodeMode, ?N] ) <<*)
