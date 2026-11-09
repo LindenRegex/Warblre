@@ -298,20 +298,24 @@ Module NaiveEngineParameters <: API.EngineParameters.
   Module CharSets.
     Definition all: list character :=
       Eval cbv in List.Range.Nat.Bounds.range 0 0x80.
+    (* From 12.3 Line Terminators: *)
+    (* LineTerminator :: *)
     Definition line_terminators: list character := [
-        (* line feed *) 0xA;
-        (* vertical tab *) 0xB;
-        (* form feed *) 0xC;
-        (* carriage return *) 0xD
+        (* <LF> *) 0x0A;
+        (* <CR> *) 0x0D
+        (* <LS> 0x2028 (* not ascii *) *)
+        (* <PS> 0x2029 (* not ascii *) *)
       ].
     Definition digits: list character :=
       Eval cbv in List.Range.Nat.Bounds.range 0x30 0x3A.
+    (* From 12.2 White Space: *)
+    (* WhiteSpace :: *)
     Definition white_spaces: list character := [
-        (* line feed *) 0x0A;
-        (* line tabulation *) 0x0B;
-        (* form feed *) 0x0C;
-        (* carriage return *) 0x0D;
-        (* space *) 0x20
+        (* <TAB> *) 0x09;
+        (* <VT> *) 0x0B;
+        (* <FF> *) 0x0C;
+        (* <ZWNBSP> 0xFEFF; (* not ascii *) *)
+        (* <USP> *) 0x20
       ].
     Definition ascii_word_characters: list character :=
       Eval cbv in (
