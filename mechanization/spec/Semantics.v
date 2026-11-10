@@ -790,12 +790,12 @@ Module Semantics. Section main.
         if (e =? inputLength)%Z then c x
         else 
         (*>> g. If e = inputLength - 1 and the character input[e] is matched by LineTerminator, then *)
-        if ((e =? inputLength - 1)%Z &&! (let! d =<< input.[e] in CharSet.contains Characters.line_terminators d)) then
+        if! ((e =? inputLength - 1)%Z &&! (let! d =<< input.[e] in CharSet.contains Characters.line_terminators d)) then
           (*>> i. Return continue(matchState). *)
           c x
         else
         (*>> h. If e = inputLength - 2, the character input[e] is <CR>, and the character input[e + 1] is <LF>, then *)
-        if ((e =? inputLength - 2)%Z &&! (
+        if! ((e =? inputLength - 2)%Z &&! (
           let! c0 =<< input.[e] in 
           let! c1 =<< input.[(e + 1)%Z] in
           (c0 == Characters.CARRIAGE_RETURN) &&! (c1 == Characters.LINE_FEED)
