@@ -528,12 +528,29 @@ Proof.
   - inversion COMPILE as [M]. clear COMPILE M.
     destruct (endIndex x =? length (input x))%Z; eauto.
   (* BufferEndLineAware *)
-  - (* TODO: incomplete!!!! *)
-    inversion COMPILE as [M]. clear COMPILE M.
-    destruct (endIndex x =? length (input x))%Z; eauto.
-    destruct (endIndex x =? length (input x) - 1)%Z; eauto.
-    destruct (List.Indexing.Int.indexing (input x) (endIndex x)) eqn:INDEX; eauto.
-    destruct (endIndex x =? length (input x) - 2)%Z; eauto.
+  - inversion COMPILE as [M]. clear COMPILE M.
+    pose proof VALID as [_ [ITER _]]. unfold IteratorOn in ITER.
+    destruct (endIndex x =? length (input x))%Z eqn:END; eauto.
+    destruct (endIndex x =? length (input x) - 1)%Z eqn:END1.
+    {
+      assert (NOFAILURE: (0 <= endIndex x < length (input x))%Z) by lia.
+      destruct (List.Indexing.Int.indexing (input x) (endIndex x)) eqn:INDEX.
+      2: { rewrite <- List.Indexing.Int.success_bounds0 in NOFAILURE. rewrite INDEX in NOFAILURE. destruct NOFAILURE. inversion H. }
+      simpl. destruct (CharSet.contains Characters.line_terminators s) eqn:TERMINATOR.
+      + right. exists x. eauto.
+      + destruct (endIndex x =? length (input x) - 2)%Z eqn:CRLF; try lia.
+        left. auto.
+    }
+    destruct (endIndex x =? length (input x) - 2)%Z eqn:CRLF.
+    2: { left. auto. }
+    simpl. assert (NOFAILURE: (0 <= endIndex x < length (input x))%Z) by lia.
+    assert (NOFAILURE': (0 <= endIndex x + 1 < length (input x))%Z) by lia.
+    destruct (List.Indexing.Int.indexing (input x) (endIndex x)) eqn:INDEX.
+    2: { rewrite <- List.Indexing.Int.success_bounds0 in NOFAILURE. rewrite INDEX in NOFAILURE. destruct NOFAILURE. inversion H. }
+    destruct (List.Indexing.Int.indexing (input x) (endIndex x + 1)) eqn:INDEX'.
+    2: { rewrite <- List.Indexing.Int.success_bounds0 in NOFAILURE'. rewrite INDEX' in NOFAILURE'. destruct NOFAILURE' as [? H]. inversion H. }
+    simpl.
+    repeat match goal with [ |- context[if ?b then _ else _]] => destruct b; simpl end; eauto.
   (* Lookahead *)
   - destruct (compileSubPattern r (Lookahead_inner :: ctx) rer forward) eqn:SNM; try solve[inversion COMPILE].
     eapply MatcherInvariant.compileSubPattern in SNM as LOOK_INV; eauto.
