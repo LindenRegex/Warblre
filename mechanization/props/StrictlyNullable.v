@@ -23,7 +23,7 @@ Section StriclyNullable.
 Fixpoint strictly_nullable (r:Regex) : bool :=
   match r with
   | Empty | Lookahead _ | NegativeLookahead _ | Lookbehind _ | NegativeLookbehind _ => true
-  | InputStart | InputEnd | WordBoundary | NotWordBoundary => true
+  | InputStart | InputEnd | BufferStart | BufferEnd | BufferEndLineAware | WordBoundary | NotWordBoundary => true
   | Char _ | Dot | CharacterClass _ | AtomEsc _ => false
   | Disjunction r1 r2 | Seq r1 r2 => andb (strictly_nullable r1) (strictly_nullable r2)
   | Quantified r1 _ | Group _ r1 | Modifiers _ _ r1 => strictly_nullable r1
@@ -521,6 +521,36 @@ Proof.
     apply isWordsuccess in VALID as H. destruct H as [v1 WORD1]. rewrite WORD1.
     apply isWordsuccess_minusone in VALID as H. destruct H as [v2 WORD2]. rewrite WORD2.
     destruct v1; destruct v2; eauto.
+  (* BufferStart *)
+  - inversion COMPILE as [M]. clear COMPILE M.
+    destruct (endIndex x =? 0)%Z; eauto.
+  (* BufferEnd *)
+  - inversion COMPILE as [M]. clear COMPILE M.
+    destruct (endIndex x =? length (input x))%Z; eauto.
+  (* BufferEndLineAware *)
+  - inversion COMPILE as [M]. clear COMPILE M.
+    pose proof VALID as [_ [ITER _]]. unfold IteratorOn in ITER.
+    destruct (endIndex x =? length (input x))%Z eqn:END; eauto.
+    destruct (endIndex x =? length (input x) - 1)%Z eqn:END1.
+    {
+      assert (NOFAILURE: (0 <= endIndex x < length (input x))%Z) by lia.
+      destruct (List.Indexing.Int.indexing (input x) (endIndex x)) eqn:INDEX.
+      2: { rewrite <- List.Indexing.Int.success_bounds0 in NOFAILURE. rewrite INDEX in NOFAILURE. destruct NOFAILURE. inversion H. }
+      simpl. destruct (CharSet.contains Characters.line_terminators s) eqn:TERMINATOR.
+      + right. exists x. eauto.
+      + destruct (endIndex x =? length (input x) - 2)%Z eqn:CRLF; try lia.
+        left. auto.
+    }
+    destruct (endIndex x =? length (input x) - 2)%Z eqn:CRLF.
+    2: { left. auto. }
+    simpl. assert (NOFAILURE: (0 <= endIndex x < length (input x))%Z) by lia.
+    assert (NOFAILURE': (0 <= endIndex x + 1 < length (input x))%Z) by lia.
+    destruct (List.Indexing.Int.indexing (input x) (endIndex x)) eqn:INDEX.
+    2: { rewrite <- List.Indexing.Int.success_bounds0 in NOFAILURE. rewrite INDEX in NOFAILURE. destruct NOFAILURE. inversion H. }
+    destruct (List.Indexing.Int.indexing (input x) (endIndex x + 1)) eqn:INDEX'.
+    2: { rewrite <- List.Indexing.Int.success_bounds0 in NOFAILURE'. rewrite INDEX' in NOFAILURE'. destruct NOFAILURE' as [? H]. inversion H. }
+    simpl.
+    repeat match goal with [ |- context[if ?b then _ else _]] => destruct b; simpl end; eauto.
   (* Lookahead *)
   - destruct (compileSubPattern r (Lookahead_inner :: ctx) rer forward) eqn:SNM; try solve[inversion COMPILE].
     eapply MatcherInvariant.compileSubPattern in SNM as LOOK_INV; eauto.

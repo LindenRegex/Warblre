@@ -151,6 +151,9 @@ Module Zipper.
       | InputEnd => nil
       | WordBoundary => nil
       | NotWordBoundary => nil
+      | BufferStart => nil
+      | BufferEnd => nil
+      | BufferEndLineAware => nil
       | Lookahead r0 => walk r0 (Lookahead_inner :: ctx)
       | NegativeLookahead r0 => walk r0 (NegativeLookahead_inner :: ctx)
       | Lookbehind r0 => walk r0 (Lookbehind_inner :: ctx)
@@ -209,6 +212,9 @@ Module Zipper.
         + symmetry in Eq_indexed. specialize (IHr1 _ _ _ Eq_indexed). apply Relation_Operators.rt_trans with (1 := IHr1). apply Relation_Operators.rt_step. constructor.
         + symmetry in Eq_indexed. specialize (IHr2 _ _ _ Eq_indexed). apply Relation_Operators.rt_trans with (1 := IHr2). apply Relation_Operators.rt_step. constructor.
       - specialize (IHr _ _ _ Eq_indexed). apply Relation_Operators.rt_trans with (1 := IHr). apply Relation_Operators.rt_step. constructor.
+      - rewrite -> List.Indexing.Nat.nil in Eq_indexed. Result.assertion_failed_helper.
+      - rewrite -> List.Indexing.Nat.nil in Eq_indexed. Result.assertion_failed_helper.
+      - rewrite -> List.Indexing.Nat.nil in Eq_indexed. Result.assertion_failed_helper.
       - rewrite -> List.Indexing.Nat.nil in Eq_indexed. Result.assertion_failed_helper.
       - rewrite -> List.Indexing.Nat.nil in Eq_indexed. Result.assertion_failed_helper.
       - rewrite -> List.Indexing.Nat.nil in Eq_indexed. Result.assertion_failed_helper.
@@ -334,6 +340,12 @@ Section Induction.
         (Root root (WordBoundary, ctx) -> P (WordBoundary, ctx))) ->
       (forall ctx,
         (Root root (NotWordBoundary, ctx) -> P (NotWordBoundary, ctx))) ->
+      (forall ctx,
+        (Root root (BufferStart, ctx) -> P (BufferStart, ctx))) ->
+      (forall ctx,
+        (Root root (BufferEnd, ctx) -> P (BufferEnd, ctx))) ->
+      (forall ctx,
+        (Root root (BufferEndLineAware, ctx) -> P (BufferEndLineAware, ctx))) ->
       (forall ctx r,
         Root root (r, Lookahead_inner :: ctx) -> P (r, Lookahead_inner :: ctx) ->
         Root root (Lookahead r, ctx) -> P (Lookahead r, ctx)) ->

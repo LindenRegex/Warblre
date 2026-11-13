@@ -742,6 +742,70 @@ Module Semantics. Section main.
           (*>> g. Return failure. <<*)
           failure): Matcher
 
+    (** >> Assertion :: \A <<*)
+    | BufferStart =>
+      (*>> 1. Return a new Matcher with parameters (x, c) that captures nothing and performs the following steps when called: *)
+      (fun (x: MatchState) (c: MatcherContinuation) =>
+        (*>> a. Assert: x is a MatchState. *)
+        (*>> b. Assert: c is a MatcherContinuation. *)
+        (*>> c. Let e be matchState.[[EndIndex]]. *)
+        let e := MatchState.endIndex x in
+        (*>> d. If e = 0, return continue(matchState). *)
+        if (e =? 0)%Z then c x
+        else
+        (*>> e. Return failure. *)
+        failure): Matcher
+
+    (** >> Assertion :: \z <<*)
+    | BufferEnd =>
+      (*>> 1. Return a new Matcher with parameters (x, c) that captures nothing and performs the following steps when called: *)
+      (fun (x: MatchState) (c: MatcherContinuation) =>
+        (*>> a. Assert: x is a MatchState. *)
+        (*>> b. Assert: c is a MatcherContinuation. *)
+        (*>> c. Let input be matchState.[[Input]]. *)
+        let input := MatchState.input x in
+        (*>> d. Let e be matchState.[[EndIndex]]. *)
+        let e := MatchState.endIndex x in
+        (*>> e. Let inputLength be the number of elements in input. *)
+        let inputLength := List.length input in
+        (*>> f. If e = inputLength, return continue(matchState). *)
+        if (e =? inputLength)%Z then c x
+        else
+        (*>> g. Return failure.*)
+        failure): Matcher
+
+    (** >> Assertion :: \Z <<*)
+    | BufferEndLineAware =>
+      (*>> 1. Return a new Matcher with parameters (matchState, continue) that captures nothing and performs the following steps when called: *)
+      (fun (x: MatchState) (c: MatcherContinuation) =>
+        (*>> a. Assert: matchState is a MatchState. *)
+        (*>> b. Assert: continue is a MatcherContinuation. *)
+        (*>> c. Let input be matchState.[[Input]]. *)
+        let input := MatchState.input x in
+        (*>> d. Let e be matchState.[[EndIndex]]. *)
+        let e := MatchState.endIndex x in
+        (*>> e. Let inputLength be the number of elements in input. *)
+        let inputLength := List.length input in
+        (*>> f. If e = inputLength, return continue(matchState). *)
+        if (e =? inputLength)%Z then c x
+        else 
+        (*>> g. If e = inputLength - 1 and the character input[e] is matched by LineTerminator, then *)
+        if! ((e =? inputLength - 1)%Z &&! (let! d =<< input.[e] in CharSet.contains Characters.line_terminators d)) then
+          (*>> i. Return continue(matchState). *)
+          c x
+        else
+        (*>> h. If e = inputLength - 2, the character input[e] is <CR>, and the character input[e + 1] is <LF>, then *)
+        if! ((e =? inputLength - 2)%Z &&! (
+          let! c0 =<< input.[e] in 
+          let! c1 =<< input.[(e + 1)%Z] in
+          (c0 == Characters.CARRIAGE_RETURN) &&! (c1 == Characters.LINE_FEED)
+        )) then
+          (*>> i. Return continue(matchState). *)
+          c x
+        else 
+        (*>> i. Return failure. *)
+        failure): Matcher
+
     (** >> Assertion :: \b <<*)
     | WordBoundary =>
         (*>> 1. Return a new Matcher with parameters (x, c) that captures rer and performs the following steps when called: <<*)

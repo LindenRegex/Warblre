@@ -227,6 +227,9 @@ Section StaticSemantics.
     | InputEnd => 0
     | WordBoundary => 0
     | NotWordBoundary => 0
+    | BufferStart => 0
+    | BufferEnd => 0
+    | BufferEndLineAware => 0
     | Lookahead r0 => countLeftCapturingParensWithin_impl r0
     | NegativeLookahead r0 => countLeftCapturingParensWithin_impl r0
     | Lookbehind r0 => countLeftCapturingParensWithin_impl r0
@@ -355,6 +358,9 @@ Section StaticSemantics.
     | InputEnd => false
     | WordBoundary => false
     | NotWordBoundary => false
+    | BufferStart => false
+    | BufferEnd => false
+    | BufferEndLineAware => false
     | Lookahead r => earlyErrors_rec r (Lookahead_inner :: ctx)
     | NegativeLookahead r => earlyErrors_rec r (NegativeLookahead_inner :: ctx)
     | Lookbehind r => earlyErrors_rec r (Lookbehind_inner :: ctx)

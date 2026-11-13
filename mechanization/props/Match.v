@@ -919,6 +919,13 @@ Module Match.
         injection Eq_m as <-. run matcher as Matching; try search; injection Matching as <-; pinpoint_failure; contradiction.
       - (* Non word boundary *)
         injection Eq_m as <-. run matcher as Matching; try search; injection Matching as <-; pinpoint_failure; contradiction.
+      - (* Buffer start *)
+        injection Eq_m as <-. run matcher as Matching; try search; injection Matching as <-; pinpoint_failure; contradiction.
+      - (* Buffer end *)
+        injection Eq_m as <-. run matcher as Matching; try search; injection Matching as <-; pinpoint_failure; contradiction.
+      - (* Buffer end; line aware *)
+        injection Eq_m as <-. run matcher as Matching; try search; injection Matching as ->; pinpoint_failure.
+        all: MatchState.solve_with lia.
       - (* Lookahead *)
         focus <! _ [] _ !> auto destruct in Eq_m. injection Eq_m as <-. apply positiveLookaroundMatcher with (dir' := forward). auto.
       - (* Negative lookahead *)
